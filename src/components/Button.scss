@@ -1,0 +1,62 @@
+@import "common.scss";
+
+
+@mixin button-color($color) {
+    background: $color;
+    &:hover {
+      background: lighten($color, 10%);
+    }
+    &:active {
+      background: darken($color, 10%);
+    }
+  }
+
+.Button {
+  display: block;
+  color: white;
+  font-weight: bold;
+  outline: none;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  
+  height: 2.25rem;
+  font-size: 20px;  
+  
+  align-items: center;
+  text-align: center;
+  
+
+  background: $blue; // 주석 사용
+
+  &.main1 {
+    width: 255px;
+    height: 255px;
+    font-size: 32px;
+  }
+  &.main2 {
+    width: 155px;
+    height: 120px;
+    font-size: 20px;
+  }
+  &.middle {
+    width: 215px;
+    height: 110px;
+    font-size: 20px;
+  }
+  &.small {
+    width: 215px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  &.blue {
+    @include button-color($blue);
+    color: $white;
+  }
+
+  &.gray {
+    @include button-color($gray-background);
+    color: $gray-text;
+  } 
+}
