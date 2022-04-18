@@ -13,7 +13,8 @@ function createWindow() {
     const mainWin = new BrowserWindow({
         width:480,
         height:320,
-        backgroundColor: "#EEF5F9"
+        backgroundColor: "#EEF5F9",
+        titleBarStyle: "hidden"
     });
 
     // const imgWin = new BrowserWindow({
@@ -40,7 +41,7 @@ function createWindow() {
     const imageUrl = isDev
         ? "http://localhost:3000/image" : 
         process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '/../build/index.html'),
+        pathname: path.join(__dirname, '/../build/index.html/image'),
         protocol: 'file:',
         slashes: true
     }); 

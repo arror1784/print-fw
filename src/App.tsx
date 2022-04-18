@@ -7,12 +7,19 @@ import AppRoute from './routes';
 import { BrowserRouter } from 'react-router-dom'
 
 function App() {
+  const style = {
+    display: "flex", 
+    width: "480px",
+    height: "320px"
+  }
   return (
     <div className="App">
       <header className="App-header">
-        <BrowserRouter>
-          <AppRoute></AppRoute>
-        </BrowserRouter>
+        <div style={style}>
+          <BrowserRouter>
+            <AppRoute></AppRoute>
+          </BrowserRouter>
+        </div>
         {/* <img src={logo} className="App-logo" alt="logo" />
         <p>
           <Button color="gray" type="small">asdasdasd</Button>

@@ -1,4 +1,4 @@
-@import "common.scss";
+@import "../common.scss";
 
 
 @mixin button-color($color) {
@@ -12,7 +12,10 @@
   }
 
 .Button {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
   color: white;
   font-weight: bold;
   outline: none;
@@ -24,9 +27,7 @@
   font-size: 20px;  
   
   align-items: center;
-  text-align: center;
   
-
   background: $blue; // 주석 사용
 
   &.main1 {
@@ -49,6 +50,11 @@
     height: 40px;
     font-size: 20px;
   }
+  &.modal {
+    width: 185px;
+    height: 40px;
+    font-size: 20px;
+  }
 
   &.blue {
     @include button-color($blue);
@@ -58,5 +64,9 @@
   &.gray {
     @include button-color($gray-background);
     color: $gray-text;
-  } 
+  }
+  &.none {
+    @include button-color(#00000000);
+    color: #00000000;
+  }
 }

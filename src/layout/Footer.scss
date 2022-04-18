@@ -1,0 +1,15 @@
+footer {
+    display: flex;
+
+    position: fixed;
+    bottom: 0;
+    flex-grow: 0;
+
+    width: 100%;
+    max-width: 480px;
+
+    flex-direction: row;
+    justify-content: space-around;
+    
+    margin-bottom: 10px;
+}

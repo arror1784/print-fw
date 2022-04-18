@@ -1,0 +1,57 @@
+@import '../common.scss';
+
+.main-area{
+    display: flex;
+
+    width: $application_width;
+    height: $application_height;
+
+    flex-direction: column;
+    align-items: center;
+}
+.main-text{
+    color: $header-text;
+    font-size: 27px;
+    font-weight: bold;
+    margin: 5px;
+}
+.parent-area{
+    display: flex;
+    width: 450px;
+    height: 40px;
+    background-color: $white;
+    align-items: center;
+}
+.parent-dir-button{
+    width: 38px;
+    height: 34px;
+
+    background-color: #B6CDDC;
+    border-style: none;
+    border-radius: 8px;
+
+    margin: 5px;
+    padding: 5px;
+}
+.current-dir-name{
+    color: #474747;
+    margin-left: 5px;
+    font-size: 22px;
+}
+.file-list-area{
+    display: flex;
+    width: 450px;
+    padding: 10px;
+    padding-bottom: 5px;
+    flex-grow: 1;
+
+
+}
+.file-list-box{
+    width: 100%;
+    height: 160px;
+    flex-basis: 100%;
+    background-color: $white;
+    overflow: scroll;
+    overflow-x: hidden;
+}
