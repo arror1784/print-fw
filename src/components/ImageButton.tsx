@@ -14,8 +14,8 @@ type ImageButtonProps = {
 
 function ImageButton({src,type,color,onClick,children} : ImageButtonProps){
     return (
-        <Button color={color} type={type}>
-            <img className={classNames('Img',type)} src={src} onClick={onClick}/>
+        <Button color={color} type={type} onClick={onClick}>
+            <img className={classNames('Img',type)} src={src}/>
 
             {children}
         </Button>);

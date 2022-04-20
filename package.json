@@ -1,7 +1,8 @@
 {
-  "main": "public/Main.js",
+  "main": "build/electron/main.js",
   "homepage": "./",
   "build": {
+    "extends": null,
     "productName": "productTest",
     "appId": "kr.co.productTest.www",
     "asar": true,
@@ -38,9 +39,19 @@
       "language": "1042"
     },
     "directories": {
-      "buildResources": "resources/installer/",
+      "buildResources": "assets",
       "output": "build/",
       "app": "."
+    }
+  },
+
+  "//build": {
+    "extends": null,
+    "files": [
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
     }
   },
   "name": "print-fw",
@@ -78,9 +89,16 @@
     "eject": "react-scripts eject",
     "react-start": "BROWSER=none yarn start",
     "react-start-win": "set BROWSER=none && yarn start",
-    "electron-start": "ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron-start": " =http://localhost:3000 electron .",
     "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "electron-pack": "yarn build && electron-builder build -c.extraMetadata.main=build/Main.js",
+    "electron-pack": "yarn build && electron-builder build -c.extraMetadata.main=build/main.js",
+
+
+    "postinstall": "electron-builder install-app-deps",
+    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
+    "electron:build": "yarn build && tsc -p electron && electron-builder build",
+
+
     "build:osx": "build --mac",
     "build:linux": "npm run build:linux32 && npm run build:linux64",
     "build:linux32": "electron-builder build --linux --ia32",

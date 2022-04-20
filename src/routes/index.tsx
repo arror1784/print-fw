@@ -16,7 +16,7 @@ import Update from '../pages/Update';
 const AppRoute = () => {
     return (
         <Routes>
-            <Route path='/' element={<Navigate to='/update'/>}/>
+            <Route path='/' element={<Navigate to='/home'/>}/>
             <Route path='/home' element={<Home/>}/>
             <Route path='/model' element={<Model/>}/>
             <Route path='/material' element={<Material/>}/>

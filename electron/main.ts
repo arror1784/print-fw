@@ -1,10 +1,19 @@
-const {app, BrowserWindow, Menu, ipcMain} = require('electron');
-const path = require('path');
-const url = require('url');
-const isDev = require('electron-is-dev');
+import {app, BrowserWindow, Menu, ipcMain, IpcMain, IpcMainEvent} from 'electron';
+
+
+import * as path from 'path';
+import * as url from 'url';
+import * as isDev from 'electron-is-dev';
+
 // const { 
 //     SEND_MAIN_PING 
 //   } = require('../src/constants.js');
+
+console.log("asdf");
+
+function handleReceive (event:IpcMainEvent) {
+    console.log("receive from renderer")
+}
 
 function createWindow() {
     /*
@@ -14,7 +23,10 @@ function createWindow() {
         width:480,
         height:320,
         backgroundColor: "#EEF5F9",
-        titleBarStyle: "hidden"
+        titleBarStyle: "hidden",
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.js')
+        },
     });
 
     // const imgWin = new BrowserWindow({
@@ -22,7 +34,7 @@ function createWindow() {
     //     height:1080
     // });
     
-    const template = []; 
+    const template : Array<(Electron.MenuItem)> = []; 
     const menu = Menu.buildFromTemplate(template); 
     Menu.setApplicationMenu(menu);
 
@@ -51,12 +63,11 @@ function createWindow() {
     mainWin.loadURL(mainUrl);
     // imgWin.loadURL(imageUrl);
 
-
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
-    
 }
-
-app.on('ready', createWindow);
-
+app.whenReady().then(() => {
+    ipcMain.on('handle-receive', handleReceive)
+    createWindow()
+})
