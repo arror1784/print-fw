@@ -3,13 +3,14 @@ import classNames from 'classnames';
 
 import styled from 'styled-components'
 
-import './Progress.scss';
 import Button from '../components/Button';
 import Footer from '../layout/Footer';
 
 import Modal from '../components/Modal';
 
 import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
+import MainArea from '../layout/MainArea';
+import Header from '../layout/Header';
 
 function Progress(){
 
@@ -17,44 +18,69 @@ function Progress(){
 
     return (
         <div>
-            <div className='circular-progress-bar'>
+            <Header>
+                
+            </Header>
+            <MainArea>
+                <CircularProgressArea>
 
-                <TitleText>
-                    asd
-                </TitleText>
-                <ValueText> 
-                    asd
-                </ValueText>
-                <TitleText>
-                    asd
-                </TitleText>
-                <ValueText>
-                    asd
-                </ValueText>
+                    <TitleText>
+                        File name
+                    </TitleText>
+                    <ValueText> 
+                        asd
+                    </ValueText>
+                    <TitleText>
+                        Remaining time
+                    </TitleText>
+                    <ValueText>
+                        asd
+                    </ValueText>
 
-                <CircleProgress>
-                    <CircularProgressbarWithChildren value={progressValue} maxValue={100} minValue={0} strokeWidth={7} 
-                        styles={buildStyles({
-                            strokeLinecap: "round",
-                            pathColor: `#00C6EA`,
-                        })}>
-                        <ProgressBarText>
-                            Progress
-                        </ProgressBarText>
-                        <ProgressValue>
-                            {`${progressValue}%`}
-                        </ProgressValue>
-                    </CircularProgressbarWithChildren>
-                </CircleProgress>
-            </div>
+                    <CircleProgress>
+                        <CircularProgressbarWithChildren value={progressValue} maxValue={100} minValue={0} strokeWidth={7}
+                            styles={buildStyles({
+                                strokeLinecap: "round",
+                                pathColor: `#00C6EA`,
+                                trailColor: '#DCEAF3',
+                            })}>
+                            <ProgressBarText>
+                                Progress
+                            </ProgressBarText>
+                            <ProgressValue>
+                                {`${progressValue}%`}
+                            </ProgressValue>
+                        </CircularProgressbarWithChildren>
+                    </CircleProgress>
+                </CircularProgressArea>
+            </MainArea>
             <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}> Back </Button>
-                <Button color='none' type='small' onClick={() => {console.log("back btn clicked")}}> </Button> 
+                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}> Print Info </Button>
+                <Button color='blue' type='small' onClick={() => {console.log("back btn clicked")}}> Quit </Button> 
             </Footer>
+            <Modal visible={false}>
+
+            </Modal>
         </div>
     );
 }
+const CircularProgressArea = styled.div`
+    display: grid;
 
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+
+    /* width: 360px; */
+    // height: px;
+
+    margin-top: 25px;
+    column-gap: 30px;
+
+`
 const ProgressBarText = styled.div`
     color: #474747;
     font-size: 20px;
@@ -66,13 +92,17 @@ const ProgressValue = styled.div`
 `
 const TitleText = styled.div`
     color: #474747;
-    font-size: 15px;
+    font-size: 18px;
+    justify-self: start;
+    align-self: end;
         
 `
 const ValueText = styled.div`
     color: #474747;
-    font-size: 27px;
+    font-size: 30px;
     font-weight: bold;
+    justify-self: start;
+    align-self: start;
 `
 const CircleProgress = styled.div`
     grid-column-start: 2;
@@ -82,6 +112,7 @@ const CircleProgress = styled.div`
 	grid-row-end: 5;
 
     align-self: center;
+    justify-self: center;
 
     width: 180px;
     height: 180px;

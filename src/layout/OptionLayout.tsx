@@ -1,7 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
-
-import './OptionLayout.scss';
+import styled from 'styled-components'
 
 interface OptionLayoutProp{
     children: React.ReactNode
@@ -9,10 +7,20 @@ interface OptionLayoutProp{
 
 function OptionLayout({children} : OptionLayoutProp){
     return (
-        <div className='option-contatiner'>
+        <OptionContainer>
             {children}
-        </div>
+        </OptionContainer>
     );
 }
+export const OptionContainer = styled.div`
+    display: grid;
 
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+
+    row-gap: 10px;
+    column-gap: 20px;
+
+    margin: 10px;
+`
 export default OptionLayout;

@@ -41,12 +41,12 @@
     font-size: 20px;
   }
   &.middle {
-    width: 215px;
+    width: 225px;
     height: 110px;
     font-size: 20px;
   }
   &.small {
-    width: 215px;
+    width: 225px;
     height: 40px;
     font-size: 20px;
   }
@@ -68,5 +68,9 @@
   &.none {
     @include button-color(#00000000);
     color: #00000000;
+  }
+
+  &.enable-false {
+    opacity: 70%;
   }
 }

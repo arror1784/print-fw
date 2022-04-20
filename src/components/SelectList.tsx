@@ -1,38 +1,60 @@
 import React from 'react';
-import classNames from 'classnames';
-import Button from '../components/Button';
 
-import arrowDir from'../assets/arrow-dir.png'
 import './SelectList.scss';
-import ImageButton from '../components/ImageButton';
-import Footer from '../layout/Footer';
 
-
+import styled from 'styled-components'
 
 interface SelectListProps {
     children?: React.ReactNode;
+    width: number;
+    height: number; 
 }
 
-function SelectList( {children} : SelectListProps){
+function SelectList( {children,width,height} : SelectListProps){
     return (
-        <div className='main-area'>
-            <div className='main-text'>
-                Select a file to print
-            </div>
-            <div className='parent-area'>
-                <button className='parent-dir-button'>
-                    <img width='20px' src={arrowDir}></img>
-                </button>
-                <div className='current-dir-name'>hello world</div>
-            </div>
-            <div className='file-list-area'>
-                <div className='file-list-box'>
+        <MainListArea width={width} height={height}>
+            <FileListArea width={width} height={height}>
+                <FileListBox width={width} height={height}>
                     {children}
-                </div>
-            </div>
-        </div>
+                </FileListBox>
+            </FileListArea>
+        </MainListArea>
     );
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
+
+SelectList.defaultProps = {
+    width: 450,
+    height: 210,
+}
+
+export const MainListArea = styled.div< { width: number,height:number }>`
+    display: flex;
+
+    width: ${(props) => (props.width)}px;
+    height: ${(props) => (props.height)}px;
+
+    flex-direction: column;
+    align-items: center;
+`
+export const FileListArea = styled.div< { width: number,height:number }>`
+    display: flex;
+    width: ${(props) => (props.width)}px;
+    height: ${(props) => (props.height)}px;
+
+    flex-grow: 1;
+`
+export const FileListBox = styled.div< { width: number,height:number }>`
+    width: ${(props) => (props.width)}px;
+    height: ${(props) => (props.height)}px;
+
+    flex-basis: 100%;
+    background-color: #FFFFFF;
+    
+    border-radius: 8px;
+
+    overflow: scroll;
+    overflow-x: hidden;
+`
 
 export default SelectList;

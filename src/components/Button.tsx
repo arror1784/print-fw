@@ -7,18 +7,19 @@ type ButtonProps = {
   type: string;
   color: string;
   onClick?: () => void;
-
+  enable: boolean;
 }
 
-function Button({children,type,color,onClick} : ButtonProps){
+function Button({children,type,color,enable,onClick} : ButtonProps){
   return (
-    <button className={ classNames('Button',type,color,)} onClick={onClick} >{children}</button>
+    <button className={ classNames('Button',type,color,{ 'enable-false': !enable })} onClick={() => {(onClick && enable) && onClick()}} >{children}</button>
   );
 }
 
 Button.defaultProps = {
     type: '',
-    color: 'blue'
+    color: 'blue',
+    enable: true
   };
 
 export default Button;

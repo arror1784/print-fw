@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import classNames from 'classnames';
 
 import ImageButton from '../components/ImageButton';
 
@@ -8,7 +7,6 @@ import calibrationImg from '../assets/calibration.png';
 import updateImg from '../assets/update.png';
 import lightImg from '../assets/light.png';
 
-import './Setting.scss';
 import Button from '../components/Button';
 import Footer from '../layout/Footer';
 
