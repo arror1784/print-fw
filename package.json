@@ -1,51 +1,9 @@
 {
   "main": "build/electron/main.js",
-  "homepage": "./",
+  "homepage": ".",
+  "description": "print fw hix",
+  "author": "JSH",
   "build": {
-    "extends": null,
-    "productName": "productTest",
-    "appId": "kr.co.productTest.www",
-    "asar": true,
-    "protocols": {
-      "name": "productTest",
-      "schemes": [
-        "productTest"
-      ]
-    },
-    "win": {
-      "target": [
-        "zip",
-        "nsis"
-      ],
-      "icon": "./electron-root/favicon.ico"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm",
-        "zip",
-        "tar.gz"
-      ],
-      "icon": "./electron-root/favicon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": false,
-      "installerLanguages": [
-        "en_US",
-        "ko_KR"
-      ],
-      "language": "1042"
-    },
-    "directories": {
-      "buildResources": "assets",
-      "output": "build/",
-      "app": "."
-    }
-  },
-
-  "//build": {
     "extends": null,
     "files": [
       "build/**/*"
@@ -54,6 +12,7 @@
       "buildResources": "assets"
     }
   },
+
   "name": "print-fw",
   "version": "0.1.0",
   "private": true,
@@ -62,6 +21,7 @@
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
     "@types/classnames": "^2.3.1",
+    "@types/electron-devtools-installer": "^2.2.2",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
     "@types/node-sass": "^4.11.2",
@@ -70,7 +30,10 @@
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.25",
+    "asar": "^3.1.0",
+    "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
+    "electron-reload": "^2.0.0-alpha.1",
     "global": "^4.4.0",
     "node-wifi": "^2.0.16",
     "react": "^17.0.2",
@@ -87,25 +50,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "react-start": "BROWSER=none yarn start",
-    "react-start-win": "set BROWSER=none && yarn start",
-    "electron-start": " =http://localhost:3000 electron .",
-    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "electron-pack": "yarn build && electron-builder build -c.extraMetadata.main=build/main.js",
-
-
+    
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
-    "electron:build": "yarn build && tsc -p electron && electron-builder build",
-
-
-    "build:osx": "build --mac",
-    "build:linux": "npm run build:linux32 && npm run build:linux64",
-    "build:linux32": "electron-builder build --linux --ia32",
-    "build:linux64": "electron-builder build --linux --x64",
-    "build:win": "npm run build:win32 && npm run build:win64",
-    "build:win32": "electron-builder build --win --ia32",
-    "build:win64": "electron-builder build --win --x64"
+    "electron:build": "yarn build && tsc -p electron && electron-builder build"
   },
   "eslintConfig": {
     "extends": [
@@ -126,10 +74,10 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^7.0.0",
+    "concurrently": "^7.1.0",
     "cross-env": "^7.0.3",
-    "electron": "^17.1.2",
-    "electron-builder": "^22.14.13",
+    "electron": "^18.1.0",
+    "electron-builder": "^23.0.3",
     "node-sass": "^7.0.1",
     "sass-loader": "^12.6.0",
     "wait-on": "^6.0.1"

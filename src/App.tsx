@@ -1,10 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
+
 import './App.css';
-import './components/Button'
 import './routes'
 import AppRoute from './routes';
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter,HashRouter } from 'react-router-dom'
 
 function App() {
   const style = {
@@ -16,14 +16,10 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div style={style}>
-          <BrowserRouter>
+          <HashRouter>
             <AppRoute></AppRoute>
-          </BrowserRouter>
+          </HashRouter>
         </div>
-        {/* <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          <Button color="gray" type="small">asdasdasd</Button>
-        </p> */}
       </header>
     </div>
   );

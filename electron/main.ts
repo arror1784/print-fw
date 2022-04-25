@@ -32,6 +32,10 @@ function createWindow() {
     // const imgWin = new BrowserWindow({
     //     width:1920,
     //     height:1080
+    //    titleBarStyle: "hidden",
+    //    webPreferences: {
+    //    preload: path.join(__dirname, 'preload-image.js')
+    //    },
     // });
     
     const template : Array<(Electron.MenuItem)> = []; 
@@ -43,29 +47,45 @@ function createWindow() {
     * 만일 URL을 따로 지정하지 않을경우 (프로덕션빌드) React 앱이
     * 빌드되는 build 폴더의 index.html 파일을 로드합니다.
     * */
+
     const mainUrl = isDev
         ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '/../build/index.html'),
+        pathname: path.join(__dirname, '/../index.html'),
         protocol: 'file:',
         slashes: true
     });
     const imageUrl = isDev
         ? "http://localhost:3000/image" : 
         process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '/../build/index.html/image'),
+        pathname: path.join(__dirname, '/../index.html'),
         protocol: 'file:',
         slashes: true
     }); 
     /*
     * startUrl에 배정되는 url을 맨 위에서 생성한 BrowserWindow에서 실행시킵니다.
     * */
+
     mainWin.loadURL(mainUrl);
     // imgWin.loadURL(imageUrl);
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
+
+    if (!app.isPackaged) {
+        mainWin.webContents.openDevTools();
+
+        require('electron-reload')(__dirname, {
+            electron: path.join(__dirname,
+                '..',
+                '..',
+                'node_modules',
+                '.bin',
+                'electron' + (process.platform === "win32" ? ".cmd" : "")),
+            forceHardReset: true,
+            hardResetMethod: 'exit'});
+    }
 }
 app.whenReady().then(() => {
     ipcMain.on('handle-receive', handleReceive)
