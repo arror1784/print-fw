@@ -1,58 +1,91 @@
-import {PrintSettings,LEDEnable,MoveLength,MovePosition,Wait,actionType, Action} from './IOActions'
+import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action} from './IOActions'
+import { ProductSetting } from './ProductSetting';
+import { PrintSettings } from './Settings';
 import {UartConnection,UartConnectionTest} from './uartConnection'
+
+enum WorkingState{
+    working,
+    stop,
+    pause
+}
 
 class PrintWorker{
 
     actions: Array<Action> = [];
-    private currentStep: number = 0;
-    private isRun: boolean = false;
+
+    private _currentStep: number = 0;
+    private _isRun: boolean = false;
+    private _isMoving: boolean = false;
+    private _workingState: WorkingState = WorkingState.stop;
+    private _progress : number = 0;
+    private _onProgressCallback?: () => void
+    private _printSetting : PrintSettings = {
+        upMoveSetting: {
+            accelSpeed: 0,
+            decelSpeed: 0,
+            maxSpeed: 0,
+            initSpeed: 0,
+        },
+        downMoveSetting: {
+            accelSpeed: 0,
+            decelSpeed: 0,
+            maxSpeed: 0,
+            initSpeed: 0,
+        },
     
-    constructor(public readonly printSetting: PrintSettings, public readonly uartConnection: UartConnectionTest){
+        delay: 0,
+        curingTime: 0,
+        bedCuringTime: 0,
+        ledOffset: 0,
+        layerHeigth: 0,
+        totalLayer: 0,
+        zHopHeight: 0,
+        bedCuringLayer: 0,
+        
+        pixelContraction: 0,
+        
+    };
+
+    get printSetting() : PrintSettings {
+        return this.printSetting;
+    }
+    constructor(public readonly uartConnection: UartConnection | UartConnectionTest){
         uartConnection.checkConnection()
-        this.init()
-
-        this.actions.push(new MovePosition(123))
-
     }
 
     init(){
-        this.uartConnection.sendCommand(`H32 A${this.printSetting.upMoveSetting.accelSpeed} M1`)
-        this.uartConnection.sendCommand(`H32 A${this.printSetting.downMoveSetting.accelSpeed} M2`)
-        this.uartConnection.sendCommand(`H33 A${this.printSetting.upMoveSetting.decelSpeed} M1`)
-        this.uartConnection.sendCommand(`H33 A${this.printSetting.downMoveSetting.decelSpeed} M2`)
-        this.uartConnection.sendCommand(`H30 A${this.printSetting.upMoveSetting.maxSpeed} M1`)
-        this.uartConnection.sendCommand(`H30 A${this.printSetting.downMoveSetting.maxSpeed} M2`)
-        this.uartConnection.sendCommand(`H31 A${this.printSetting.upMoveSetting.initSpeed} M1`)
-        this.uartConnection.sendCommand(`H31 A${this.printSetting.downMoveSetting.initSpeed} M2`)
-
-        this.uartConnection.sendCommand(`H12 A${this.printSetting.ledOffset}`)
-
-
+        this.uartConnection.init(this.printSetting)
+        this._progress = 0.0
     }
+    run(setting : PrintSettings) {
+        this._workingState = WorkingState.working;
 
-    async run() {
-        for (; this.currentStep < this.actions.length && this.isRun; this.currentStep++) {
-            const action = this.actions[this.currentStep]
-            switch (action.type) {
-                case "MoveLength":
-                    (action as MoveLength).length;
-                    break;
-                case "ledEnable":
-                    (action as LEDEnable).enable;
+        this._printSetting = setting;
 
-                    break;
-                case "movePosition":
-                    (action as MovePosition).position;
+        this.init()
 
-                    break;
-                case "wait":
-                    await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
-                    break;
-            
-                default:
-                    break;
-            }
+        this.actions.push(new MovePosition(-(ProductSetting.getInstance().height + ProductSetting.getInstance().heightOffset - this._printSetting.layerHeigth)))
+
+        for (let i = 0; i < this._printSetting.totalLayer; i++) {
+
+            this.actions.push(new LEDEnable(true))
+
+
+            if(i < this._printSetting.bedCuringLayer)
+                this.actions.push(new Wait(this._printSetting.bedCuringTime))
+            else
+                this.actions.push(new Wait(this._printSetting.curingTime))
+
+            this.actions.push(new LEDEnable(false))
+            this.actions.push(new MovePosition(this._printSetting.zHopHeight))
+
+            this.actions.push(new MoveLength(-(this._printSetting.zHopHeight - this._printSetting.layerHeigth)))
+
         }
+        this.actions.push(new MovePosition(-15000))
+
+        this.process()
+
     }
     pause(){
 
@@ -61,7 +94,46 @@ class PrintWorker{
 
     }
 
-    process(){
+    async process(){
+        while(this._currentStep < this.actions.length && this._isRun) {
+            
+            if(!this._isMoving)
+                continue
 
+            this._progress = this._currentStep / this.actions.length
+            this._onProgressCallback && this._onProgressCallback()
+
+            const action = this.actions[this._currentStep]
+            switch (action.type) {
+                case "ledEnable":
+                    (action as LEDEnable).enable;
+
+                    break;
+
+                case "MoveLength":
+                    
+                    this._isMoving = true
+                    this.uartConnection.sendCommandMoveLength((action as MoveLength).length, () => { this._isMoving = false })
+                    break;
+
+                case "movePosition":
+
+                    this._isMoving = true
+                    await this.uartConnection.sendCommandMoveLength((action as MovePosition).position, () => { this._isMoving = false })
+
+                    break;
+
+                case "wait":
+                    await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
+                    break;
+            
+                default:
+                    break;
+            }
+            this._currentStep++
+        }
+    }
+    onProgressCB(cb :() => {}){
+        this._onProgressCallback = cb
     }
 }

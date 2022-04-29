@@ -1,37 +1,55 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../components/Button';
 
 import Footer from '../layout/Footer';
 import Header from '../layout/Header';
-import SelectList from '../components/SelectList';
+import {SelectList, SelectListModel} from '../components/SelectList';
 import ListContainer from '../components/ListContainer';
 import MainArea from '../layout/MainArea';
+import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
 
 function Material(){
+    const navigate = useNavigate()
+
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [resinList, setResinList] = useState<SelectListModel[]>([]);
+    const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
+
+
+    useEffect(() => {
+
+        window.electronAPI.resinList().then((value:string[]) => {
+        
+            var listModel : SelectListModel[] = []
+            value.forEach((value:string,index:number)=>{
+                listModel.push({name:value,id:index})
+            })
+            console.log(listModel)
+            setResinList(listModel)  
+        })    
+      return () => {}
+    },[])
+
     return (<div>
         <Header>
             Select a printing material
         </Header>
         <MainArea>
-            <SelectList>
-                <ListContainer text='파일 하나'/>
-                <ListContainer text='파일 둘'/>
-                <ListContainer text='model'/>
-                <ListContainer text='resin'/>
-                <ListContainer text='asdasd'/>
-                <ListContainer text='resin'/>
-                <ListContainer text='asdasd'/>
-                <ListContainer text='resin'/>
-                <ListContainer text='asdasd'/>
-                <ListContainer text='resin'/>
-                <ListContainer text='asdasd'/>
+            <SelectList selectListModel={resinList} 
+                onContainerSelect={(model:SelectListModel) => {
+                    setSelectResin(model)
+                }} highlightId={selectResin.id} extentions=".zip">
+                
             </SelectList>
         </MainArea>
         <Footer>
-            <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}>Back</Button>
-            <Button color='blue' type='small' onClick={() => {console.log("next btn clicked")}}>Select</Button>
+            <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
+            <Button color='blue' type='small' onClick={() => {setModalVisible(true)}}>Select</Button>
         </Footer>
+        <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {navigate('/progress')}}>
+            {/* {filePath} */}
+        </Modal>
         </div>);
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 export default Material;

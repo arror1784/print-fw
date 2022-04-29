@@ -29,7 +29,7 @@ function Modal({ className, visible, children, backVisible,backString,onBackClic
           </ModalContents>
           <Footer>
             <Button color='gray' type='modal' onClick={() => {onBackClicked && onBackClicked()}}>{backString}</Button>
-            <Button color='blue' type='modal' onClick={() => {onSelectClicked && onSelectClicked()}}>{selectString}</Button>
+            <Button color='blue' type='modal' visible={false} onClick={() => {onSelectClicked && onSelectClicked()}}>{selectString}</Button>
           </Footer>
         </ModalInner>
       </ModalWrapper>

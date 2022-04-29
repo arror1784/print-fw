@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components'
 
 import Button from '../components/Button';
 
 import ImageButton from '../components/ImageButton';
-import SelectList from '../components/SelectList';
+import {SelectList, SelectListModel} from '../components/SelectList';
 
 import Footer from '../layout/Footer';
 import Modal from '../components/Modal';
@@ -13,14 +13,48 @@ import Header from '../layout/Header';
 
 import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
+import { useNavigate } from 'react-router-dom';
+
+import * as fs from 'fs';
+
+interface DirOrFile extends SelectListModel{
+    isDir:boolean;
+    path:string;
+}
+
+const rootPath = "/home/jsh/USBtest";
 
 function Model(){
 
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [filePath, setFilePath] = useState<string>("hello world");
+    const navigate = useNavigate()
 
-    const rootPath = "";
+    const [dirPath, setDirPath] = useState<string>(rootPath);
+    const [fileList, setFileList] = useState<DirOrFile[]>([]);
+    const [selectFile, setSelectFile] = useState<DirOrFile>({name:"",isDir:false,path:"",id:-1});
 
+    useEffect(() => {
+        window.electronAPI.readDir(dirPath).then(
+            (value : DirOrFile[]) => {
+                value = value.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
+                value.sort((a:DirOrFile,b:DirOrFile) : number  => {
+                    if(a.isDir && b.isDir)
+                        return 0
+                    else
+                        return a.isDir ? -1 : 1
+                })
+                const shallowComparison =     
+                    value.length === fileList.length &&
+                    value.every((value, index) => value.name === fileList[index].name) &&
+                    value.every((value, index) => value.isDir === fileList[index].isDir)
+    
+                console.log("hello world",value,fileList,shallowComparison)
+    
+                if(!shallowComparison){
+                    setFileList(value)
+                }
+            })
+    }, [dirPath])
+    
     return (
         <div>
             <Header>
@@ -28,37 +62,40 @@ function Model(){
             </Header>
             <MainArea>
                 <ParentArea>
-                    <ParentDirButton>
+                    <ParentDirButton onClick={() => {
+                        if(dirPath !== rootPath)
+                            setDirPath(dirPath.slice(0,dirPath.lastIndexOf("/")))
+                    }}>
                         <ParentDirImg width='20px' src={arrowDirImg}></ParentDirImg>
                     </ParentDirButton>
-                    <CurrentDirText>hello world</CurrentDirText>
+                    <CurrentDirText>{
+                        dirPath !== rootPath &&
+                            dirPath.split('/').pop()
+                    } </CurrentDirText>
                 </ParentArea>
 
-                <SelectList height={165}>
-
-                    <ListContainer text='파일 하나'/>
-                    <ListContainer text='파일 둘'/>
-                    <ListContainer text='model'/>
-                    <ListContainer text='resin'/>
-                    <ListContainer text='asdasd'/>
-                    <ListContainer text='resin'/>
-                    <ListContainer text='asdasd'/>
-                    <ListContainer text='resin'/>
-                    <ListContainer text='asdasd'/>
-                    <ListContainer text='resin'/>
-                    <ListContainer text='asdasd'/>
+                <SelectList height={165} selectListModel={fileList} 
+                    onContainerSelect={(model:SelectListModel) => {
+                        const value = model as DirOrFile
+                        if(value.isDir){
+                            setDirPath(value.path)
+                            setSelectFile({name:"",isDir:false,path:"",id:-1})
+                        }
+                        else
+                            setSelectFile(value)
+                    }} highlightId={selectFile.id} extentions=".zip">
+                    
                 </SelectList>
             </MainArea>
 
             
             <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}>Back</Button>
-                <Button color='blue' type='small' onClick={() => {console.log("next btn clicked"); setModalVisible(true)}}>Select</Button>
+                <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
+                <Button color='blue' type='small' onClick={() => {
+                    if(selectFile.name != "") navigate('/material')}}>Select</Button>
             </Footer>
 
-            <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}}>
-                {filePath}
-            </Modal>
+
         </div>
 
             

@@ -1,10 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { DirOrFile } from './ipc/filesystem'
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  sendToMain: () => {
-    console.log("sendToMain method")
-    ipcRenderer.send('handle-receive')
-  }
-})
+interface ContextBridgeApi {
+  readDir: (path : string) => Promise<DirOrFile[]>;
+  resinList: () => Promise<string[]>;
+}
 
-console.log("preload.ts")
+const exposedApi: ContextBridgeApi = {
+  readDir: (path: string) => ipcRenderer.invoke('filesystem:readDir',path),
+  resinList: () => ipcRenderer.invoke('resin:resinList')
+}
+contextBridge.exposeInMainWorld('electronAPI', exposedApi)
+
+export type {ContextBridgeApi}

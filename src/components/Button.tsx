@@ -8,18 +8,20 @@ type ButtonProps = {
   color: string;
   onClick?: () => void;
   enable: boolean;
+  visible: boolean;
 }
 
-function Button({children,type,color,enable,onClick} : ButtonProps){
+function Button({children,type,color,enable,onClick,visible} : ButtonProps){
   return (
-    <button className={ classNames('Button',type,color,{ 'enable-false': !enable })} onClick={() => {(onClick && enable) && onClick()}} >{children}</button>
+    <button className={ classNames('Button',type,color,{ 'disable-prop': !enable },{'invisible-prop': !visible})} onClick={() => {(onClick && enable) && onClick()}} >{children}</button>
   );
 }
 
 Button.defaultProps = {
     type: '',
     color: 'blue',
-    enable: true
+    enable: true,
+    visible: true,
   };
 
 export default Button;

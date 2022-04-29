@@ -7,24 +7,6 @@ abstract class Action{
     abstract readonly type: actionType;
 }
 
-interface MoveSettings{
-    accelSpeed: number;
-    decelSpeed: number;
-    maxSpeed: number;
-    initSpeed: number;
-}
-
-interface PrintSettings{
-    delay: number;
-    curingTime: number;
-    bedCuringTime: number;
-    ledOffset: number;
-
-    upMoveSetting: MoveSettings;
-    downMoveSetting: MoveSettings;
-
-}
-
 class MovePosition extends Action{
     type: actionType = "movePosition";
 
@@ -36,7 +18,7 @@ class MovePosition extends Action{
 class MoveLength extends Action{
     type: actionType = "MoveLength";
 
-    constructor(public readonly length:number,public asd:number){
+    constructor(public readonly length:number){
         super()
     }
 }
@@ -57,4 +39,4 @@ class Wait extends Action{
     }
 }
 
-export {MoveLength,MovePosition,LEDEnable,Wait,PrintSettings,actionType,Action};
+export {MoveLength,MovePosition,LEDEnable,Wait,actionType,Action};

@@ -1,19 +1,10 @@
-import {app, BrowserWindow, Menu, ipcMain, IpcMain, IpcMainEvent} from 'electron';
-
+import {app, BrowserWindow, Menu} from 'electron';
 
 import * as path from 'path';
 import * as url from 'url';
 import * as isDev from 'electron-is-dev';
 
-// const { 
-//     SEND_MAIN_PING 
-//   } = require('../src/constants.js');
-
-console.log("asdf");
-
-function handleReceive (event:IpcMainEvent) {
-    console.log("receive from renderer")
-}
+import { ipcHandle } from './ipc/ipc';
 
 function createWindow() {
     /*
@@ -25,7 +16,7 @@ function createWindow() {
         backgroundColor: "#EEF5F9",
         titleBarStyle: "hidden",
         webPreferences: {
-          preload: path.join(__dirname, 'preload.js')
+          preload: path.join(__dirname, 'preload.js'),
         },
     });
 
@@ -87,7 +78,8 @@ function createWindow() {
             hardResetMethod: 'exit'});
     }
 }
+
 app.whenReady().then(() => {
-    ipcMain.on('handle-receive', handleReceive)
+    ipcHandle()
     createWindow()
 })

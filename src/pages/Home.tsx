@@ -1,29 +1,40 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ImageButton from '../components/ImageButton';
 import fileImg from '../assets/file.png';
 import settingImg from '../assets/settings.png';
 import infoImg from '../assets/info.png';
 import styled from 'styled-components'
 
-export interface IElectronAPI {
-    sendToMain: () => void,
-  }
-  
-  declare global {
-    interface Window {
-      electronAPI: IElectronAPI
-    }
-  }
-  
+import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
+
 function Home(){
-    
+
+    const navigate = useNavigate()
+    const [version, setVersion] = useState<string>("")
+    const [serial, setSerial] = useState<string>("")
+    const [wifi, setWifi] = useState<string>("")
+    const [ip, setIp] = useState<string>("")
+
     return (
     <HomeArea>
         <HomeContainer>
-            <ImageButton type="main1" src={fileImg} onClick={() => {window.electronAPI.sendToMain()}}>Select File</ImageButton>
+            <ImageButton type="main1" src={fileImg} onClick={() => {navigate('/model')}}>Select File</ImageButton>
             <ImageButton type="main2" src={settingImg} color="gray">Setting</ImageButton>
             <ImageButton type="main2" src={infoImg} color="gray">Info</ImageButton> 
         </HomeContainer>
+        <Modal selectVisible={false} visible={false}>
+            <InfoArea>
+                <TitleText> Version </TitleText>
+                <ValueText> {version} </ValueText>
+                <TitleText> Serial</TitleText>
+                <ValueText> {serial} </ValueText>
+                <TitleText> WiFi </TitleText>
+                <ValueText> {wifi} </ValueText>
+                <TitleText> IP </TitleText>
+                <ValueText> {ip} </ValueText>
+            </InfoArea>
+        </Modal>
     </HomeArea>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
@@ -58,5 +69,15 @@ export const HomeContainer = styled.div`
 
     }
 `
+export const InfoArea = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+`
+export const TitleText = styled.div`
+    font-size: 23px;
+    color: #474747;
+`
+export const ValueText = styled.div``
 export default Home;
 

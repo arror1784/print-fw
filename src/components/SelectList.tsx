@@ -1,21 +1,35 @@
 import React from 'react';
 
-import './SelectList.scss';
-
+import ListContainer from './ListContainer';
 import styled from 'styled-components'
+
+interface SelectListModel{
+    name: string;
+    id: number;
+}
 
 interface SelectListProps {
     children?: React.ReactNode;
     width: number;
     height: number; 
+    selectListModel: SelectListModel[];
+    highlightId : number | undefined;
+    onContainerSelect: ((model : SelectListModel) => void) | undefined
+    extentions: string;
 }
 
-function SelectList( {children,width,height} : SelectListProps){
+function SelectList( {children,width,height,selectListModel,onContainerSelect,highlightId} : SelectListProps){
+    // console.log(selectListModel)
     return (
         <MainListArea width={width} height={height}>
             <FileListArea width={width} height={height}>
                 <FileListBox width={width} height={height}>
-                    {children}
+                    {
+                    selectListModel.map((list:SelectListModel) => {
+                        return <ListContainer isHighlight={highlightId == list.id}
+                            onClick={() =>{onContainerSelect && onContainerSelect(list)}} containerText= {list.name}/>
+                    })
+                    }
                 </FileListBox>
             </FileListArea>
         </MainListArea>
@@ -26,6 +40,8 @@ function SelectList( {children,width,height} : SelectListProps){
 SelectList.defaultProps = {
     width: 450,
     height: 210,
+    highlightIndex: -1,
+    extentions: "",
 }
 
 export const MainListArea = styled.div< { width: number,height:number }>`
@@ -57,4 +73,5 @@ export const FileListBox = styled.div< { width: number,height:number }>`
     overflow-x: hidden;
 `
 
-export default SelectList;
+export { SelectList };
+export type { SelectListModel };

@@ -11,11 +11,14 @@ import Modal from '../components/Modal';
 import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
+import { useNavigate } from 'react-router-dom';
 
 function Progress(){
 
-    const [progressValue, setProgressValue] = useState(45)
+    const navigate = useNavigate()
 
+    const [progressValue, setProgressValue] = useState(45)
+    
     return (
         <div>
             <Header>
@@ -56,7 +59,7 @@ function Progress(){
             </MainArea>
             <Footer>
                 <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}> Print Info </Button>
-                <Button color='blue' type='small' onClick={() => {console.log("back btn clicked")}}> Quit </Button> 
+                <Button color='blue' type='small' onClick={() => {navigate(-2)}}> Quit </Button> 
             </Footer>
             <Modal visible={false}>
 
