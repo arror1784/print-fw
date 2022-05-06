@@ -5,7 +5,9 @@ import * as url from 'url';
 import * as isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
-import { wifiTest } from './wifiControl';
+
+import {RgbTrans} from "../cpp/rgbTrans"
+import bindings = require('bindings');
 
 function createWindow() {
     /*
@@ -20,6 +22,9 @@ function createWindow() {
     //       preload: path.join(__dirname, 'preload.js'),
     //     },
     // });
+    const addOn = bindings("RGBTRANS")
+
+    console.log(addOn.sayHi())
 
     const imgWin = new BrowserWindow({
         width:1920,
@@ -60,7 +65,7 @@ function createWindow() {
 
     // mainWin.loadURL(mainUrl);
     imgWin.loadURL(imageUrl);
-    
+
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
@@ -69,17 +74,17 @@ function createWindow() {
         // mainWin.webContents.openDevTools();
         imgWin.webContents.openDevTools();
 
-        // require('electron-reload')(__dirname, {
-        //     electron: path.join(__dirname,
-        //         '..',
-        //         '..',
-        //         'node_modules',
-        //         '.bin',
-        //         'electron' + (process.platform === "win32" ? ".cmd" : "")),
-        //     forceHardReset: true,
-        //     hardResetMethod: 'quit',
+        require('electron-reload')(__dirname, {
+            electron: path.join(__dirname,
+                '..',
+                '..',
+                'node_modules',
+                '.bin',
+                'electron' + (process.platform === "win32" ? ".cmd" : "")),
+            forceHardReset: true,
+            hardResetMethod: 'exit',
 
-        // });
+        });
     }
     // wifiTest()
 }
