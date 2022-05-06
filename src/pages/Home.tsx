@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 function Home(){
 
@@ -18,6 +17,10 @@ function Home(){
     const [ip, setIp] = useState<string>("")
     const [modalVisible,setModalVisible] = useState<boolean>(false)
     
+    if(typeof window.imageAPI != "undefined"){
+        navigate('/image');
+    }
+
     return (
     <HomeArea>
         <HomeContainer>

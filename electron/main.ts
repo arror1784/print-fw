@@ -39,7 +39,6 @@ function createWindow() {
     * 만일 URL을 따로 지정하지 않을경우 (프로덕션빌드) React 앱이
     * 빌드되는 build 폴더의 index.html 파일을 로드합니다.
     * */
-    console.log(isDev)
     const mainUrl = isDev
         ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
@@ -48,7 +47,7 @@ function createWindow() {
         slashes: true
     });
     const imageUrl = isDev
-        ? "http://localhost:3000/#/image" : 
+        ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '/../index.html/#/image'),
         protocol: 'file:',
@@ -60,11 +59,8 @@ function createWindow() {
     * */
 
     // mainWin.loadURL(mainUrl);
-    imgWin.loadURL(imageUrl,{});
-    imgWin.
-    imgWin.on("show",()=>{
-        // imgWin.webContents.send('setUrl')
-    })
+    imgWin.loadURL(imageUrl);
+    
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
@@ -73,15 +69,17 @@ function createWindow() {
         // mainWin.webContents.openDevTools();
         imgWin.webContents.openDevTools();
 
-        require('electron-reload')(__dirname, {
-            electron: path.join(__dirname,
-                '..',
-                '..',
-                'node_modules',
-                '.bin',
-                'electron' + (process.platform === "win32" ? ".cmd" : "")),
-            forceHardReset: true,
-            hardResetMethod: 'exit'});
+        // require('electron-reload')(__dirname, {
+        //     electron: path.join(__dirname,
+        //         '..',
+        //         '..',
+        //         'node_modules',
+        //         '.bin',
+        //         'electron' + (process.platform === "win32" ? ".cmd" : "")),
+        //     forceHardReset: true,
+        //     hardResetMethod: 'quit',
+
+        // });
     }
     // wifiTest()
 }

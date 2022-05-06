@@ -1,15 +1,11 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer,IpcRendererEvent } from "electron";
 
 interface ContextBridgeImageApi {
-    isImage: boolean;
-    onChangeImage: (callback:(event:Electron.IpcRendererEvent)=> {}) => Electron.IpcRenderer;
-    onSetUrl: (callback:(event:Electron.IpcRendererEvent)=> {}) => Electron.IpcRenderer;
+    onChangeImage: (callback:(event:IpcRendererEvent,image:string) => void) => Electron.IpcRenderer;
 }
 
 const exposedApi: ContextBridgeImageApi = {
-    isImage: true,
-    onChangeImage: (callback:(event: Electron.IpcRendererEvent) => {}) => ipcRenderer.on('image::changeImage',callback),
-    onSetUrl: (callback: (event: Electron.IpcRendererEvent) => {}) => ipcRenderer.on('image:setUrl',callback)
+    onChangeImage: (callback:(event: IpcRendererEvent,image:string) => void) => {return ipcRenderer.on('image::changeImage',callback)},
 }
 
 contextBridge.exposeInMainWorld('imageAPI', exposedApi)

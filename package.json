@@ -55,7 +55,11 @@
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
-    "electron:build": "yarn build && tsc -p electron && electron-builder build"
+    "electron:build": "yarn build && tsc -p electron && electron-builder build",
+    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron && electron .",
+    "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
+
+    "react-start-win": "set BROWSER=none && yarn start"
   },
   "eslintConfig": {
     "extends": [
