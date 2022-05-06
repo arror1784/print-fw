@@ -7,15 +7,11 @@ import ImageButton from '../components/ImageButton';
 import {SelectList, SelectListModel} from '../components/SelectList';
 
 import Footer from '../layout/Footer';
-import Modal from '../components/Modal';
-import ListContainer from '../components/ListContainer';
 import Header from '../layout/Header';
 
 import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
-
-import * as fs from 'fs';
 
 interface DirOrFile extends SelectListModel{
     isDir:boolean;
@@ -42,16 +38,7 @@ function Model(){
                     else
                         return a.isDir ? -1 : 1
                 })
-                const shallowComparison =     
-                    value.length === fileList.length &&
-                    value.every((value, index) => value.name === fileList[index].name) &&
-                    value.every((value, index) => value.isDir === fileList[index].isDir)
-    
-                console.log("hello world",value,fileList,shallowComparison)
-    
-                if(!shallowComparison){
-                    setFileList(value)
-                }
+                setFileList(value)
             })
     }, [dirPath])
     

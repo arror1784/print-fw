@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 function Home(){
 
@@ -15,15 +16,16 @@ function Home(){
     const [serial, setSerial] = useState<string>("")
     const [wifi, setWifi] = useState<string>("")
     const [ip, setIp] = useState<string>("")
-
+    const [modalVisible,setModalVisible] = useState<boolean>(false)
+    
     return (
     <HomeArea>
         <HomeContainer>
             <ImageButton type="main1" src={fileImg} onClick={() => {navigate('/model')}}>Select File</ImageButton>
-            <ImageButton type="main2" src={settingImg} color="gray">Setting</ImageButton>
-            <ImageButton type="main2" src={infoImg} color="gray">Info</ImageButton> 
+            <ImageButton type="main2" src={settingImg} color="gray" onClick={() => {navigate('/setting')}}>Setting</ImageButton>
+            <ImageButton type="main2" src={infoImg} color="gray" onClick={()=>{setModalVisible(true)}}>Info</ImageButton> 
         </HomeContainer>
-        <Modal selectVisible={false} visible={false}>
+        <Modal selectVisible={false} visible={modalVisible} onBackClicked={()=>{setModalVisible(false)}} >
             <InfoArea>
                 <TitleText> Version </TitleText>
                 <ValueText> {version} </ValueText>
@@ -71,12 +73,16 @@ export const HomeContainer = styled.div`
 `
 export const InfoArea = styled.div`
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr 1fr 1fr;
+    justify-items: right;
+    row-gap: 5px;
+    margin-top: 10px;
 `
 export const TitleText = styled.div`
     font-size: 23px;
     color: #474747;
+    background-color: #00000000;
 `
 export const ValueText = styled.div``
 export default Home;

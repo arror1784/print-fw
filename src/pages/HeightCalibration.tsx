@@ -14,7 +14,7 @@ function HeightCalibration(){
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [filePath, setFilePath] = useState<string>("hello world");
 
-    const rootPath = "";
+    const rootPath =     "";
 
     return (
         <div>
@@ -45,7 +45,6 @@ function HeightCalibration(){
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 export const CalibrationArea = styled.div`
-    
     margin-top: -15px;
 `
 export default HeightCalibration;

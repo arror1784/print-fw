@@ -26,7 +26,7 @@ export const ListContainerStyled = styled.div<{isHighlight:boolean}>`
     background-color: ${(props) => (props.isHighlight ? '#B6CDDC' : '#FFFFFF')};
     text-align: left;
     margin: 4px;
-    margin-left: 10px;
+    margin-left: 4px;
     padding-left: 5px;
     border-radius: 8px;
 `

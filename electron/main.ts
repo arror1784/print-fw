@@ -5,29 +5,30 @@ import * as url from 'url';
 import * as isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
+import { wifiTest } from './wifiControl';
 
 function createWindow() {
     /*
     * 넓이 1920에 높이 1080의 FHD 풀스크린 앱을 실행시킵니다.
     * */
-    const mainWin = new BrowserWindow({
-        width:480,
-        height:320,
-        backgroundColor: "#EEF5F9",
+    // const mainWin = new BrowserWindow({
+    //     width:480,
+    //     height:320,
+    //     backgroundColor: "#EEF5F9",
+    //     titleBarStyle: "hidden",
+    //     webPreferences: {
+    //       preload: path.join(__dirname, 'preload.js'),
+    //     },
+    // });
+
+    const imgWin = new BrowserWindow({
+        width:1920,
+        height:1080,
         titleBarStyle: "hidden",
         webPreferences: {
-          preload: path.join(__dirname, 'preload.js'),
-        },
+        preload: path.join(__dirname, 'preload-image.js')
+       },
     });
-
-    // const imgWin = new BrowserWindow({
-    //     width:1920,
-    //     height:1080
-    //    titleBarStyle: "hidden",
-    //    webPreferences: {
-    //    preload: path.join(__dirname, 'preload-image.js')
-    //    },
-    // });
     
     const template : Array<(Electron.MenuItem)> = []; 
     const menu = Menu.buildFromTemplate(template); 
@@ -38,7 +39,7 @@ function createWindow() {
     * 만일 URL을 따로 지정하지 않을경우 (프로덕션빌드) React 앱이
     * 빌드되는 build 폴더의 index.html 파일을 로드합니다.
     * */
-
+    console.log(isDev)
     const mainUrl = isDev
         ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
@@ -47,25 +48,30 @@ function createWindow() {
         slashes: true
     });
     const imageUrl = isDev
-        ? "http://localhost:3000/image" : 
+        ? "http://localhost:3000/#/image" : 
         process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '/../index.html'),
+        pathname: path.join(__dirname, '/../index.html/#/image'),
         protocol: 'file:',
-        slashes: true
+        slashes: true,
+        
     }); 
     /*
     * startUrl에 배정되는 url을 맨 위에서 생성한 BrowserWindow에서 실행시킵니다.
     * */
 
-    mainWin.loadURL(mainUrl);
-    // imgWin.loadURL(imageUrl);
-
+    // mainWin.loadURL(mainUrl);
+    imgWin.loadURL(imageUrl,{});
+    imgWin.
+    imgWin.on("show",()=>{
+        // imgWin.webContents.send('setUrl')
+    })
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
 
     if (!app.isPackaged) {
-        mainWin.webContents.openDevTools();
+        // mainWin.webContents.openDevTools();
+        imgWin.webContents.openDevTools();
 
         require('electron-reload')(__dirname, {
             electron: path.join(__dirname,
@@ -77,6 +83,7 @@ function createWindow() {
             forceHardReset: true,
             hardResetMethod: 'exit'});
     }
+    // wifiTest()
 }
 
 app.whenReady().then(() => {

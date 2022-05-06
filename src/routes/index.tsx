@@ -35,6 +35,9 @@ const AppRoute = () => {
             <Route path='/update/internet' element={<SliceImage/>}/>
 
             <Route path='/wifi' element={<SliceImage/>}/>
+            
+            <Route path='/image' element={<SliceImage/>}/>
+
         </Routes>
         );
 }

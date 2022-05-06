@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import Button from '../components/Button';
 import Footer from '../layout/Footer';
 
-import Modal from '../components/Modal';
 import Header from '../layout/Header';
 import MainArea from '../layout/MainArea';
 
