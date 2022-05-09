@@ -11,24 +11,24 @@ function createWindow() {
     /*
     * 넓이 1920에 높이 1080의 FHD 풀스크린 앱을 실행시킵니다.
     * */
-    // const mainWin = new BrowserWindow({
-    //     width:480,
-    //     height:320,
-    //     backgroundColor: "#EEF5F9",
-    //     titleBarStyle: "hidden",
-    //     webPreferences: {
-    //       preload: path.join(__dirname, 'preload.js'),
-    //     },
-    // });
-
-    const imgWin = new BrowserWindow({
-        width:1920,
-        height:1080,
+    const mainWin = new BrowserWindow({
+        width:480,
+        height:320,
+        backgroundColor: "#EEF5F9",
         titleBarStyle: "hidden",
         webPreferences: {
-        preload: path.join(__dirname, 'preload-image.js')
-       },
+          preload: path.join(__dirname, 'preload.js'),
+        },
     });
+
+    // const imgWin = new BrowserWindow({
+    //     width:1920,
+    //     height:1080,
+    //     titleBarStyle: "hidden",
+    //     webPreferences: {
+    //     preload: path.join(__dirname, 'preload-image.js')
+    //    },
+    // });
     
     const template : Array<(Electron.MenuItem)> = []; 
     const menu = Menu.buildFromTemplate(template); 
@@ -58,29 +58,30 @@ function createWindow() {
     * startUrl에 배정되는 url을 맨 위에서 생성한 BrowserWindow에서 실행시킵니다.
     * */
 
-    // mainWin.loadURL(mainUrl);
-    imgWin.loadURL(imageUrl);
+    mainWin.loadURL(mainUrl);
+    // imgWin.loadURL(imageUrl);
     
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit()
       });
 
     if (!app.isPackaged) {
-        // mainWin.webContents.openDevTools();
-        imgWin.webContents.openDevTools();
+        mainWin.webContents.openDevTools();
+        // imgWin.webContents.openDevTools();
 
-        // require('electron-reload')(__dirname, {
-        //     electron: path.join(__dirname,
-        //         '..',
-        //         '..',
-        //         'node_modules',
-        //         '.bin',
-        //         'electron' + (process.platform === "win32" ? ".cmd" : "")),
-        //     forceHardReset: true,
-        //     hardResetMethod: 'quit',
+        require('electron-reload')(__dirname, {
+            electron: path.join(__dirname,
+                '..',
+                '..',
+                'node_modules',
+                '.bin',
+                'electron' + (process.platform === "win32" ? ".cmd" : "")),
+            forceHardReset: true,
+            hardResetMethod: 'quit',
 
-        // });
+        });
     }
+
     // wifiTest()
 }
 
