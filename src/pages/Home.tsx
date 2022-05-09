@@ -17,10 +17,6 @@ function Home(){
     const [ip, setIp] = useState<string>("")
     const [modalVisible,setModalVisible] = useState<boolean>(false)
     
-    if(typeof window.imageAPI != "undefined"){
-        navigate('/image');
-    }
-
     return (
     <HomeArea>
         <HomeContainer>
