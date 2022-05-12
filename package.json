@@ -64,7 +64,9 @@
     "react-start-win": "set BROWSER=none && yarn start",
     "addon:init": "node-gyp configure",
     "addon:clean": "node-gyp clean",
-    "addon:build": "node-gyp build"
+    "addon:build": "node-gyp build",
+    "addon:build:dev": "node-gyp build --debug"
+
   },
   "eslintConfig": {
     "extends": [
