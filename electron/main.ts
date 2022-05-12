@@ -6,8 +6,7 @@ import * as isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
 
-import {RgbTrans} from "../cpp/rgbTrans"
-import bindings = require('bindings');
+import { test } from './test';
 
 function createWindow() {
     /*
@@ -22,9 +21,6 @@ function createWindow() {
     //       preload: path.join(__dirname, 'preload.js'),
     //     },
     // });
-    const addOn = bindings("RGBTRANS")
-
-    console.log(addOn.sayHi())
 
     const imgWin = new BrowserWindow({
         width:1920,
@@ -87,6 +83,7 @@ function createWindow() {
         });
     }
     // wifiTest()
+    test()
 }
 
 app.whenReady().then(() => {

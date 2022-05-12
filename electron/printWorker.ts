@@ -1,4 +1,4 @@
-import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action} from './IOActions'
+import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action} from './actions'
 import { ProductSetting } from './ProductSetting';
 import { PrintSettings } from './Settings';
 import {UartConnection,UartConnectionTest} from './uartConnection'

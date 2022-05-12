@@ -1,7 +1,6 @@
-import { inherits } from "util";
 import {UartConnection} from './uartConnection';
 
-type actionType = "movePosition" | "MoveLength" | "ledEnable" | "wait";
+type actionType = "movePosition" | "MoveLength" | "ledEnable" | "wait" | "setImage";
 
 abstract class Action{
     abstract readonly type: actionType;
@@ -39,4 +38,11 @@ class Wait extends Action{
     }
 }
 
+class SetImage extends Action{
+    type: actionType = "setImage";
+
+    constructor(public readonly src : string){
+        super()
+    }
+}
 export {MoveLength,MovePosition,LEDEnable,Wait,actionType,Action};
