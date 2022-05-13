@@ -18,7 +18,7 @@
 #include "stb/stb_image_write.h"
 
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height);
-std::vector<uint8_t>& imageCompressL10(std::vector<uint8_t>& out,const int width,const int height);
+std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& out,const int width,const int height);
 // 자바스크립트의 String 객체를 반환하는 함수입니다.
 // 파라미터는 info[n] 형태로 얻어올 수 있습니다.
 Napi::String transRgbToBase64C10(const Napi::CallbackInfo& info){ 
@@ -52,31 +52,28 @@ Napi::String transRgbToBase64L10(const Napi::CallbackInfo& info){
     int h;
     int comp;
 
+
+    stbi_set_flip_vertically_on_load(true);
+    
     uint8_t* png = stbi_load_from_memory(buff.data(), fileSize, &w, &h, &comp, STBI_grey);
 
     if(w != 2560 || h != 1620)
         return Napi::String::New(env,"error");
 
-    int pngSize = w*h*comp;
+    int pngSize = w*h;
 
 	std::vector<uint8_t> finalImg(pngSize,0);
     pixelContration(png,finalImg,delta,ymult,w,h);
-    // imageCompressL10(buff,1620,2560);
+    auto compressedImage = imageCompressL10(finalImg,2560,1620);
     
-    // stbi_image_free(png);
+    stbi_image_free(png);
     
     int len;
-    unsigned char* pngInMem = stbi_write_png_to_mem(finalImg.data(), w, w, h, 1, &len);
-    std::string pngStringMem((char*)pngInMem, len);
+    unsigned char* pngInMem = stbi_write_png_to_mem((const unsigned char*)compressedImage.data(), 2160, 540, 2560, STBI_rgb_alpha, &len);
+    // std::string pngStringMem((char*)pngInMem, len);
 
-    std::ofstream out("/home/jsh/test.png");
-
-    if(out.is_open()){
-        out << pngStringMem;
-    }
-    out.close();
-
-    std::string result = base64_encode(finalImg.data(),pngSize);
+    std::string result = "data:image/png;base64," + base64_encode(pngInMem,len);
+    
     return Napi::String::New(env,result);
 }
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height){ 
@@ -96,7 +93,7 @@ std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, in
         sdfImage = dt(&origImg, 0, yMult);
         int threshold = 1 - delta;
 
-        std::transform(sdfImage->data, sdfImage->data + imgSize, out.begin(), [threshold](float flt)->uint8_t {
+        std::transform(std::execution::par_unseq,sdfImage->data, sdfImage->data + imgSize, out.begin(), [threshold](float flt)->uint8_t {
             if (std::round(flt) >= threshold)
                 return 255;
             return 0;
@@ -107,7 +104,8 @@ std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, in
     {
         sdfImage = dt(&origImg, 255, yMult);
         int threshold = delta;
-        std::transform(sdfImage->data, sdfImage->data + imgSize, out.begin(), [threshold](float flt)->uint8_t {
+
+        std::transform(std::execution::par_unseq,sdfImage->data, sdfImage->data + imgSize, out.begin(), [threshold](float flt)->uint8_t {
             if (std::round(flt) <= threshold)
                 return 255;
             return 0;
@@ -117,37 +115,46 @@ std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, in
     delete sdfImage;
   	return out;
 }
-std::vector<uint8_t>& imageCompressL10(std::vector<uint8_t>& out,const int width,const int height){ 
+std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width,const int height){ 
 
-//     const int targetWidth = 540;
+    const int targetWidth = 540;
+    const int targetHeight = 2560;
 
-//     for(int x = 0; x < width; x++){
-//         int y = 1;
-//         for(int i = 0; i < height;i+=3){
+    image<uint8_t> orig(width, height,ori.data());
+    image<uint32_t> target(targetWidth, targetHeight);
 
-//             uint32_t transRed = 0;
-//             uint32_t transGreen = 0;
-//             uint32_t transBlue = 0;
+    for(int x = 0; x < 2560; x++){
+        int y = 1;
+        for(int i = 0; i < 1620;i+=3){
 
-//             for(int j = 0; j < 3; j++){
-//                 if(i + j > height){
-//                     break;
-//                 }
-//                 auto col = img.pixel(x,i + j);
-//                 uint32_t total = col & 0x000000ff;
-//                 if(j == 0){
-//                     transRed = total;
-//                 }else if(j == 1){
-//                     transGreen = total;
-//                 }else{
-//                     transBlue = total;
-//                 }
-//             }
-//             QRgb rgb = RGB_MASK & (transBlue << 16 | transGreen << 8 | transRed);
-//             imgE.setPixel(targetWidth - y++,x, rgb);
-//         }
-//     }
-  return out;
+            uint8_t transRed = 0;
+            uint8_t transGreen = 0;
+            uint8_t transBlue = 0;
+
+            for(int j = 0; j < 3; j++){
+                if(i + j > height){
+                    break;
+                }
+
+                auto col = imRef((&orig),x,i+j);
+                uint8_t total = col;
+                if(j == 0){
+                    transRed = total;
+                }else if(j == 1){
+                    transGreen = total;
+                }else{
+                    transBlue = total;
+                }
+            }
+            uint32_t rgba = ( 0xff << 24 | transBlue << 16 | transGreen << 8 | transRed);
+            // uint32_t rgba = 0xff00ff00;
+
+            imRef((&target),i/3,x) = rgba;
+        }
+    }
+    std::vector<uint32_t> out(targetWidth*targetHeight);
+    std::copy(target.data,target.data + (targetHeight * targetWidth),out.begin());
+    return std::move(out);
 }
 //
 // 애드온 이니셜라이져입니다.

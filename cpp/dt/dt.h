@@ -24,8 +24,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include <algorithm>
 #include "image.h"
 
-#define INF 1E20
+#include <execution>
 
+#define INF 1E20
 
 typedef uint8_t uchar;
 template<typename ValType>
@@ -69,37 +70,48 @@ static float *dt(float *f, int n) {
 
 /* dt of 2d function using squared distance */
 static void dt(image<float> *im, float yMult) {
-  float yMultSquared = yMult * yMult;
-  int width = im->width();
-  int height = im->height();
-  float *f = new float[std::max(width,height)];
+    const float yMultSquared = yMult * yMult;
+    const int width = im->width();
+    const int height = im->height();
 
-  // transform along columns
-  for (int x = 0; x < width; x++) {
-    for (int y = 0; y < height; y++) {
-      f[y] = imRef(im, x, y);
-    }
-    float *d = dt(f, height);
-    for (int y = 0; y < height; y++) {
-      imRef(im, x, y) = d[y] * yMultSquared;
+      std::vector<int> iter_width(width,0);
+      std::vector<int> iter_height(height,0);
 
-    }
-    delete [] d;
-  }
+      std::generate(iter_width.begin(), iter_width.end(), [n = 0]() mutable { return n++; });
+      std::generate(iter_height.begin(), iter_height.end(), [n = 0]() mutable { return n++; });
 
-  // transform along rows
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      f[x] = imRef(im, x, y);
-    }
-    float *d = dt(f, width);
-    for (int x = 0; x < width; x++) {
-      imRef(im, x, y) = d[x];
-    }
-    delete [] d;
-  }
+      std::for_each(std::execution::par_unseq,iter_width.begin(),iter_width.end(),[&](int i){
 
-  delete f;
+          float *f = new float[std::max(width,height)];
+
+          for (int y = 0; y < height; y++) {
+            f[y] = imRef(im, i, y);
+          }
+          float *d = dt(f, height);
+          for (int y = 0; y < height; y++) {
+            imRef(im, i, y) = d[y] * yMultSquared;
+
+          }
+          delete [] d;
+          delete [] f;
+
+      });
+
+      std::for_each(std::execution::par_unseq,iter_height.begin(),iter_height.end(),[&](int i){
+
+          float *f = new float[std::max(width,height)];
+
+          for (int x = 0; x < width; x++) {
+            f[x] = imRef(im, x, i);
+          }
+          float *d = dt(f, width);
+          for (int x = 0; x < width; x++) {
+            imRef(im, x, i) = d[x];
+          }
+          delete [] d;
+          delete [] f;
+
+      });
 }
 
 
