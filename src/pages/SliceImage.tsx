@@ -5,11 +5,18 @@ import styled from 'styled-components'
 function SliceImage() {
     console.log("Asdasdjasdkbsadbksad")
     return(
-        <div>
-            <Text>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</Text>
-        </div>);
+        <BackGround>
+            <img src=''></img>
+        </BackGround>
+        );
 }
 export const Text = styled.div`
     color: #000000;
+`
+export const BackGround = styled.div`
+    width: 100%;
+    height: 100%;
+
+    color: #000000; 
 `
 export default SliceImage;

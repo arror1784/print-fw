@@ -19,6 +19,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
+    "@types/bindings": "^1.5.1",
     "@types/classnames": "^2.3.1",
     "@types/electron-devtools-installer": "^2.2.2",
     "@types/jest": "^27.0.1",
@@ -33,10 +34,12 @@
     "@types/serialport": "^8.0.2",
     "@types/styled-components": "^5.1.25",
     "asar": "^3.1.0",
+    "bindings": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
     "electron-reload": "^2.0.0-alpha.1",
     "global": "^4.4.0",
+    "node-addon-api": "^5.0.0",
     "node-wifi": "^2.0.16",
     "react": "^17.0.2",
     "react-circular-progressbar": "^2.0.4",
@@ -60,7 +63,12 @@
     "electron:build": "yarn build && tsc -p electron && electron-builder build",
     "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron && electron .",
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
-    "react-start-win": "set BROWSER=none && yarn start"
+    "react-start-win": "set BROWSER=none && yarn start",
+    "addon:init": "node-gyp configure",
+    "addon:clean": "node-gyp clean",
+    "addon:build": "node-gyp build",
+    "addon:build:dev": "node-gyp build --debug"
+
   },
   "eslintConfig": {
     "extends": [
@@ -85,6 +93,7 @@
     "cross-env": "^7.0.3",
     "electron": "^18.1.0",
     "electron-builder": "^23.0.3",
+    "node-gyp": "^9.0.0",
     "node-sass": "^7.0.1",
     "sass-loader": "^12.6.0",
     "wait-on": "^6.0.1"

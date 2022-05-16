@@ -5,7 +5,8 @@ import * as url from 'url';
 import * as isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
-import { wifiTest } from './wifiControl';
+
+import { test } from './test';
 
 function createWindow() {
     /*
@@ -77,7 +78,7 @@ function createWindow() {
                 '.bin',
                 'electron' + (process.platform === "win32" ? ".cmd" : "")),
             forceHardReset: true,
-            hardResetMethod: 'quit',
+            hardResetMethod: 'exit',
 
         });
     }
