@@ -23,12 +23,13 @@ function createWindow() {
     // });
 
     const imgWin = new BrowserWindow({
-        width:1920,
-        height:1080,
+        width:2560,
+        height:1440,
         titleBarStyle: "hidden",
         webPreferences: {
         preload: path.join(__dirname, 'preload-image.js')
        },
+       fullscreen: true
     });
     
     const template : Array<(Electron.MenuItem)> = []; 
@@ -83,7 +84,6 @@ function createWindow() {
         });
     }
     // wifiTest()
-    test()
 }
 
 app.whenReady().then(() => {
