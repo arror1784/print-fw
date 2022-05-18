@@ -1,9 +1,15 @@
-import binding = require('bindings')
-const addOn = binding("rgbTrans")
+import { parseCommand, transData, UartConnection, UartResponseType } from "../electron/uartConnection"
 
-function test(){
-    console.log("asdasdasdasdasdasd")
-    console.log(addOn.transRgbToBase64L10("/home/jsh/0.png",500,0))
+async function test(){
+
+    let uartConnection : UartConnection = new UartConnection('/dev/ttyUSB0',() => {})
+
+    uartConnection.onResponse((type : UartResponseType,response:number) => {
+        console.log("type: ",type)
+        console.log("respone: ", response)
+    })
+
+    uartConnection.sendCommand("G28 A255")
+    await new Promise(resolve => setTimeout(resolve, 500));
 }
-
 export {test}
