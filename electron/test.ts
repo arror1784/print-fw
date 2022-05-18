@@ -1,4 +1,4 @@
-import { parseCommand, transData, UartConnection, UartResponseType } from "../electron/uartConnection"
+import { UartConnection, UartResponseType } from "./uartConnection"
 
 async function test(){
 

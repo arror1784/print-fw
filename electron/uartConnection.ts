@@ -32,13 +32,44 @@ function toBytesInt32 (num :number) {
     return arr;
 }
 
-class UartConnection{
+
+class UartConnectionTest{
+    
+    init(printSetting : PrintSettings){
+    }
+    connect(){
+    }
+    disconnect(){
+    }
+    checkConnection(){
+    }
+    sendCommand(command: Uint8Array | string){
+        return true;
+    }
+    onResponse(cb : (type : UartResponseType, response : number) => void){
+    }
+    deleteRespone(){
+    }
+    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
+        return true;
+    }
+    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
+        return true;
+    }
+    async sendCommandAutoHome(speed:number){
+    }
+    async sendCommandLEDEnable(enable : boolean){
+    }
+}
+class UartConnection extends UartConnectionTest{
 
     private port : SerialPort;
     private parser : DelimiterParser;
     private rcb? : (type : UartResponseType, response : number) => void;
 
     constructor(public readonly serialPortPath:string, onError : () => void){
+        super()
+
         this.port = new SerialPort({
             path: serialPortPath,
             baudRate: 115200,
@@ -122,7 +153,7 @@ class UartConnection{
     }
     async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
 
-        this.sendCommand(`G02 A${position} M${length < 0 ? 0 : 1}`)
+        this.sendCommand(`G02 A${position} M1`)
         
         onMove && onMove()
 
@@ -138,10 +169,6 @@ class UartConnection{
         else
             this.sendCommand("H10")
     }
-}
-
-class UartConnectionTest extends UartConnection{
-    
 }
 
 
