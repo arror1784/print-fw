@@ -1,5 +1,3 @@
-import { inherits } from "util";
-
 interface MoveSettings{
     accelSpeed: number;
     decelSpeed: number;
@@ -23,4 +21,4 @@ interface PrintSettings{
     pixelContraction: number;
 
 }
-export {MoveSettings, PrintSettings}
+export type {MoveSettings, PrintSettings}
