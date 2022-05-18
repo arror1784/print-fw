@@ -1,11 +1,21 @@
 import {UartConnection} from './uartConnection';
 
-type actionType = "movePosition" | "MoveLength" | "ledEnable" | "wait" | "setImage";
-
+type actionType = "movePosition" | "moveLength" | "ledEnable" | "wait" | "setImage" | "autoHome";
+const enum moveType{
+    DOWN = 0,
+    UP = 1
+}
 abstract class Action{
     abstract readonly type: actionType;
 }
 
+class AutoHome extends Action{
+    type: actionType = "autoHome";
+
+    constructor(public readonly speed:number){
+        super()
+    }
+}
 class MovePosition extends Action{
     type: actionType = "movePosition";
 
@@ -15,7 +25,7 @@ class MovePosition extends Action{
 }
 
 class MoveLength extends Action{
-    type: actionType = "MoveLength";
+    type: actionType = "moveLength";
 
     constructor(public readonly length:number){
         super()
@@ -45,5 +55,5 @@ class SetImage extends Action{
         super()
     }
 }
-export {MoveLength,MovePosition,LEDEnable,Wait,Action};
-export type { actionType}
+export {MoveLength,MovePosition,LEDEnable,Wait,Action,AutoHome};
+export type { actionType }

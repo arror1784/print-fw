@@ -72,13 +72,13 @@ class UartConnection{
     }
     init(printSetting : PrintSettings){
         this.sendCommand(`H32 A${printSetting.upMoveSetting.accelSpeed} M1`)
-        this.sendCommand(`H32 A${printSetting.downMoveSetting.accelSpeed} M2`)
+        this.sendCommand(`H32 A${printSetting.downMoveSetting.accelSpeed} M0`)
         this.sendCommand(`H33 A${printSetting.upMoveSetting.decelSpeed} M1`)
-        this.sendCommand(`H33 A${printSetting.downMoveSetting.decelSpeed} M2`)
+        this.sendCommand(`H33 A${printSetting.downMoveSetting.decelSpeed} M0`)
         this.sendCommand(`H30 A${printSetting.upMoveSetting.maxSpeed} M1`)
-        this.sendCommand(`H30 A${printSetting.downMoveSetting.maxSpeed} M2`)
+        this.sendCommand(`H30 A${printSetting.downMoveSetting.maxSpeed} M0`)
         this.sendCommand(`H31 A${printSetting.upMoveSetting.initSpeed} M1`)
-        this.sendCommand(`H31 A${printSetting.downMoveSetting.initSpeed} M2`)
+        this.sendCommand(`H31 A${printSetting.downMoveSetting.initSpeed} M0`)
 
         this.sendCommand(`H12 A${printSetting.ledOffset}`)
     }
@@ -89,7 +89,7 @@ class UartConnection{
         this.port.close()
     }
     checkConnection(){
-        return true;
+        return this.port.isOpen;
     }
     sendCommand(command: Uint8Array | string){
 
@@ -110,9 +110,9 @@ class UartConnection{
     deleteRespone(){
         this.rcb = undefined
     }
-    async sendCommandMoveLength(command:number, onMove? : () => void | undefined){
+    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
 
-        this.port.write(parseCommand(command.toString()))
+        this.sendCommand(`G01 A${length} M${length < 0 ? 0 : 1}`)
 
         await new Promise(resolve => setTimeout(resolve, 5000));
 
@@ -120,15 +120,23 @@ class UartConnection{
 
         return true;
     }
-    async sendCommandMovePosition(command:number, onMove? : () => void | undefined){
+    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
 
-        this.port.write(parseCommand(command.toString()))
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
+        this.sendCommand(`G02 A${position} M${length < 0 ? 0 : 1}`)
+        
         onMove && onMove()
 
         return true;
+    }
+    async sendCommandAutoHome(speed:number){
+        if(speed > 0)
+            this.sendCommand(`G28 A${speed}`)
+    }
+    async sendCommandLEDEnable(enable : boolean){
+        if(enable)
+            this.sendCommand("H11")
+        else
+            this.sendCommand("H10")
     }
 }
 

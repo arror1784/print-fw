@@ -1,4 +1,4 @@
-import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action} from './actions'
+import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome} from './actions'
 import { ProductSetting } from './ProductSetting';
 import { PrintSettings } from './Settings';
 import {UartConnection,UartConnectionTest} from './uartConnection'
@@ -64,6 +64,8 @@ class PrintWorker{
 
         this.init()
 
+        this.actions.push(new AutoHome(255))
+
         this.actions.push(new MovePosition(-(ProductSetting.getInstance().height + ProductSetting.getInstance().heightOffset - this._printSetting.layerHeigth)))
 
         for (let i = 0; i < this._printSetting.totalLayer; i++) {
@@ -80,6 +82,8 @@ class PrintWorker{
             this.actions.push(new MovePosition(this._printSetting.zHopHeight))
 
             this.actions.push(new MoveLength(-(this._printSetting.zHopHeight - this._printSetting.layerHeigth)))
+
+            this.actions.push(new Wait(this._printSetting.delay))
 
         }
         this.actions.push(new MovePosition(-15000))
@@ -105,12 +109,16 @@ class PrintWorker{
 
             const action = this.actions[this._currentStep]
             switch (action.type) {
+                case "autoHome":
+                    this.uartConnection.sendCommand(`G28 A${(action as AutoHome).speed}`)
+
+                    break;
                 case "ledEnable":
-                    (action as LEDEnable).enable;
+                    this.uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
 
                     break;
 
-                case "MoveLength":
+                case "moveLength":
                     
                     this._isMoving = true
                     this.uartConnection.sendCommandMoveLength((action as MoveLength).length, () => { this._isMoving = false })
@@ -133,7 +141,7 @@ class PrintWorker{
             this._currentStep++
         }
     }
-    onProgressCB(cb :() => {}){
+    onProgressCB(cb : () => {}){
         this._onProgressCallback = cb
     }
 }
