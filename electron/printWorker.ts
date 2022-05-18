@@ -1,4 +1,4 @@
-import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome} from './actions'
+import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage} from './actions'
 import { ProductSetting } from './ProductSetting';
 import { PrintSettings } from './Settings';
 import {UartConnection,UartConnectionTest} from './uartConnection'
@@ -18,7 +18,7 @@ class PrintWorker{
     private _isMoving: boolean = false;
     private _workingState: WorkingState = WorkingState.stop;
     private _progress : number = 0;
-    private _onProgressCallback?: () => void
+    private _onProgressCallback?: (progress : number) => void
     private _printSetting : PrintSettings = {
         upMoveSetting: {
             accelSpeed: 0,
@@ -43,6 +43,7 @@ class PrintWorker{
         bedCuringLayer: 0,
         
         pixelContraction: 0,
+        yMult:1
         
     };
 
@@ -52,17 +53,16 @@ class PrintWorker{
     constructor(public readonly uartConnection: UartConnection | UartConnectionTest){
         uartConnection.checkConnection()
     }
-
-    init(){
-        this.uartConnection.init(this.printSetting)
-        this._progress = 0.0
-    }
     run(setting : PrintSettings) {
         this._workingState = WorkingState.working;
 
         this._printSetting = setting;
 
-        this.init()
+        this.uartConnection.init(this.printSetting)
+
+        this._progress = 0.0
+
+        this.actions.push(new SetImage(0,this._printSetting.pixelContraction,this._printSetting.yMult))
 
         this.actions.push(new AutoHome(255))
 
@@ -79,6 +79,9 @@ class PrintWorker{
                 this.actions.push(new Wait(this._printSetting.curingTime))
 
             this.actions.push(new LEDEnable(false))
+
+            this.actions.push(new SetImage(i+1,this._printSetting.pixelContraction,this._printSetting.yMult))
+
             this.actions.push(new MovePosition(this._printSetting.zHopHeight))
 
             this.actions.push(new MoveLength(-(this._printSetting.zHopHeight - this._printSetting.layerHeigth)))
@@ -86,6 +89,8 @@ class PrintWorker{
             this.actions.push(new Wait(this._printSetting.delay))
 
         }
+        new SetImage(-1,this._printSetting.pixelContraction,this._printSetting.yMult)
+
         this.actions.push(new MovePosition(-15000))
 
         this.process()
@@ -105,7 +110,7 @@ class PrintWorker{
                 continue
 
             this._progress = this._currentStep / this.actions.length
-            this._onProgressCallback && this._onProgressCallback()
+            this._onProgressCallback && this._onProgressCallback(this._progress)
 
             const action = this.actions[this._currentStep]
             switch (action.type) {
@@ -134,7 +139,9 @@ class PrintWorker{
                 case "wait":
                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
                     break;
-            
+                case "setImage":
+                    (action as SetImage).index
+                    break;
                 default:
                     break;
             }

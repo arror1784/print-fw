@@ -5,13 +5,13 @@ import * as url from 'url';
 import * as isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
-
 import { test } from './test';
 
 function createWindow() {
     /*
     * 넓이 1920에 높이 1080의 FHD 풀스크린 앱을 실행시킵니다.
     * */
+
     const mainWin = new BrowserWindow({
         width:480,
         height:320,
@@ -23,8 +23,8 @@ function createWindow() {
     });
 
     // const imgWin = new BrowserWindow({
-    //     width:1920,
-    //     height:1080,
+    //     width:1440,
+    //     height:2560,
     //     titleBarStyle: "hidden",
     //     webPreferences: {
     //     preload: path.join(__dirname, 'preload-image.js')
@@ -50,7 +50,7 @@ function createWindow() {
     const imageUrl = isDev
         ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '/../index.html/#/image'),
+        pathname: path.join(__dirname, '/../index.html'),
         protocol: 'file:',
         slashes: true,
         
@@ -83,7 +83,6 @@ function createWindow() {
         });
     }
 
-    // wifiTest()
 }
 
 app.whenReady().then(() => {

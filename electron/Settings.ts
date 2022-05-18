@@ -19,6 +19,7 @@ interface PrintSettings{
     zHopHeight: number;
 
     pixelContraction: number;
+    yMult:number;
 
 }
 export type {MoveSettings, PrintSettings}
