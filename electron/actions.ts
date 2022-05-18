@@ -45,4 +45,5 @@ class SetImage extends Action{
         super()
     }
 }
-export {MoveLength,MovePosition,LEDEnable,Wait,actionType,Action};
+export {MoveLength,MovePosition,LEDEnable,Wait,Action};
+export type { actionType}
