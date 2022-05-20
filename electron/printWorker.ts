@@ -1,4 +1,5 @@
 import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage} from './actions'
+import { ImageProvider } from './imageProvider';
 import { ProductSetting } from './ProductSetting';
 import { PrintSettings } from './Settings';
 import {UartConnection,UartConnectionTest} from './uartConnection'
@@ -44,13 +45,12 @@ class PrintWorker{
         
         pixelContraction: 0,
         yMult:1
-        
     };
 
     get printSetting() : PrintSettings {
         return this.printSetting;
     }
-    constructor(public readonly uartConnection: UartConnection | UartConnectionTest){
+    constructor(public readonly uartConnection: UartConnection | UartConnectionTest,public readonly imageProvider: ImageProvider){
         uartConnection.checkConnection()
     }
     run(setting : PrintSettings) {
@@ -139,9 +139,11 @@ class PrintWorker{
                 case "wait":
                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
                     break;
+                    
                 case "setImage":
-                    (action as SetImage).index
+                    this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
                     break;
+
                 default:
                     break;
             }
