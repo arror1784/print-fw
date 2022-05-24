@@ -1,6 +1,6 @@
 import { SerialPort , DelimiterParser} from 'serialport';
 import { PrintSettings } from './Settings';
-
+import { EventEmitter } from 'events'
 
 const enum UartResponseType{
     LCD = 91,
@@ -66,6 +66,8 @@ class UartConnection extends UartConnectionTest{
     private port : SerialPort;
     private parser : DelimiterParser;
     private rcb? : (type : UartResponseType, response : number) => void;
+    private _moveEvents : EventEmitter = new EventEmitter()
+    
 
     constructor(public readonly serialPortPath:string, onError : () => void){
         super()
@@ -80,8 +82,8 @@ class UartConnection extends UartConnectionTest{
         this.parser.on('data', (response:Buffer)=>{
             let view = new Uint8Array(response)
             let i = view.findIndex((value)=>{ return value == 0x02})
-            
-    
+            console.log(view)
+
             if(i == -1)
                 return;
             
@@ -93,6 +95,11 @@ class UartConnection extends UartConnectionTest{
                 return;
     
             console.log(this.rcb)
+
+            if(view[i+2] == UartResponseType.MOVE){
+                this._moveEvents.emit("move")
+            }
+
             if(this.rcb)
                 this.rcb(view[i + 2],view[i+3])
         }) // emits data after every '\n'
@@ -141,22 +148,25 @@ class UartConnection extends UartConnectionTest{
     deleteRespone(){
         this.rcb = undefined
     }
-    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
+    async sendCommandMoveLength(length:number){
 
-        this.sendCommand(`G01 A${length} M${length < 0 ? 0 : 1}`)
+        let _coVar = true
 
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        this._moveEvents.once("move",() => {_coVar = false})
 
-        onMove && onMove()
-
+        this.sendCommand(`G28 A255`)
+        
+        // while(_coVar){
+        //     if(!_coVar) break
+        //     else await new Promise(resolve => setTimeout(resolve, 500))
+        // }
+        
         return true;
     }
-    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
+    async sendCommandMovePosition(position:number){
 
         this.sendCommand(`G02 A${position} M1`)
-        
-        onMove && onMove()
-
+    
         return true;
     }
     async sendCommandAutoHome(speed:number){
@@ -171,7 +181,11 @@ class UartConnection extends UartConnectionTest{
     }
 }
 
+function waitForEvent(event:string){
 
+
+
+}
 function parseCommand(command: string) : CommandFormat{
     let paredCommand = command.split(' ')
     let data : CommandFormat = {

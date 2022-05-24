@@ -9,7 +9,8 @@ async function test(){
         console.log("respone: ", response)
     })
 
-    uartConnection.sendCommand("G28 A255")
-    await new Promise(resolve => setTimeout(resolve, 500));
+    uartConnection.sendCommand(`G28 A255`)
+
+    // await new Promise(resolve => setTimeout(resolve, 50000));
 }
 export {test}
