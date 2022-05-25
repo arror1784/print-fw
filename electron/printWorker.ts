@@ -126,13 +126,13 @@ class PrintWorker{
                 case "moveLength":
                     
                     this._isMoving = true
-                    this.uartConnection.sendCommandMoveLength((action as MoveLength).length, () => { this._isMoving = false })
+                    await this.uartConnection.sendCommandMoveLength((action as MoveLength).length)
                     break;
 
                 case "movePosition":
 
                     this._isMoving = true
-                    await this.uartConnection.sendCommandMoveLength((action as MovePosition).position, () => { this._isMoving = false })
+                    await this.uartConnection.sendCommandMoveLength((action as MovePosition).position)
 
                     break;
 
@@ -141,7 +141,7 @@ class PrintWorker{
                     break;
                     
                 case "setImage":
-                    this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
+                    await this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
                     break;
 
                 default:

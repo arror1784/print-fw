@@ -28,7 +28,7 @@ interface ResponseData{
 function toBytesInt32 (num :number) {
     let arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
     let view = new DataView(arr);
-    view.setInt32(0, num, false); // byteOffset = 0; litteEndian = false
+    view.setInt32(0, num, true); // byteOffset = 0; litteEndian = false
     return arr;
 }
 
@@ -50,15 +50,26 @@ class UartConnectionTest{
     }
     deleteRespone(){
     }
-    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
+    async sendCommandMoveLength(length:number){
+
+        await new Promise(resolve => setTimeout(resolve,3000));
+
         return true;
     }
-    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
+    async sendCommandMovePosition(position:number){
+
+        await new Promise(resolve => setTimeout(resolve,3000));
+
         return true;
     }
     async sendCommandAutoHome(speed:number){
+
+        await new Promise(resolve => setTimeout(resolve,10000));
+
+        return true;
     }
     async sendCommandLEDEnable(enable : boolean){
+        return true;
     }
 }
 class UartConnection extends UartConnectionTest{
@@ -67,7 +78,7 @@ class UartConnection extends UartConnectionTest{
     private parser : DelimiterParser;
     private rcb? : (type : UartResponseType, response : number) => void;
     private _moveEvents : EventEmitter = new EventEmitter()
-    
+    private _isMove: boolean = false
 
     constructor(public readonly serialPortPath:string, onError : () => void){
         super()
@@ -82,6 +93,7 @@ class UartConnection extends UartConnectionTest{
         this.parser.on('data', (response:Buffer)=>{
             let view = new Uint8Array(response)
             let i = view.findIndex((value)=>{ return value == 0x02})
+
             console.log(view)
 
             if(i == -1)
@@ -93,20 +105,16 @@ class UartConnection extends UartConnectionTest{
     
             if(checksum != view[i+4])
                 return;
-    
-            console.log(this.rcb)
 
             if(view[i+2] == UartResponseType.MOVE){
-                this._moveEvents.emit("move")
+                this._moveEvents.emit("MOVE")
             }
 
             if(this.rcb)
                 this.rcb(view[i + 2],view[i+3])
-        }) // emits data after every '\n'
+        }) // emits data after every '0x03'
 
         this.connect()
-          
-        //connect serialPort
     }
     init(printSetting : PrintSettings){
         this.sendCommand(`H32 A${printSetting.upMoveSetting.accelSpeed} M1`)
@@ -150,34 +158,75 @@ class UartConnection extends UartConnectionTest{
     }
     async sendCommandMoveLength(length:number){
 
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
         let _coVar = true
 
-        this._moveEvents.once("move",() => {_coVar = false})
+        this._moveEvents.once("MOVE",() => {_coVar = false})
 
-        this.sendCommand(`G28 A255`)
+        this.sendCommand(`G01 A${length} M${length < 0 ? 0 : 1}`)
         
-        // while(_coVar){
-        //     if(!_coVar) break
-        //     else await new Promise(resolve => setTimeout(resolve, 500))
-        // }
-        
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+        this._isMove = false
+
         return true;
     }
     async sendCommandMovePosition(position:number){
 
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
+        let _coVar = true
+
+        this._moveEvents.once("MOVE",() => {_coVar = false})
+
         this.sendCommand(`G02 A${position} M1`)
-    
+
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+
+        this._isMove = false
+
         return true;
     }
     async sendCommandAutoHome(speed:number){
+
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
+        let _coVar = true
+
+        this._moveEvents.once("MOVE",() => {_coVar = false})
+
         if(speed > 0)
             this.sendCommand(`G28 A${speed}`)
+
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+        this._isMove = false
+
+        return true;
     }
     async sendCommandLEDEnable(enable : boolean){
         if(enable)
             this.sendCommand("H11")
         else
             this.sendCommand("H10")
+        return true
     }
 }
 

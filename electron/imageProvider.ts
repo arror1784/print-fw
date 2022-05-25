@@ -11,7 +11,7 @@ class ImageProvider{
 
     }
 
-    setImage(index : number,delta:number,ymult:number){
+    async setImage(index : number,delta:number,ymult:number){
 
         return addOn.transRgbToBase64("/home/jsh/0.png",delta,ymult,this.product == "L10")
     }
