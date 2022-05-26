@@ -13,6 +13,9 @@ import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
 
+
+import {encode} from 'base-64'
+
 interface DirOrFile extends SelectListModel{
     isDir:boolean;
     path:string;
@@ -79,7 +82,7 @@ function Model(){
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
                 <Button color='blue' type='small' onClick={() => {
-                    if(selectFile.name != "") navigate('/material')}}>Select</Button>
+                    if(selectFile.name != "") navigate(`/material/${encode(selectFile.path)}`)}}>Select</Button>
             </Footer>
 
 

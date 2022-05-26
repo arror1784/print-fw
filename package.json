@@ -19,6 +19,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
+    "@types/base-64": "^1.0.0",
     "@types/bindings": "^1.5.1",
     "@types/classnames": "^2.3.1",
     "@types/electron-devtools-installer": "^2.2.2",
@@ -34,6 +35,7 @@
     "@types/serialport": "^8.0.2",
     "@types/styled-components": "^5.1.25",
     "asar": "^3.1.0",
+    "base-64": "^1.0.0",
     "bindings": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
@@ -59,7 +61,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
+    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w --no-sandbox\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
     "electron:build": "yarn build && tsc -p electron && electron-builder build",
     "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron && electron .",
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
@@ -68,7 +70,6 @@
     "addon:clean": "node-gyp clean",
     "addon:build": "node-gyp build",
     "addon:build:dev": "node-gyp build --debug"
-
   },
   "eslintConfig": {
     "extends": [

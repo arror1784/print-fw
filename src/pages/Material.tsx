@@ -4,11 +4,12 @@ import Button from '../components/Button';
 import Footer from '../layout/Footer';
 import Header from '../layout/Header';
 import {SelectList, SelectListModel} from '../components/SelectList';
-import ListContainer from '../components/ListContainer';
+
 import MainArea from '../layout/MainArea';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
 
+import {decode} from 'base-64'
 function Material(){
     const navigate = useNavigate()
 
@@ -16,7 +17,10 @@ function Material(){
     const [resinList, setResinList] = useState<SelectListModel[]>([]);
     const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
 
+    const { selectPath } = useParams()
 
+    console.log(decode(selectPath as string))
+    
     useEffect(() => {
 
         window.electronAPI.resinList().then((value:string[]) => {
@@ -31,7 +35,8 @@ function Material(){
       return () => {}
     },[])
 
-    return (<div>
+    return (
+    <div>
         <Header>
             Select a printing material
         </Header>
@@ -50,6 +55,6 @@ function Material(){
         <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {navigate('/progress')}}>
             {/* {filePath} */}
         </Modal>
-        </div>);
+    </div>);
 }
 export default Material;
