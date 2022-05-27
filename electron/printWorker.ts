@@ -53,7 +53,12 @@ class PrintWorker{
     constructor(public readonly uartConnection: UartConnection | UartConnectionTest,public readonly imageProvider: ImageProvider){
         uartConnection.checkConnection()
     }
-    run(setting : PrintSettings) {
+    
+    run(path :string, material:string){
+
+        return true
+    }
+    createActions(setting : PrintSettings) {
         this._workingState = WorkingState.working;
 
         this._printSetting = setting;
@@ -99,10 +104,12 @@ class PrintWorker{
     pause(){
 
     }
+    resume(){
+        
+    }
     stop(){
 
     }
-
     async process(){
         while(this._currentStep < this.actions.length && this._isRun) {
             
@@ -141,9 +148,10 @@ class PrintWorker{
                     break;
                     
                 case "setImage":
-                    await this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
+                    this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value)=>{
+                        // set image path
+                    })
                     break;
-
                 default:
                     break;
             }
@@ -154,3 +162,5 @@ class PrintWorker{
         this._onProgressCallback = cb
     }
 }
+
+export {PrintWorker}

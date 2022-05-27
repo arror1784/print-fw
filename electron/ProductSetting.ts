@@ -36,9 +36,9 @@ class ProductSetting {
     private _settingData
     private _versionData
 
-    private _productPath = '/opt/capsuleFW/product.json'
-    private _settingPath = '/opt/capsuleFW/capsuleSetting.json'
-    private _versionPath = '/opt/capsuleFW/version.json'
+    private readonly _productPath = '/opt/capsuleFW/product.json'
+    private readonly _settingPath = '/opt/capsuleFW/capsuleSetting.json'
+    private readonly _versionPath = '/opt/capsuleFW/version.json'
 
     private constructor(){
 

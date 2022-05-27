@@ -80,7 +80,7 @@ class UartConnection extends UartConnectionTest{
     private _moveEvents : EventEmitter = new EventEmitter()
     private _isMove: boolean = false
 
-    constructor(public readonly serialPortPath:string, onError : () => void){
+    constructor(public readonly serialPortPath:string, onError? : () => void){
         super()
 
         this.port = new SerialPort({
