@@ -1,11 +1,12 @@
 import { ipcMain } from "electron"
+import { FileSystemCH, ResinCH } from "./cmdChannels"
 
 import { readDir } from "./filesystem"
 import { resinList } from "./resin"
 
 function ipcHandle(){
-    ipcMain.handle('filesystem:readDir', readDir)
-    ipcMain.handle('resin:resinList', resinList)
+    ipcMain.handle(FileSystemCH.readDir, readDir)
+    ipcMain.handle(ResinCH.resinList, resinList)
 
 }
 
