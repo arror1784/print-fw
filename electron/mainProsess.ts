@@ -4,10 +4,9 @@ import { PrintWorker } from "./printWorker"
 import { UartConnection } from "./uartConnection"
 import { ImageCH, WorkerCH } from './ipc/cmdChannels'
 
-import * as fs from "fs";
+import * as fs from "fs"
 import * as AdmZip from 'adm-zip'
-
-import { ProductSetting } from "./ProductSetting"
+import { getPrinterSetting } from "./json/printerSetting"
 
 const sliceFileRoot = "/opt/capsuleFW/print/printFilePath/"
 
@@ -28,7 +27,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
 
         if(!fs.existsSync(path))
             return false
-        if(!ProductSetting.getInstance().resinList.includes(material))
+        if(!getPrinterSetting().data.resinList.includes(material))
             return false
             
         let zip = new AdmZip(path)

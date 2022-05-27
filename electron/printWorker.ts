@@ -1,9 +1,8 @@
-import {LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage} from './actions'
+import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage } from './actions'
 import { ImageProvider } from './imageProvider';
-import { ProductSetting } from './ProductSetting';
 import { PrintSettings } from './Settings';
-import {UartConnection,UartConnectionTest} from './uartConnection'
-
+import { UartConnection,UartConnectionTest } from './uartConnection'
+import { getPrinterSetting } from './json/printerSetting'
 enum WorkingState{
     working,
     stop,
@@ -71,7 +70,7 @@ class PrintWorker{
 
         this.actions.push(new AutoHome(255))
 
-        this.actions.push(new MovePosition(-(ProductSetting.getInstance().height + ProductSetting.getInstance().heightOffset - this._printSetting.layerHeigth)))
+        this.actions.push(new MovePosition(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - this._printSetting.layerHeigth)))
 
         for (let i = 0; i < this._printSetting.totalLayer; i++) {
 

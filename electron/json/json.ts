@@ -1,20 +1,39 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
+interface ConstructProps<T>{
+    parser? : (ob:any) => T;
+    saver? : (ob:T) => string;
+    fileData? : string;
+}
 class JsonSetting<T>{
 
-    private _object: T
-    private _parser?: (ob : any) => void
+    public data: T
+    private _parser? : (ob:any) => T
+    private _saver? : (ob:T) => string
+    private _fileData? : string
 
-    constructor(private _filePath:string){
-        const productFile : string = readFileSync(_filePath, 'utf-8');
-        this._object = JSON.parse(productFile)
+    constructor(private _filePath : string,{parser,saver,fileData} : ConstructProps<T>){
+        this._parser = parser
+        this._saver = saver
+        this._fileData = fileData
+
+        if(fileData){
+            this.data = JSON.parse(fileData) as T
+        }else{
+            const productFile : string = readFileSync(_filePath, 'utf-8');
+            this.data = JSON.parse(productFile) as T
+        }
+
+
+        if(this._parser)
+            this.data = this._parser(this.data)
     }
 
-    getSetting(){
-        return this._object
-    }
-    setSetting(setting: T){
-        this._object = setting
+    save(){
+        if(this._saver)
+            writeFileSync(this._filePath,this._saver(this.data))
+        else
+            writeFileSync(this._filePath,JSON.stringify(this.data))
     }
 }
 
