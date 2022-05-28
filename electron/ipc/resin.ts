@@ -1,7 +1,7 @@
-import { ProductSetting } from "../ProductSetting";
+import { getPrinterSetting } from "../json/printerSetting"
 
 function resinList() : string[] {
-    return ProductSetting.getInstance().resinList
+    return getPrinterSetting().data.resinList
 }
 
 export {resinList}
