@@ -22,16 +22,15 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         return new Error("uart connect error")
     
     imageProvider.imageCB((src : string) => {
-        console.log("imageSet")
-        imageWindow.webContents.send(ImageCH.changeImage,src)
+        imageWindow.webContents.send(ImageCH.changeImageMR,src)
     })
     worker.onProgressCB((progress:number)=>{
-        mainWindow.webContents.send(WorkerCH.onProgress,progress)
+        mainWindow.webContents.send(WorkerCH.onProgressMR,progress)
     })
     worker.onStateChangeCB((state:WorkingState)=>{
-        mainWindow.webContents.send(WorkerCH.onWorkingStateChanged,state)
+        mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state)
     })
-    ipcMain.on(WorkerCH.start,(event:IpcMainEvent,path:string,material:string)=>{
+    ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
 
         if(!fs.existsSync(path))
             return new Error("file not exist")
@@ -54,13 +53,13 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         try {
             worker.run(name,resin)
         } catch (error) {
-            mainWindow.webContents.send(WorkerCH.onStartError,(error as Error).message)
+            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
         }
-        mainWindow.webContents.send(WorkerCH.start,name,material,worker.infoSetting.layerHeight)
+        mainWindow.webContents.send(WorkerCH.startRM,name,material,worker.infoSetting.layerHeight)
 
     })
 
-    ipcMain.on(WorkerCH.command,(event:IpcMainEvent,cmd:string)=>{
+    ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{
         switch (cmd) {
             case "pause":
                 worker.pause()

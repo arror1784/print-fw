@@ -8,8 +8,8 @@ interface ContextBridgeImageApi {
 }
 
 const exposedApi: ContextBridgeImageApi = {
-    onChangeImage: (callback:(event: IpcRendererEvent,image:string) => void) => {return ipcRenderer.on(ImageCH.changeImage,callback)},
-    onChangeScale: (callback:(event:IpcRendererEvent,scale:number) => void) => {return ipcRenderer.on(ImageCH.changeScale,callback)},
+    onChangeImage: (callback:(event: IpcRendererEvent,image:string) => void) => {return ipcRenderer.on(ImageCH.changeImageMR,callback)},
+    onChangeScale: (callback:(event:IpcRendererEvent,scale:number) => void) => {return ipcRenderer.on(ImageCH.changeScaleMR,callback)},
 
 }
 
