@@ -1,25 +1,33 @@
 import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage } from './actions'
 import { ImageProvider } from './imageProvider';
-import { PrintSettings } from './Settings';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
+import { ResinSetting, ResinSettingValue } from './json/resin';
+import { JsonSetting } from './json/json';
+import { InfoSetting, InfoSettingValue } from './json/infoSetting';
+import { info } from 'console';
+
 enum WorkingState{
-    working,
-    stop,
-    pause
+    working = "working",
+    stop = "stop",
+    pause = "pause",
+    pauseWork = "pauseWork"
 }
 
 class PrintWorker{
 
-    actions: Array<Action> = [];
+    private _actions: Array<Action> = [];
 
-    private _currentStep: number = 0;
-    private _isRun: boolean = false;
-    private _isMoving: boolean = false;
-    private _workingState: WorkingState = WorkingState.stop;
-    private _progress : number = 0;
+    private _name: string = ""
+    private _currentStep: number = 0
+    private _isRun: boolean = false
+    private _workingState: WorkingState = WorkingState.stop
+    private _progress : number = 0
+
     private _onProgressCallback?: (progress : number) => void
-    private _printSetting : PrintSettings = {
+    private _onWorkingStateChangedCallback?: (state : WorkingState) => void
+
+    private _resinSetting : ResinSettingValue = {
         upMoveSetting: {
             accelSpeed: 0,
             decelSpeed: 0,
@@ -37,117 +45,137 @@ class PrintWorker{
         curingTime: 0,
         bedCuringTime: 0,
         ledOffset: 0,
-        layerHeigth: 0,
-        totalLayer: 0,
         zHopHeight: 0,
         bedCuringLayer: 0,
         
         pixelContraction: 0,
         yMult:1
     };
-
-    get printSetting() : PrintSettings {
-        return this.printSetting;
+    private _infoSetting : InfoSettingValue = {
+        layerHeight: 0,
+        totalLayer: 0,
     }
-    constructor(public readonly uartConnection: UartConnection | UartConnectionTest,public readonly imageProvider: ImageProvider){
-        uartConnection.checkConnection()
+    get infoSetting() : InfoSettingValue {
+        return this._infoSetting;
+    }
+    constructor(private readonly _uartConnection: UartConnection | UartConnectionTest,private readonly _imageProvider: ImageProvider){
+        _uartConnection.checkConnection()
     }
     
-    run(path :string, material:string){
+    run(name :string, resin:ResinSetting){
+        this._name = name
+        let info = new InfoSetting()
+        if(!info.isOpen())
+            return new Error("uart connect error")
+        
+        this._infoSetting = info.data
+        if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
+            return new Error("resin height not available")
 
-        return true
-    }
-    createActions(setting : PrintSettings) {
-        this._workingState = WorkingState.working;
+        this._resinSetting = resin.data[info.data.layerHeight.toString()]
 
-        this._printSetting = setting;
+        this._uartConnection.init(this._resinSetting)
 
-        this.uartConnection.init(this.printSetting)
+        this.createActions(this._resinSetting,this._infoSetting)
 
-        this._progress = 0.0
+        this._actions = []
 
-        this.actions.push(new SetImage(0,this._printSetting.pixelContraction,this._printSetting.yMult))
-
-        this.actions.push(new AutoHome(255))
-
-        this.actions.push(new MovePosition(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - this._printSetting.layerHeigth)))
-
-        for (let i = 0; i < this._printSetting.totalLayer; i++) {
-
-            this.actions.push(new LEDEnable(true))
-
-
-            if(i < this._printSetting.bedCuringLayer)
-                this.actions.push(new Wait(this._printSetting.bedCuringTime))
-            else
-                this.actions.push(new Wait(this._printSetting.curingTime))
-
-            this.actions.push(new LEDEnable(false))
-
-            this.actions.push(new SetImage(i+1,this._printSetting.pixelContraction,this._printSetting.yMult))
-
-            this.actions.push(new MovePosition(this._printSetting.zHopHeight))
-
-            this.actions.push(new MoveLength(-(this._printSetting.zHopHeight - this._printSetting.layerHeigth)))
-
-            this.actions.push(new Wait(this._printSetting.delay))
-
-        }
-        new SetImage(-1,this._printSetting.pixelContraction,this._printSetting.yMult)
-
-        this.actions.push(new MovePosition(-15000))
+        this._workingState = WorkingState.working
 
         this.process()
 
+        return true
+    }
+    createActions(resinSetting : ResinSettingValue,infoSetting : InfoSettingValue) {
+        this._actions = []
+
+        this._actions.push(new SetImage(0,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+
+        this._actions.push(new AutoHome(255))
+
+        this._actions.push(new MovePosition(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - this._infoSetting.layerHeight)))
+
+        for (let i = 0; i < this._infoSetting.totalLayer; i++) {
+
+            this._actions.push(new LEDEnable(true))
+
+            if(i < this._resinSetting.bedCuringLayer)
+                this._actions.push(new Wait(this._resinSetting.bedCuringTime))
+            else
+                this._actions.push(new Wait(this._resinSetting.curingTime))
+
+            this._actions.push(new LEDEnable(false))
+
+            this._actions.push(new SetImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+
+            this._actions.push(new MovePosition(this._resinSetting.zHopHeight))
+
+            this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - this._infoSetting.layerHeight)))
+
+            this._actions.push(new Wait(this._resinSetting.delay))
+
+        }
+        this._actions.push(new SetImage(-1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+
+        this._actions.push(new MovePosition(-15000))
+
+        this.process()
     }
     pause(){
-
+        this._workingState = WorkingState.pauseWork
+        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
     }
     resume(){
-        
+        this._workingState = WorkingState.working
+        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+        this.process()
     }
     stop(){
-
+        this._workingState = WorkingState.stop
+        // this._actions = []
+        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
     }
     async process(){
-        while(this._currentStep < this.actions.length && this._isRun) {
+        while(this._currentStep < this._actions.length && this._isRun) {
             
-            if(!this._isMoving)
-                continue
-
-            this._progress = this._currentStep / this.actions.length
+            switch (this._workingState) {
+                case WorkingState.pauseWork:
+                    this._workingState = WorkingState.pause
+                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    break;
+                case WorkingState.stop:
+                    return;
+                default:
+                    break;
+            }
+            this._progress = this._currentStep / this._actions.length
             this._onProgressCallback && this._onProgressCallback(this._progress)
 
-            const action = this.actions[this._currentStep]
+            const action = this._actions[this._currentStep]
             switch (action.type) {
                 case "autoHome":
-                    this.uartConnection.sendCommand(`G28 A${(action as AutoHome).speed}`)
+                    await this._uartConnection.sendCommand(`G28 A${(action as AutoHome).speed}`)
 
                     break;
                 case "ledEnable":
-                    this.uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
+                    this._uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
 
                     break;
 
                 case "moveLength":
-                    
-                    this._isMoving = true
-                    await this.uartConnection.sendCommandMoveLength((action as MoveLength).length)
-                    break;
+                    await this._uartConnection.sendCommandMoveLength((action as MoveLength).length)
 
+                    break;
                 case "movePosition":
-
-                    this._isMoving = true
-                    await this.uartConnection.sendCommandMoveLength((action as MovePosition).position)
+                    await this._uartConnection.sendCommandMoveLength((action as MovePosition).position)
 
                     break;
-
                 case "wait":
                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
+
                     break;
-                    
                 case "setImage":
-                    this.imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value)=>{
+                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value)=>{
                         // set image path
                     })
                     break;
@@ -157,9 +185,12 @@ class PrintWorker{
             this._currentStep++
         }
     }
-    onProgressCB(cb : () => {}){
+    onProgressCB(cb : (progreess: number) => void){
         this._onProgressCallback = cb
+    }
+    onStateChangeCB(cb : (state : WorkingState) => void){
+        this._onWorkingStateChangedCallback = cb
     }
 }
 
-export {PrintWorker}
+export {PrintWorker,WorkingState}

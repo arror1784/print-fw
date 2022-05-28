@@ -1,22 +1,22 @@
 import { JsonSetting } from "./json";
 
-interface InfoValue{
+interface InfoSettingValue{
     layerHeight: number;
     totalLayer: number;
 }
 
-const _infoPath : string = "/opt/capsuleFw/"
+const _infoPath : string = "/opt/capsuleFw/print/printFilePath"
 
-class InfoSetting extends JsonSetting<InfoValue>{
+class InfoSetting extends JsonSetting<InfoSettingValue>{
 
-    constructor(_infoPath:string,_infoData?:string){
+    constructor(_infoData?:string){
         super(_infoPath,{fileData:_infoData,parser:InfoSetting.parser,saver:InfoSetting.saver})
     }
 
-    static parser(ob : any) : InfoValue{
+    static parser(ob : any) : InfoSettingValue{
         return {layerHeight: ob.layer_height,totalLayer: ob.total_layer}
     }
-    static saver(ob : InfoValue) : string{
+    static saver(ob : InfoSettingValue) : string{
 
         return JSON.stringify({
             layer_height: ob.layerHeight,
@@ -26,3 +26,4 @@ class InfoSetting extends JsonSetting<InfoValue>{
 }
 
 export {InfoSetting}
+export type {InfoSettingValue}

@@ -1,6 +1,7 @@
 import { SerialPort , DelimiterParser} from 'serialport';
-import { PrintSettings } from './Settings';
 import { EventEmitter } from 'events'
+import { ResinSetting, ResinSettingValue } from './json/resin';
+import { getPrinterSetting } from './json/printerSetting';
 
 const enum UartResponseType{
     LCD = 91,
@@ -35,7 +36,7 @@ function toBytesInt32 (num :number) {
 
 class UartConnectionTest{
     
-    init(printSetting : PrintSettings){
+    init(printSetting : ResinSettingValue){
     }
     connect(){
     }
@@ -116,17 +117,16 @@ class UartConnection extends UartConnectionTest{
 
         this.connect()
     }
-    init(printSetting : PrintSettings){
-        this.sendCommand(`H32 A${printSetting.upMoveSetting.accelSpeed} M1`)
-        this.sendCommand(`H32 A${printSetting.downMoveSetting.accelSpeed} M0`)
-        this.sendCommand(`H33 A${printSetting.upMoveSetting.decelSpeed} M1`)
-        this.sendCommand(`H33 A${printSetting.downMoveSetting.decelSpeed} M0`)
-        this.sendCommand(`H30 A${printSetting.upMoveSetting.maxSpeed} M1`)
-        this.sendCommand(`H30 A${printSetting.downMoveSetting.maxSpeed} M0`)
-        this.sendCommand(`H31 A${printSetting.upMoveSetting.initSpeed} M1`)
-        this.sendCommand(`H31 A${printSetting.downMoveSetting.initSpeed} M0`)
-
-        this.sendCommand(`H12 A${printSetting.ledOffset}`)
+    init(resinSetting : ResinSettingValue){
+        this.sendCommand(`H32 A${resinSetting.upMoveSetting.accelSpeed} M1`)
+        this.sendCommand(`H32 A${resinSetting.downMoveSetting.accelSpeed} M0`)
+        this.sendCommand(`H33 A${resinSetting.upMoveSetting.decelSpeed} M1`)
+        this.sendCommand(`H33 A${resinSetting.downMoveSetting.decelSpeed} M0`)
+        this.sendCommand(`H30 A${resinSetting.upMoveSetting.maxSpeed} M1`)
+        this.sendCommand(`H30 A${resinSetting.downMoveSetting.maxSpeed} M0`)
+        this.sendCommand(`H31 A${resinSetting.upMoveSetting.initSpeed} M1`)
+        this.sendCommand(`H31 A${resinSetting.downMoveSetting.initSpeed} M0`)
+        this.sendCommand(`H12 A${(getPrinterSetting().data.ledOffset / 100) *  (resinSetting.ledOffset / 100)}`)
     }
     connect(){
         this.port.open()

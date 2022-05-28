@@ -30,8 +30,8 @@ const _resinPath : string = "/opt/capsuleFw/resin/"
 
 class ResinSetting extends JsonSetting<ResinSettingArray>{
 
-    constructor(private _resinName:string,private _resinData?:string){
-        super(_resinPath + _resinName,{fileData:_resinData,parser:ResinSetting.parser,saver:ResinSetting.saver})
+    constructor(public readonly resinName:string,private _resinData?:string){
+        super(_resinPath + resinName,{fileData:_resinData,parser:ResinSetting.parser,saver:ResinSetting.saver})
     }
 
     static parser(ob : any) : ResinSettingArray{
@@ -99,3 +99,4 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
 }
 
 export {ResinSetting}
+export type {ResinSettingValue}

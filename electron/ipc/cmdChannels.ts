@@ -21,8 +21,11 @@ enum WorkerCH{
 
     onWorkingStateChanged = "worker:onWorkingStateChanged",
     onPrintInfo = "worker:onPrintInfo",
+    onStartError = "worker:onStartError",
+    onProgress = "worker:onProgress"
 }
 enum ImageCH{
-    changeImage = 'image::changeImage'
+    changeImage = 'image::changeImage',
+    changeScale = "image::changeScale"
 }
 export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH}
