@@ -26,6 +26,18 @@ function Progress(){
     const [layerHeight, setLayerHeight] = useState<number>(0.1)
     const [expiryTimestamp, setExpiryTimestamp] = useState<Date>(new Date())
 
+    const {
+        seconds,
+        minutes,
+        hours,
+        days,
+        isRunning,
+        start,
+        pause,
+        resume,
+        restart,
+      } = useTimer({ expiryTimestamp, onExpire: () => console.warn('onExpire called') });
+
     window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
         setProgressValue(Number((progress*100).toFixed()))
     })
@@ -38,6 +50,22 @@ function Progress(){
     useEffect(()=>{
         window.electronAPI.requestPrintInfo()
     },[])
+    useEffect(()=>{
+        
+        const {
+            seconds,
+            minutes,
+            hours,
+            days,
+            isRunning,
+            start,
+            pause,
+            resume,
+            restart,
+          } = useTimer({ expiryTimestamp, onExpire: () => console.warn('onExpire called') });
+
+    },[expiryTimestamp])
+    
     return (
         <div>
             <Header>
