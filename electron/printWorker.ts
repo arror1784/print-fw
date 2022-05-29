@@ -20,13 +20,14 @@ class PrintWorker{
 
     private _name: string = ""
     private _currentStep: number = 0
-    private _isRun: boolean = false
     private _workingState: WorkingState = WorkingState.stop
     private _progress : number = 0
+    private _lock : boolean = false
 
     private _onProgressCallback?: (progress : number) => void
     private _onWorkingStateChangedCallback?: (state : WorkingState) => void
 
+    private _resinName : string= ""
     private _resinSetting : ResinSettingValue = {
         upMoveSetting: {
             accelSpeed: 0,
@@ -71,9 +72,12 @@ class PrintWorker{
         this._infoSetting = info.data
         if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
             return new Error("resin height not available")
-
+        if(this._lock)
+            return new Error("print Lock")
+        
         this._resinSetting = resin.data[info.data.layerHeight.toString()]
-
+        this._resinName = resin.resinName
+        
         this._uartConnection.init(this._resinSetting)
 
         this.createActions(this._resinSetting,this._infoSetting)
@@ -132,11 +136,15 @@ class PrintWorker{
     }
     stop(){
         this._workingState = WorkingState.stop
-        // this._actions = []
+        this._lock = true
+
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
     }
+    printAgain(){
+        this.run(this._name,new ResinSetting(this._resinName))
+    }
     async process(){
-        while(this._currentStep < this._actions.length && this._isRun) {
+        while(this._currentStep < this._actions.length) {
             
             switch (this._workingState) {
                 case WorkingState.pauseWork:
@@ -184,6 +192,10 @@ class PrintWorker{
             }
             this._currentStep++
         }
+        this.stop()
+    }
+    unlock(){
+        this._lock = false
     }
     onProgressCB(cb : (progreess: number) => void){
         this._onProgressCallback = cb

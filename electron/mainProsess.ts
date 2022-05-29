@@ -1,8 +1,8 @@
 import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { PrintWorker, WorkingState } from "./printWorker"
-import { UartConnection } from "./uartConnection"
-import { ImageCH, WorkerCH } from './ipc/cmdChannels'
+import { UartConnection, UartResponseType } from "./uartConnection"
+import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
 import * as fs from "fs"
 import * as AdmZip from 'adm-zip'
@@ -21,6 +21,18 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     if(!uartConnection.checkConnection())
         return new Error("uart connect error")
     
+    uartConnection.onResponse((type : UartResponseType,response:number) => {
+        switch(type){
+            case UartResponseType.SHUTDOWN:
+                mainWindow.webContents.send(ProductCH.onShutDownMR)
+                break;
+            case UartResponseType.LCD:
+                mainWindow.webContents.send(ProductCH.onLCDStateChangedMR,response)
+                break;
+            default:
+                break;
+        }
+    })
     imageProvider.imageCB((src : string) => {
         imageWindow.webContents.send(ImageCH.changeImageMR,src)
     })
@@ -30,6 +42,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     worker.onStateChangeCB((state:WorkingState)=>{
         mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state)
     })
+    
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
 
         if(!fs.existsSync(path))
@@ -58,7 +71,6 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         mainWindow.webContents.send(WorkerCH.startRM,name,material,worker.infoSetting.layerHeight)
 
     })
-
     ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{
         switch (cmd) {
             case "pause":
@@ -70,9 +82,15 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
             case "resume":
                 worker.resume()
                 break;
+            case "printAgain":
+                worker.printAgain()
+                break;
             default:
                 break;
         }
+    })
+    ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
+        worker.unlock()
     })
 }
 

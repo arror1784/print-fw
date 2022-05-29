@@ -9,9 +9,12 @@ import styled from 'styled-components'
 import Footer from '../layout/Footer';
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
+import { useNavigate } from 'react-router-dom';
 
 function Complete(){
     
+    let navigate = useNavigate()
+
     const [status, setStatus] = useState<string>("normal");
     const [fileName, setFileName] = useState<string>("helll world");
     const [spentTime, setSpentTime] = useState<string>("15min 20sec");
@@ -33,8 +36,13 @@ function Complete(){
             </InfoArea>
         </MainArea>
         <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}> Print again </Button>
-                <Button color='blue' type='small' onClick={() => {console.log("back btn clicked")}}> Close </Button> 
+                <Button color='gray' type='small' onClick={() => {
+                    window.electronAPI.unLockRM()
+                    window.electronAPI.printCommandRM("printAgain")
+                }}> Print again </Button>
+                <Button color='blue' type='small' onClick={() => {
+                    window.electronAPI.unLockRM()
+                    navigate('/') }}> Close </Button> 
         </Footer>
     </div>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);

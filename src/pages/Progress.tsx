@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import styled from 'styled-components'
@@ -12,13 +12,32 @@ import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-pro
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
+import { IpcRendererEvent } from 'electron';
+
+import { useTimer } from 'react-timer-hook';
 
 function Progress(){
 
     const navigate = useNavigate()
 
-    const [progressValue, setProgressValue] = useState(45)
-    
+    const [progressValue, setProgressValue] = useState<number>(45)
+    const [filename, setFilename] = useState<string>("")
+    const [material, setMaterial] = useState<string>("")
+    const [layerHeight, setLayerHeight] = useState<number>(0.1)
+    const [expiryTimestamp, setExpiryTimestamp] = useState<Date>(new Date())
+
+    window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
+        setProgressValue(Number((progress*100).toFixed()))
+    })
+    window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
+        ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
+        setFilename(filename)
+        setMaterial(material)
+        setLayerHeight(layerHeight)
+    })
+    useEffect(()=>{
+        window.electronAPI.requestPrintInfo()
+    },[])
     return (
         <div>
             <Header>
@@ -30,8 +49,8 @@ function Progress(){
                     <TitleText>
                         File name
                     </TitleText>
-                    <ValueText> 
-                        asd
+                    <ValueText>
+                        {filename}
                     </ValueText>
                     <TitleText>
                         Remaining time

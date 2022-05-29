@@ -5,6 +5,7 @@ import './App.css';
 import './routes'
 import AppRoute from './routes';
 import { BrowserRouter,HashRouter } from 'react-router-dom'
+import ExtraModals from './pages/extraPages';
 
 function App() {
   const style = {
@@ -19,6 +20,7 @@ function App() {
           <HashRouter>
             <AppRoute></AppRoute>
           </HashRouter>
+          <ExtraModals></ExtraModals>
         </div>
       </header>
     </div>

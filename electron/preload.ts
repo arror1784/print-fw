@@ -4,40 +4,49 @@ import './ipc/cmdChannels'
 import { FileSystemCH, ProductCH, ResinCH, WorkerCH } from './ipc/cmdChannels';
 
 interface ContextBridgeApi {
-    readDir: (path : string) => Promise<DirOrFile[]>;
-    resinList: () => Promise<string[]>;
-    getOffsetSettings: () => Promise<string[]>;
-    getPrinterInfo: () => Promise<string[]>;
+    readDirTW: (path : string) => Promise<DirOrFile[]>;
+    resinListTW: () => Promise<string[]>;
+    getOffsetSettingsTW: () => Promise<string[]>;
+    getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
 
 
-    printStart: (name : string, material : string,height:number) => void;
-    printCommand: (cmd :string) => void;
+    printStartRM: (path : string, material : string) => void;
+    printCommandRM: (cmd :string) => void;
+    unLockRM: () => void;
+    requestPrintInfo: () => void,
 
-    onWorkingStateChanged: (callback:(event:IpcRendererEvent,state: string) => void) => Electron.IpcRenderer;
-    onPrintInfo: (callback:(event:IpcRendererEvent,state: string, material: string, 
+    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => Electron.IpcRenderer;
+    onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => Electron.IpcRenderer;
-    onLCDStateChanged: (callback:(event:IpcRendererEvent,state: boolean) => void) => Electron.IpcRenderer;
-    onStartError: (callback:(event:IpcRendererEvent,error: string) => void) => Electron.IpcRenderer;
+    onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => Electron.IpcRenderer;
+    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => Electron.IpcRenderer;
+    onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => Electron.IpcRenderer;
+    onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => Electron.IpcRenderer;
 
 
 }
 const exposedApi: ContextBridgeApi = {
-    readDir: (path: string) => ipcRenderer.invoke(FileSystemCH.readDirTW,path),
-    resinList: () => ipcRenderer.invoke(ResinCH.resinListTW),
-    getOffsetSettings: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
-    getPrinterInfo: () => ipcRenderer.invoke(ProductCH.getPrinterInfoTW),
+    readDirTW: (path: string) => ipcRenderer.invoke(FileSystemCH.readDirTW,path),
+    resinListTW: () => ipcRenderer.invoke(ResinCH.resinListTW),
+    getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
+    getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getPrinterInfoTW),
 
-    printStart: (name : string, material : string,height:number) => ipcRenderer.send(WorkerCH.startRM,name,material,height),
-    printCommand: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
+    printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
+    printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
+    unLockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
+    requestPrintInfo: () => ipcRenderer.send(WorkerCH.requestPrintInfoMR),
 
-    onWorkingStateChanged: (callback:(event: IpcRendererEvent,state: string) => void) => {return ipcRenderer.on(WorkerCH.onWorkingStateChangedMR,callback)},
-    onPrintInfo: (callback:(event:IpcRendererEvent,state: string, material: string, 
+    onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return ipcRenderer.on(WorkerCH.onWorkingStateChangedMR,callback)},
+    onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => {return ipcRenderer.on(WorkerCH.onPrintInfoMR,callback)},
-
-    onLCDStateChanged: (callback:(event:IpcRendererEvent,state: boolean) => void) => {return ipcRenderer.on(ProductCH.onLCDStateChanged,callback)},
-    onStartError: (callback:(event:IpcRendererEvent,error: string) => void) => {return ipcRenderer.on(WorkerCH.onStartErrorMR,callback)},
+    onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => {return ipcRenderer.on(ProductCH.onLCDStateChangedMR,callback)},
+    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => {return ipcRenderer.on(ProductCH.onShutDownMR,callback)},
+    onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => {return ipcRenderer.on(WorkerCH.onStartErrorMR,callback)},
+    onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => {return ipcRenderer.on(WorkerCH.onProgressMR,callback)},
 
 }
 contextBridge.exposeInMainWorld('electronAPI', exposedApi)
+
+export type {ContextBridgeApi}

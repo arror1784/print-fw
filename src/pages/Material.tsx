@@ -19,11 +19,9 @@ function Material(){
 
     const { selectPath } = useParams()
 
-    console.log(decode(selectPath as string))
-    
     useEffect(() => {
 
-        window.electronAPI.resinList().then((value:string[]) => {
+        window.electronAPI.resinListTW().then((value:string[]) => {
         
             var listModel : SelectListModel[] = []
             value.forEach((value:string,index:number)=>{
@@ -52,7 +50,9 @@ function Material(){
             <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
             <Button color='blue' type='small' onClick={() => {setModalVisible(true)}}>Select</Button>
         </Footer>
-        <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {navigate('/progress')}}>
+        <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {
+            window.electronAPI.printStartRM(decode(selectPath as string),selectResin.name)
+        }}>
             {/* {filePath} */}
         </Modal>
     </div>);

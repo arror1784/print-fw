@@ -32,7 +32,7 @@ function Model(){
     const [selectFile, setSelectFile] = useState<DirOrFile>({name:"",isDir:false,path:"",id:-1});
 
     useEffect(() => {
-        window.electronAPI.readDir(dirPath).then(
+        window.electronAPI.readDirTW(dirPath).then(
             (value : DirOrFile[]) => {
                 value = value.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
                 value.sort((a:DirOrFile,b:DirOrFile) : number  => {

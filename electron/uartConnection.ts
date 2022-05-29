@@ -229,12 +229,6 @@ class UartConnection extends UartConnectionTest{
         return true
     }
 }
-
-function waitForEvent(event:string){
-
-
-
-}
 function parseCommand(command: string) : CommandFormat{
     let paredCommand = command.split(' ')
     let data : CommandFormat = {
@@ -320,5 +314,4 @@ function transData(command: CommandFormat) : Uint8Array{
     buf[24] = 0x03;
     return buf
 }
-export { UartConnection, UartConnectionTest, transData, parseCommand};
-export type {UartResponseType};
+export { UartConnection, UartConnectionTest,UartResponseType, transData, parseCommand};
