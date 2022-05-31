@@ -27,7 +27,7 @@ function Home(){
                 setWifi(value[2])
                 setIp(value[3])
             })
-    }, [wifi,ip])
+    }, [])
 
     return (
     <HomeArea>

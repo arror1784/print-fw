@@ -18,7 +18,7 @@ function Wifi(){
 
     useEffect(() => {
 
-        window.electronAPI.resinList().then((value:string[]) => {
+        window.electronAPI.resinListTW().then((value:string[]) => {
         
             var listModel : SelectListModel[] = []
             value.forEach((value:string,index:number)=>{

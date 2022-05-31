@@ -95,8 +95,6 @@ class UartConnection extends UartConnectionTest{
             let view = new Uint8Array(response)
             let i = view.findIndex((value)=>{ return value == 0x02})
 
-            console.log(view)
-
             if(i == -1)
                 return;
             
@@ -139,11 +137,12 @@ class UartConnection extends UartConnectionTest{
     }
     sendCommand(command: Uint8Array | string){
 
+        console.log(command)
+
         let cmd: Uint8Array = command as Uint8Array;
         if(typeof(command) === "string"){
             cmd = transData(parseCommand(command as string))
         }
-        console.log(cmd)
         this.port.write(cmd)
         // this.port.drain()
         

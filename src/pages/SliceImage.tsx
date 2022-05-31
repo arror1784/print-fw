@@ -1,6 +1,5 @@
 import { IpcRendererEvent } from 'electron';
 import React, { useState } from 'react';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import styled from 'styled-components'
 
 function SliceImage() {
