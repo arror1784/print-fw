@@ -1,3 +1,5 @@
+import { existsSync } from "fs";
+
 type Product = "C10" | "L10"
 
 const binding = require('bindings')
@@ -18,7 +20,10 @@ class ImageProvider{
     }
 
     async setImage(index : number, delta:number, ymult:number) : Promise<boolean>{
-        
+        if(index == -1)
+            return true
+        if(!existsSync(this.rootPath+`/${index}.png`))
+            return false
         this._cb && this._cb(addOn.transRgbToBase64(this.rootPath+`/${index}.png`,delta,ymult,this._product == "L10"))
         return true;
     }
