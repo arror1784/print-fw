@@ -3,20 +3,19 @@ import { ImageProvider } from './imageProvider';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
 import { ResinSetting, ResinSettingValue } from './json/resin';
-import { JsonSetting } from './json/json';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
-import { info } from 'console';
 
 enum WorkingState{
     working = "working",
     stop = "stop",
     pause = "pause",
-    pauseWork = "pauseWork"
+    pauseWork = "pauseWork",
+    error = "error"
 }
 
 class PrintWorker{
 
-    private _actions: Array<Action> = [];
+    private _actions: Array<Action> = new Array<Action>(10000);
 
     private _name: string = ""
     private _currentStep: number = 0
@@ -62,10 +61,14 @@ class PrintWorker{
     constructor(private readonly _uartConnection: UartConnection | UartConnectionTest,private readonly _imageProvider: ImageProvider){
         _uartConnection.checkConnection()
     }
-    
+    getPrintInfo(){
+        return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,0,0,this._progress,true]
+    }
     run(name :string, resin:ResinSetting){
         this._name = name
         let info = new InfoSetting()
+
+        this._currentStep = 0
         if(!info.isOpen())
             return new Error("uart connect error")
         
@@ -78,26 +81,26 @@ class PrintWorker{
         this._resinSetting = resin.data[info.data.layerHeight.toString()]
         this._resinName = resin.resinName
         
-        this._uartConnection.init(this._resinSetting)
-
+        this._actions = []
         this.createActions(this._resinSetting,this._infoSetting)
 
-        this._actions = []
+        this._uartConnection.init(this._resinSetting)
 
         this._workingState = WorkingState.working
+        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
 
         this.process()
 
         return true
     }
     createActions(resinSetting : ResinSettingValue,infoSetting : InfoSettingValue) {
-        this._actions = []
 
+        let layerHeight = this._infoSetting.layerHeight * 1000
         this._actions.push(new SetImage(0,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
         this._actions.push(new AutoHome(255))
 
-        this._actions.push(new MovePosition(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - this._infoSetting.layerHeight)))
+        this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
         for (let i = 0; i < this._infoSetting.totalLayer; i++) {
 
@@ -112,9 +115,9 @@ class PrintWorker{
 
             this._actions.push(new SetImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
-            this._actions.push(new MovePosition(this._resinSetting.zHopHeight))
+            this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
-            this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - this._infoSetting.layerHeight)))
+            this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
 
             this._actions.push(new Wait(this._resinSetting.delay))
 
@@ -122,8 +125,6 @@ class PrintWorker{
         this._actions.push(new SetImage(-1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
         this._actions.push(new MovePosition(-15000))
-
-        this.process()
     }
     pause(){
         this._workingState = WorkingState.pauseWork
@@ -145,7 +146,8 @@ class PrintWorker{
     }
     async process(){
         while(this._currentStep < this._actions.length) {
-            
+            console.log("PROCESS WHILE",this._currentStep)
+
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
@@ -162,20 +164,19 @@ class PrintWorker{
             const action = this._actions[this._currentStep]
             switch (action.type) {
                 case "autoHome":
-                    await this._uartConnection.sendCommand(`G28 A${(action as AutoHome).speed}`)
+                    await this._uartConnection.sendCommandAutoHome(255)
 
                     break;
                 case "ledEnable":
                     this._uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
 
                     break;
-
                 case "moveLength":
                     await this._uartConnection.sendCommandMoveLength((action as MoveLength).length)
 
                     break;
                 case "movePosition":
-                    await this._uartConnection.sendCommandMoveLength((action as MovePosition).position)
+                    await this._uartConnection.sendCommandMovePosition((action as MovePosition).position)
 
                     break;
                 case "wait":
@@ -183,9 +184,8 @@ class PrintWorker{
 
                     break;
                 case "setImage":
-                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value)=>{
-                        // set image path
-                    })
+                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
+                    
                     break;
                 default:
                     break;
