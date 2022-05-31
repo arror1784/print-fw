@@ -28,21 +28,33 @@ function Progress(){
 
 
     useEffect(()=>{
-        const [progressCH,progressCBID] = window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
+        const progressListener = window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
             setProgressValue(Number((progress*100).toFixed()))
         })
 
-        const [printInfoCH,printIncoCBID] = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
+        const printerInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
             ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
             setFilename(filename)
             setMaterial(material)
             setLayerHeight(layerHeight)
         })
-        
+        window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+            switch(state){
+                case "working":
+                    navigate('/progress')
+                    break;
+                case "stop":
+                case "error":
+                    navigate('/complete')
+                    break;
+                default:
+                    break;
+            }
+        })
         window.electronAPI.requestPrintInfo()
         return ()=>{
-            window.electronAPI.removeListener(printInfoCH,printIncoCBID)
-            window.electronAPI.removeListener(progressCH,progressCBID)
+            window.electronAPI.removeListener(printerInfoListener)
+            window.electronAPI.removeListener(progressListener)
         }
     },[])
     

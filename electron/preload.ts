@@ -1,15 +1,19 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
 import { FileSystemCH, ProductCH, ResinCH, WorkerCH } from './ipc/cmdChannels';
-import { channel } from 'diagnostics_channel';
+import { Channel, channel } from 'diagnostics_channel';
 let _id = 0
 
-interface EventListnerArr{
+interface EventListener{
+    channel:string;
+    id:string;
+}
+interface EventListenerArr{
     [key:string] : (...args : any[]) => void
 }
-let eventListnerArr : EventListnerArr = {}
+let eventListnerArr : EventListenerArr = {}
 
-function eventADD(channel : string,listner:(...args : any[]) => void) : [string,string]{
+function eventADD(channel : string,listner:(...args : any[]) => void) : EventListener{
 
     _id++
     eventListnerArr[_id.toString()] = listner
@@ -17,14 +21,14 @@ function eventADD(channel : string,listner:(...args : any[]) => void) : [string,
 
     console.log(channel,ipcRenderer.listenerCount(channel),eventListnerArr[_id],Object.keys(eventListnerArr).length)
 
-    return [channel,_id.toString()]
+    return {channel:channel,id:_id.toString()}
 }
-function eventRemove(channel : string,id:string){
-    ipcRenderer.removeListener(channel,eventListnerArr[id])
+function eventRemove(listener:EventListener){
+    ipcRenderer.removeListener(listener.channel,eventListnerArr[listener.id])
 
-    delete eventListnerArr[id]
+    delete eventListnerArr[listener.id]
 
-    console.log(channel,ipcRenderer.listenerCount(channel),eventListnerArr[_id],Object.keys(eventListnerArr).length)
+    console.log(channel,ipcRenderer.listenerCount(listener.channel),eventListnerArr[_id],Object.keys(eventListnerArr).length)
 
 }
 
@@ -40,16 +44,16 @@ interface ContextBridgeApi {
     unLockRM: () => void;
     requestPrintInfo: () => void,
 
-    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => [string,string];
+    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
-                                totalTime: number,progress : number,enabelTimer: number) => void) => [string,string];
-    onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => [string,string];
-    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => [string,string];
-    onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => [string,string];
-    onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => [string,string];
+                                totalTime: number,progress : number,enabelTimer: number) => void) => EventListener;
+    onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => EventListener;
+    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => EventListener;
+    onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => EventListener;
+    onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => EventListener;
 
-    removeListener : (channel:string,id:string) => void;
+    removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
 
 }
@@ -73,7 +77,7 @@ const exposedApi: ContextBridgeApi = {
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => {return eventADD(WorkerCH.onStartErrorMR,callback)},
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => {return eventADD(WorkerCH.onProgressMR,callback)},
 
-    removeListener : (channel:string,id:string) => eventRemove(channel,id),
+    removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
 }
 

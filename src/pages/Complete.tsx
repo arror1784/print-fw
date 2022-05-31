@@ -23,7 +23,7 @@ function Complete(){
     const [spentTime, setSpentTime] = useState<string>("15min 20sec");
 
     useEffect(()=>{
-        const [ch,id] = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
+        const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
             ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
             setFilename(filename)
             if(state === "error")
@@ -33,7 +33,7 @@ function Complete(){
         window.electronAPI.requestPrintInfo()
 
         return ()=>{
-            window.electronAPI.removeListener(ch,id)
+            window.electronAPI.removeListener(printInfoListener)
         }
     },[])
 
