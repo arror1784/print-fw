@@ -19,10 +19,10 @@ enum ResinCH{
 
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
-    getPrinterInfoTW = "product:getPrinterInfo,RT:string[]",
+    getProductInfoTW = "product:getProductInfo,RT:string[]",
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
-    onShutDownMR = "product:onLCDStateChanged",
+    onShutDownMR = "product:onShutDown",
 
 }
 

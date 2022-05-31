@@ -1,36 +1,56 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../components/Button';
 
 import classNames from 'classnames';
 
 import checkImg from '../assets/check.png'
+import errorImg from '../assets/error.png'
+
 import styled from 'styled-components'
 
 import Footer from '../layout/Footer';
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
+import { IpcRendererEvent } from 'electron';
 
 function Complete(){
     
     let navigate = useNavigate()
 
-    const [status, setStatus] = useState<string>("normal");
-    const [fileName, setFileName] = useState<string>("helll world");
+    const [isError, setIsError] = useState<boolean>(false);
+    const [filename, setFilename] = useState<string>("helll world");
     const [spentTime, setSpentTime] = useState<string>("15min 20sec");
+
+    useEffect(()=>{
+        const [ch,id] = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
+            ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
+            setFilename(filename)
+            if(state === "error")
+                setIsError(true)
+        })
+        
+        window.electronAPI.requestPrintInfo()
+
+        return ()=>{
+            window.electronAPI.removeListener(ch,id)
+        }
+    },[])
 
     return (
     <div>
         <MainArea>
             <FinishArea>
-                <FinishImg src={checkImg} width={60}/>
+                <FinishImg src={isError ? errorImg : checkImg} width={60}/>
                 <FinishText>
-                    Printing Compeleted!
+                    {
+                        isError ? "Printing Error!" : "Printing Compeleted!"
+                    }
                 </FinishText>
             </FinishArea>
             <InfoArea>
                 <InfoText>File Name</InfoText>
-                <InfoValue>{fileName}</InfoValue>
+                <InfoValue>{filename}</InfoValue>
                 <InfoText>Time Spent</InfoText>
                 <InfoValue>{spentTime}</InfoValue>
             </InfoArea>

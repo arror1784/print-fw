@@ -27,7 +27,6 @@ function Material(){
             value.forEach((value:string,index:number)=>{
                 listModel.push({name:value,id:index})
             })
-            console.log(listModel)
             setResinList(listModel)  
         })    
       return () => {}

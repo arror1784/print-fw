@@ -5,9 +5,8 @@ import { readDir } from "./filesystem"
 import { resinList } from "./resin"
 
 function ipcHandle(){
-    ipcMain.handle(FileSystemCH.readDir, readDir)
-    ipcMain.handle(ResinCH.resinList, resinList)
-
+    ipcMain.handle(FileSystemCH.readDirTW, readDir)
+    ipcMain.handle(ResinCH.resinListTW, resinList)
 }
 
 export {ipcHandle}

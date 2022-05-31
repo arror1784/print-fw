@@ -12,7 +12,7 @@ import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-pro
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
-import { IpcRendererEvent } from 'electron';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 import { useTimer } from 'react-timer-hook';
 
@@ -26,45 +26,25 @@ function Progress(){
     const [layerHeight, setLayerHeight] = useState<number>(0.1)
     const [expiryTimestamp, setExpiryTimestamp] = useState<Date>(new Date())
 
-    const {
-        seconds,
-        minutes,
-        hours,
-        days,
-        isRunning,
-        start,
-        pause,
-        resume,
-        restart,
-      } = useTimer({ expiryTimestamp, onExpire: () => console.warn('onExpire called') });
 
-    window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
-        setProgressValue(Number((progress*100).toFixed()))
-    })
-    window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
-        ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
-        setFilename(filename)
-        setMaterial(material)
-        setLayerHeight(layerHeight)
-    })
     useEffect(()=>{
-        window.electronAPI.requestPrintInfo()
-    },[])
-    useEffect(()=>{
+        const [progressCH,progressCBID] = window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
+            setProgressValue(Number((progress*100).toFixed()))
+        })
+
+        const [printInfoCH,printIncoCBID] = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
+            ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
+            setFilename(filename)
+            setMaterial(material)
+            setLayerHeight(layerHeight)
+        })
         
-        const {
-            seconds,
-            minutes,
-            hours,
-            days,
-            isRunning,
-            start,
-            pause,
-            resume,
-            restart,
-          } = useTimer({ expiryTimestamp, onExpire: () => console.warn('onExpire called') });
-
-    },[expiryTimestamp])
+        window.electronAPI.requestPrintInfo()
+        return ()=>{
+            window.electronAPI.removeListener(printInfoCH,printIncoCBID)
+            window.electronAPI.removeListener(progressCH,progressCBID)
+        }
+    },[])
     
     return (
         <div>
