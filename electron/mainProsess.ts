@@ -18,8 +18,8 @@ let worker = new PrintWorker(uartConnection,imageProvider)
 
 function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
 
-    if(!uartConnection.checkConnection())
-        return new Error("uart connect error")
+    // if(!uartConnection.checkConnection())
+    //     return new Error("uart connect error")
     
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
@@ -29,12 +29,16 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
             case UartResponseType.LCD:
                 mainWindow.webContents.send(ProductCH.onLCDStateChangedMR,response)
                 break;
+            case UartResponseType.ERROR:
+                console.log("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROR")
+                break;
             default:
                 break;
         }
     })
     imageProvider.imageCB((src : string) => {
-        imageWindow.webContents.send(ImageCH.changeImageMR,src)
+        if(!imageWindow.isDestroyed())
+            imageWindow.webContents.send(ImageCH.changeImageMR,src)
     })
     worker.onProgressCB((progress:number)=>{
         mainWindow.webContents.send(WorkerCH.onProgressMR,progress)
@@ -44,32 +48,36 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     })
     
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
-
-        if(!fs.existsSync(path))
-            return new Error("file not exist")
-        if(!getPrinterSetting().data.resinList.includes(material))
-            return new Error("resin not exist")
-            
-        let zip = new AdmZip(path)
-        if(!zip.test())
-            return new Error("can not open zip")
-        
-        zip.extractAllTo(sliceFileRoot,true)
-        let resin : ResinSetting
-        if(fs.existsSync(sliceFileRoot+'/resin.json')){
-            resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
-        }else{
-            resin = new ResinSetting(material)
-        }
-        let nameArr = path.split('/')
-        let name = nameArr[nameArr.length -1].split('/')[0]
         try {
-            worker.run(name,resin)
-        } catch (error) {
-            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
-        }
-        mainWindow.webContents.send(WorkerCH.startRM,name,material,worker.infoSetting.layerHeight)
+            if(!fs.existsSync(path))
+                return new Error("file not exist")
+            if(!getPrinterSetting().data.resinList.includes(material))
+                return new Error("resin not exist")
+                
+            let zip = new AdmZip(path)
+            if(!zip.test())
+                return new Error("can not open zip")
+            
+            zip.extractAllTo(sliceFileRoot,true)
+            let resin : ResinSetting
+            if(fs.existsSync(sliceFileRoot+'/resin.json')){
+                resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
+            }else{
+                resin = new ResinSetting(material)
+            }
+            let nameArr = path.split('/')
+            let name = nameArr[nameArr.length -1].split('.')[0]
+            try {
+                worker.run(name,resin)
+            } catch (error) {
+                console.log((error as Error).stack)
 
+                mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
+            }
+
+        } catch (error) {
+            console.log((error as Error).stack)
+        }
     })
     ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{
         switch (cmd) {
@@ -88,6 +96,9 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
             default:
                 break;
         }
+    })
+    ipcMain.on(WorkerCH.requestPrintInfoMR,(event:IpcMainEvent)=>{
+        mainWindow.webContents.send(WorkerCH.onPrintInfoMR,...worker.getPrintInfo())
     })
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
