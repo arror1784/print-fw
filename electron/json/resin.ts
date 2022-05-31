@@ -25,55 +25,62 @@ interface ResinSettingValue{
 
 interface ResinSettingArray{
     [key: string]: ResinSettingValue;
+    
 }
-const _resinPath : string = "/opt/capsuleFw/resin/"
+const _resinPath : string = "/opt/capsuleFW/resin/"
 
 class ResinSetting extends JsonSetting<ResinSettingArray>{
 
+    public last_update?: string
     constructor(public readonly resinName:string,private _resinData?:string){
-        super(_resinPath + resinName,{fileData:_resinData,parser:ResinSetting.parser,saver:ResinSetting.saver})
+        super(_resinPath + resinName + '.json',{fileData:_resinData})
     }
 
-    static parser(ob : any) : ResinSettingArray{
+    parse(ob : any) : ResinSettingArray{
         let rsa : ResinSettingArray = {}
+
         Object.keys(ob).forEach((value: string,index :number) => {
+            if(value == "last_update"){
+                this.last_update = ob[value]
+                return
+            }
             rsa[value] = {
                 upMoveSetting: {
-                    accelSpeed: ob.value.up_accel_speed,
-                    decelSpeed: ob.value.up_decel_speed,
-                    initSpeed: ob.value.init_speed,
-                    maxSpeed: ob.value.max_speed
+                    accelSpeed: ob[value].up_accel_speed,
+                    decelSpeed: ob[value].up_decel_speed,
+                    initSpeed: ob[value].init_speed,
+                    maxSpeed: ob[value].max_speed
                 },
                 downMoveSetting: {
-                    accelSpeed: ob.value.down_accel_speed,
-                    decelSpeed: ob.value.down_decel_speed,
-                    initSpeed: ob.value.init_speed,
-                    maxSpeed: ob.value.max_speed
+                    accelSpeed: ob[value].down_accel_speed,
+                    decelSpeed: ob[value].down_decel_speed,
+                    initSpeed: ob[value].init_speed,
+                    maxSpeed: ob[value].max_speed
                 },
             
-                delay: ob.value.layer_delay,
-                curingTime: ob.value.curing_time,
-                bedCuringTime: ob.value.bed_curing_time,
-                ledOffset: ob.value.led_offset,
+                delay: ob[value].layer_delay,
+                curingTime: ob[value].curing_time,
+                bedCuringTime: ob[value].bed_curing_time,
+                ledOffset: ob[value].led_offset,
         
-                bedCuringLayer: ob.value.bed_curing_layer,
-                zHopHeight: ob.value.z_hop_height,
+                bedCuringLayer: ob[value].bed_curing_layer,
+                zHopHeight: ob[value].z_hop_height,
             
-                pixelContraction: ob.value.pixelContraction || 0,
-                yMult: ob.value.ymult || 1
+                pixelContraction: ob[value].pixelContraction || 0,
+                yMult: ob[value].ymult || 1
             }
         })
          
         return rsa
     }
-    static saver(ob : ResinSettingArray) : string{
+    save(ob : ResinSettingArray) : string{
 
         let jsonOb : any = {}
         Object.keys(ob).forEach((value: string,index :number) => {
             Object.defineProperty(jsonOb,value,{
                 writable:true,
                 value:{
-                    up_accel_speed : ob[value].upMoveSetting.accelSpeed,
+                    up_accel_speed : (ob[value] as ResinSettingValue).upMoveSetting.accelSpeed,
                     up_decel_speed : ob[value].upMoveSetting.decelSpeed,
 
                     down_accel_speed : ob[value].downMoveSetting.accelSpeed,

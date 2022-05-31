@@ -7,22 +7,22 @@ interface PrinterSettingValue{
     resinList: Array<string>;
 }
 
-const _printerSettingPath : string = "/opt/capsuleFw/capsuleSetting.json"
+const _printerSettingPath : string = "/opt/capsuleFW/capsuleSetting.json"
 
 class PrinterSetting extends JsonSetting<PrinterSettingValue>{
 
     constructor(){
-        super(_printerSettingPath,{parser: PrinterSetting.parser})
+        super(_printerSettingPath,{})
     }
 
-    static parser(ob:any) : PrinterSettingValue{
+    parse(ob:any) : PrinterSettingValue{
 
         return { height: ob.default_height,
             heightOffset: ob.height_offset,
             ledOffset: ob.led_offset,
             resinList: ob.material_list as Array<string>}
     }
-    static saver(ob : PrinterSettingValue): string{
+    save(ob : PrinterSettingValue): string{
         
         return JSON.stringify({
             default_height: ob.height,
@@ -32,6 +32,7 @@ class PrinterSetting extends JsonSetting<PrinterSettingValue>{
         })
     }
 }
+
 
 const printerSettingInstance = new PrinterSetting()
 

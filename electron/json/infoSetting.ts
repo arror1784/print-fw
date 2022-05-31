@@ -5,18 +5,18 @@ interface InfoSettingValue{
     totalLayer: number;
 }
 
-const _infoPath : string = "/opt/capsuleFw/print/printFilePath"
+const _infoPath : string = "/opt/capsuleFW/print/printFilePath/info.json"
 
 class InfoSetting extends JsonSetting<InfoSettingValue>{
 
     constructor(_infoData?:string){
-        super(_infoPath,{fileData:_infoData,parser:InfoSetting.parser,saver:InfoSetting.saver})
+        super(_infoPath,{fileData:_infoData})
     }
 
-    static parser(ob : any) : InfoSettingValue{
+    parse(ob : any) : InfoSettingValue{
         return {layerHeight: ob.layer_height,totalLayer: ob.total_layer}
     }
-    static saver(ob : InfoSettingValue) : string{
+    save(ob : InfoSettingValue) : string{
 
         return JSON.stringify({
             layer_height: ob.layerHeight,

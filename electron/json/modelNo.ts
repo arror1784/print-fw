@@ -5,12 +5,18 @@ interface ModelNOValue{
     version: string;
 }
 
-const _versionPath : string = "/opt/capsuleFw/version.json"
+const _versionPath : string = "/opt/capsuleFW/version.json"
 
 class ModelNO extends JsonSetting<ModelNOValue>{
 
     constructor(){
         super(_versionPath,{fileData:existsSync(_versionPath) ? undefined : '{"version":"0.0.0"}'})
+    }
+    parse(ob: any): ModelNOValue {
+        return ob
+    }
+    save(ob: ModelNOValue): string {
+        return JSON.stringify(ob)
     }
 }
 

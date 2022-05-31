@@ -1,16 +1,23 @@
 import { JsonSetting } from "./json";
 import { existsSync } from "fs";
+import { json } from "node:stream/consumers";
 
 interface VersionValue{
     version: string;
 }
 
-const _versionPath : string = "/opt/capsuleFw/version.json"
+const _versionPath : string = "/opt/capsuleFW/version.json"
 
 class VersionSetting extends JsonSetting<VersionValue>{
 
     constructor(){
         super(_versionPath,{fileData:existsSync(_versionPath) ? undefined : '{"version":"0.0.0"}'})
+    }
+    parse(ob: any): VersionValue {
+        return ob
+    }
+    save(ob: VersionValue): string {
+        return JSON.stringify(ob)
     }
 }
 
