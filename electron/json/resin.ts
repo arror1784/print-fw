@@ -27,7 +27,7 @@ interface ResinSettingArray{
     [key: string]: ResinSettingValue;
     
 }
-const _resinPath : string = "/opt/capsuleFW/resin/"
+const _resinPath : string = process.platform === "win32" ? process.cwd + "/temp/resin/" : "/opt/capsuleFW/resin/"
 
 class ResinSetting extends JsonSetting<ResinSettingArray>{
 

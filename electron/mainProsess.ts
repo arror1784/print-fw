@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { PrintWorker, WorkingState } from "./printWorker"
-import { UartConnection, UartResponseType } from "./uartConnection"
+import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
 import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
 import * as fs from "fs"
@@ -9,9 +9,17 @@ import * as AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 
-const sliceFileRoot : string = "/opt/capsuleFW/print/printFilePath/"
 
-let uartConnection = new UartConnection('/dev/ttyUSB0')
+const sliceFileRoot : string = process.platform === "win32" ? process.cwd + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
+
+let uartConnection : UartConnection | UartConnectionTest
+
+console.log(process.platform)
+if(process.platform === "win32")
+    uartConnection = new UartConnectionTest()
+else 
+    uartConnection = new UartConnection('/dev/ttyUSB0')
+
 let imageProvider = new ImageProvider('C10',sliceFileRoot)
 
 let worker = new PrintWorker(uartConnection,imageProvider)

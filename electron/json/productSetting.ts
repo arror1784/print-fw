@@ -7,7 +7,7 @@ interface ProductSettingValue{
     product: ProductType;
 }
 
-const _productPath : string = "/opt/capsuleFW/product.json"
+const _productPath : string = process.platform === "win32" ? process.cwd + "/temp/product.json" : "/opt/capsuleFW/product.json"
 
 class ProductSetting extends JsonSetting<ProductSettingValue>{
 

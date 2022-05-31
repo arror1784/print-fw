@@ -5,7 +5,7 @@ interface ModelNOValue{
     version: string;
 }
 
-const _versionPath : string = "/opt/capsuleFW/version.json"
+const _versionPath : string = process.platform === "win32" ? process.cwd + "/temp/modelNo.json" : "/opt/capsuleFW/modelNo.json"
 
 class ModelNO extends JsonSetting<ModelNOValue>{
 

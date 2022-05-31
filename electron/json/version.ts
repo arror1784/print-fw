@@ -6,7 +6,7 @@ interface VersionValue{
     version: string;
 }
 
-const _versionPath : string = "/opt/capsuleFW/version.json"
+const _versionPath : string = process.platform === "win32" ? process.cwd + "/temp/version.json" : "/opt/capsuleFW/version.json"
 
 class VersionSetting extends JsonSetting<VersionValue>{
 
