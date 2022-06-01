@@ -38,7 +38,7 @@ function SelectList( {children,width,height,selectListModel,onContainerSelect,hi
                 }}>
                     {
                     selectListModel.map((list:SelectListModel) => {
-                        return <ListContainer isHighlight={highlightId == list.id}
+                        return <ListContainer key={list.id} isHighlight={highlightId == list.id}
                             onClick={() =>{onContainerSelect && onContainerSelect(list)}} containerText= {list.name}/>
                     })
                     }

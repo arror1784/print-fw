@@ -11,13 +11,13 @@ function ExtraModals(){
     const [lcdOFFVisible, setlcdOFFVisible] = useState<boolean>(false)
     const [shutDownVisible, setshutDownVisible] = useState<boolean>(false)
     useEffect(()=>{
-        window.electronAPI.onLCDStateChangedMR((event:IpcRendererEvent,state:boolean)=>{
+        const lcdListener = window.electronAPI.onLCDStateChangedMR((event:IpcRendererEvent,state:boolean)=>{
             setlcdOFFVisible(state)
         })
-        window.electronAPI.onShutDownMR((event:IpcRendererEvent)=>{
+        const shutdownListener = window.electronAPI.onShutDownMR((event:IpcRendererEvent)=>{
             setshutDownVisible(true)
         })
-        window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
             switch(state){
                 case "working":
                     navigate('/progress')
@@ -30,6 +30,11 @@ function ExtraModals(){
                     break;
             }
         })
+        return ()=>{
+            window.electronAPI.removeListener(lcdListener)
+            window.electronAPI.removeListener(shutdownListener)
+            window.electronAPI.removeListener(workingStateListener)
+        }
     },[])
 
     return (<div>

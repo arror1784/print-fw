@@ -7,7 +7,7 @@ interface PrinterSettingValue{
     resinList: Array<string>;
 }
 
-const _printerSettingPath : string = process.platform === "win32" ? process.cwd + "/temp/capsuleSetting.json" : "/opt/capsuleFW/capsuleSetting.json"
+const _printerSettingPath : string = process.platform === "win32" ? process.cwd() + "/temp/capsuleSetting.json" : "/opt/capsuleFW/capsuleSetting.json"
 
 class PrinterSetting extends JsonSetting<PrinterSettingValue>{
 

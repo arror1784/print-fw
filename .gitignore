@@ -58,3 +58,5 @@ sketch
 .ionide
 
 /dist
+
+temp/print/printFilePath/*

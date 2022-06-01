@@ -13,6 +13,7 @@ import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
 
+import { osName,OsTypes } from 'react-device-detect';
 
 import {encode} from 'base-64'
 
@@ -21,7 +22,7 @@ interface DirOrFile extends SelectListModel{
     path:string;
 }
 
-const rootPath = "/home/jsh/USBtest";
+const rootPath = osName === OsTypes.Windows ? "./temp/USB" : "/home/jsh/USBtest";
 
 function Model(){
 
@@ -33,15 +34,15 @@ function Model(){
 
     useEffect(() => {
         window.electronAPI.readDirTW(dirPath).then(
-            (value : DirOrFile[]) => {
-                value = value.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
-                value.sort((a:DirOrFile,b:DirOrFile) : number  => {
+            (valueArr : DirOrFile[]) => {
+                let valueArrCopy = valueArr.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
+                valueArrCopy.sort((a:DirOrFile,b:DirOrFile) : number  => {
                     if(a.isDir && b.isDir)
                         return 0
                     else
                         return a.isDir ? -1 : 1
                 })
-                setFileList(value)
+                setFileList(valueArrCopy)
             })
     }, [dirPath])
     

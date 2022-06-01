@@ -10,7 +10,7 @@ import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 
 
-const sliceFileRoot : string = process.platform === "win32" ? process.cwd + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
+const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
 let uartConnection : UartConnection | UartConnectionTest
 
@@ -111,6 +111,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
     })
+    ipcMain.handle(ProductCH.getProductInfoTW,()=>{return ["1","2","3","4"]})
 }
 
 export {mainProsessing}

@@ -18,7 +18,7 @@ function createWindow() {
         width:480,
         height:320,
         backgroundColor: "#EEF5F9",
-        titleBarStyle: "hidden",
+        titleBarStyle: process.platform === "win32" ? "default":"hidden",
         webPreferences: {
           preload: path.join(__dirname, 'preload.js'),
         },

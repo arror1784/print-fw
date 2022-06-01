@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
 import { FileSystemCH, ProductCH, ResinCH, WorkerCH } from './ipc/cmdChannels';
-import { Channel, channel } from 'diagnostics_channel';
+
 let _id = 0
 
 interface EventListener{
@@ -19,7 +19,7 @@ function eventADD(channel : string,listner:(...args : any[]) => void) : EventLis
     eventListnerArr[_id.toString()] = listner
     ipcRenderer.on(channel,eventListnerArr[_id.toString()])
 
-    console.log(channel,ipcRenderer.listenerCount(channel),eventListnerArr[_id],Object.keys(eventListnerArr).length)
+    console.log(channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
 
     return {channel:channel,id:_id.toString()}
 }
@@ -28,8 +28,7 @@ function eventRemove(listener:EventListener){
 
     delete eventListnerArr[listener.id]
 
-    console.log(channel,ipcRenderer.listenerCount(listener.channel),eventListnerArr[_id],Object.keys(eventListnerArr).length)
-
+    console.log(listener.channel,ipcRenderer.listenerCount(listener.channel),Object.keys(eventListnerArr).length)
 }
 
 interface ContextBridgeApi {

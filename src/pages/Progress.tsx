@@ -38,7 +38,7 @@ function Progress(){
             setMaterial(material)
             setLayerHeight(layerHeight)
         })
-        window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
             switch(state){
                 case "working":
                     navigate('/progress')
@@ -55,6 +55,7 @@ function Progress(){
         return ()=>{
             window.electronAPI.removeListener(printerInfoListener)
             window.electronAPI.removeListener(progressListener)
+            window.electronAPI.removeListener(workingStateListener)
         }
     },[])
     

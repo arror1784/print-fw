@@ -53,19 +53,19 @@ class UartConnectionTest{
     }
     async sendCommandMoveLength(length:number){
 
-        await new Promise(resolve => setTimeout(resolve,3000));
+        await new Promise(resolve => setTimeout(resolve,1000));
 
         return true;
     }
     async sendCommandMovePosition(position:number){
 
-        await new Promise(resolve => setTimeout(resolve,3000));
+        await new Promise(resolve => setTimeout(resolve,1000));
 
         return true;
     }
     async sendCommandAutoHome(speed:number){
 
-        await new Promise(resolve => setTimeout(resolve,10000));
+        await new Promise(resolve => setTimeout(resolve,1000));
 
         return true;
     }

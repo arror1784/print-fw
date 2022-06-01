@@ -5,7 +5,7 @@ interface InfoSettingValue{
     totalLayer: number;
 }
 
-const _infoPath : string = process.platform === "win32" ? process.cwd + "/temp/print/printFilePath/info.json" : "/opt/capsuleFW/print/printFilePath/info.json"
+const _infoPath : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/info.json" : "/opt/capsuleFW/print/printFilePath/info.json"
 
 class InfoSetting extends JsonSetting<InfoSettingValue>{
 
