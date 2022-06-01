@@ -28,6 +28,11 @@ class PrintWorker{
     private _onWorkingStateChangedCallback?: (state : WorkingState) => void
 
     private _resinName : string= ""
+    
+    public get resinName() : string {
+        return this._resinName
+    }
+    
     private _resinSetting : ResinSettingValue = {
         upMoveSetting: {
             accelSpeed: 0,
@@ -149,8 +154,8 @@ class PrintWorker{
 
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
     }
-    printAgain(){
-        this.run(this._name,new ResinSetting(this._resinName))
+    printAgain(resin?:ResinSetting){
+        this.run(this._name,resin || new ResinSetting(this._resinName))
     }
     async process(){
         while(this._currentStep <= this._actions.length) {

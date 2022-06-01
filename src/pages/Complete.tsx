@@ -21,11 +21,13 @@ function Complete(){
     const [isError, setIsError] = useState<boolean>(false);
     const [filename, setFilename] = useState<string>("helll world");
     const [spentTime, setSpentTime] = useState<string>("15min 20sec");
+    const [resin, setResin] = useState<string>("none");
 
     useEffect(()=>{
         const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
             ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
             setFilename(filename)
+            setResin(material)
             if(state === "error")
                 setIsError(true)
         })
@@ -51,6 +53,8 @@ function Complete(){
             <InfoArea>
                 <InfoText>File Name</InfoText>
                 <InfoValue>{filename}</InfoValue>
+                <InfoText>Material</InfoText>
+                <InfoValue>{resin}</InfoValue>
                 <InfoText>Time Spent</InfoText>
                 <InfoValue>{spentTime}</InfoValue>
             </InfoArea>
@@ -84,10 +88,10 @@ export const FinishText = styled.div`
 export const InfoArea = styled.div`
     display: grid;  
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     
-    column-gap: 20px;
-    row-gap: 15px;
+    column-gap: 15px;
+    row-gap: 10px;
     margin-top: 30px;
 `
 export const InfoText = styled.div`

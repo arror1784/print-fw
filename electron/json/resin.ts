@@ -32,13 +32,21 @@ const _resinPath : string = process.platform === "win32" ? process.cwd() + "/tem
 class ResinSetting extends JsonSetting<ResinSettingArray>{
 
     public last_update?: string
-    constructor(public readonly resinName:string,private _resinData?:string){
-        super(_resinPath + resinName + '.json',{fileData:_resinData})
-    }
 
+    constructor(private _resinName:string,private _resinData?:string){
+        super(_resinPath + _resinName + '.json',{fileData:_resinData})
+
+        if(this._resinData !== undefined)
+            this.data = this.parse(JSON.parse(this._resinData))
+    }
+    
+    public get resinName() : string {
+        return this._resinName
+    }
+    
     parse(ob : any) : ResinSettingArray{
         let rsa : ResinSettingArray = {}
-        if(this.resinName == "custom" && this._resinData){
+        if(this._resinName == "custom" && this._resinData){
             let customOb = JSON.parse(this._resinData)
             rsa["custom"] = {
                 upMoveSetting: {

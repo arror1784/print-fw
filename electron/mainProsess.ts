@@ -59,8 +59,6 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         try {
             if(!fs.existsSync(path))
                 return new Error("file not exist")
-            if(!getPrinterSetting().data.resinList.includes(material))
-                return new Error("resin not exist")
                 
             let zip = new AdmZip(path)
             if(!zip.test())
@@ -99,7 +97,10 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
                 worker.resume()
                 break;
             case "printAgain":
-                worker.printAgain()
+                if(worker.resinName == "custom")
+                    worker.printAgain(new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8")))
+                else
+                    worker.printAgain()
                 break;
             default:
                 break;

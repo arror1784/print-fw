@@ -12,15 +12,6 @@ function createWindow() {
     /*
     * 넓이 1920에 높이 1080의 FHD 풀스크린 앱을 실행시킵니다.
     * */
-
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-        callback({
-          responseHeaders: {
-            ...details.responseHeaders,
-            'Content-Security-Policy': ['default-src \'self\'', "script-src 'self'"]
-          }
-        })
-      })
     const mainWin = new BrowserWindow({
         width:480,
         height:320,

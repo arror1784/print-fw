@@ -31,14 +31,16 @@ function Material(){
         
             var listModel : SelectListModel[] = resinList
             value.forEach((value:string,index:number)=>{
-                listModel.push({name:value,id:index})
+                listModel.push({name:value,id:index + 1})
             })
             setResinList(listModel)  
         })
         if(selectPath){
             window.electronAPI.isCustomTW(decode(selectPath)).then((value:boolean) => {
+                if(!value)
+                    return
                 var listModel : SelectListModel[] = resinList
-                listModel.unshift({name:"custom",id:-1})
+                listModel.unshift({name:"custom",id:0})
                 setResinList(listModel)  
             })
             setSelectFilePath(decode(selectPath))
