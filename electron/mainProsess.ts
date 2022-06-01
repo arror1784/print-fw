@@ -74,7 +74,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
                 resin = new ResinSetting(material)
             }
             let nameArr = path.split('/')
-            let name = nameArr[nameArr.length -1].split('.')[0]
+            let name = nameArr[nameArr.length -1]
             try {
                 worker.run(name,resin)
             } catch (error) {

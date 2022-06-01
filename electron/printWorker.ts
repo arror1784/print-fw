@@ -8,6 +8,7 @@ import { InfoSetting, InfoSettingValue } from './json/infoSetting';
 enum WorkingState{
     working = "working",
     stop = "stop",
+    stopWork = "stopWork",
     pause = "pause",
     pauseWork = "pauseWork",
     error = "error"
@@ -103,6 +104,7 @@ class PrintWorker{
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
         for (let i = 0; i < this._infoSetting.totalLayer; i++) {
+            this._actions.push(new Wait(this._resinSetting.delay))
 
             this._actions.push(new LEDEnable(true))
 
@@ -118,13 +120,8 @@ class PrintWorker{
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
             this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
-
-            this._actions.push(new Wait(this._resinSetting.delay))
-
         }
         this._actions.push(new SetImage(-1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
-
-        this._actions.push(new MovePosition(-15000))
     }
     pause(){
         this._workingState = WorkingState.pauseWork
@@ -135,9 +132,14 @@ class PrintWorker{
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
         this.process()
     }
-    stop(){
-        this._workingState = WorkingState.stop
+    async stop(){
+        const prevState = this._workingState
+        this._workingState = WorkingState.stopWork
         this._lock = true
+
+        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
+            this.process()
+        }
 
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
     }
@@ -145,15 +147,21 @@ class PrintWorker{
         this.run(this._name,new ResinSetting(this._resinName))
     }
     async process(){
-        while(this._currentStep < this._actions.length) {
+        while(this._currentStep <= this._actions.length) {
             console.log("PROCESS WHILE",this._currentStep)
+            
+            if(this._currentStep == this._actions.length)
+                this.stop()
 
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
-                    break;
-                case WorkingState.stop:
+                    return;
+                case WorkingState.stopWork:
+                    await this._uartConnection.sendCommandMovePosition(-15000)
+                    this._workingState = WorkingState.stop
+                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
                     return;
                 default:
                     break;
@@ -192,7 +200,6 @@ class PrintWorker{
             }
             this._currentStep++
         }
-        this.stop()
     }
     unlock(){
         this._lock = false

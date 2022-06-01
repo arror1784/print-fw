@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 import { useTimer } from 'react-timer-hook';
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
 
 function Progress(){
 
@@ -26,6 +27,10 @@ function Progress(){
     const [layerHeight, setLayerHeight] = useState<number>(0.1)
     const [expiryTimestamp, setExpiryTimestamp] = useState<Date>(new Date())
 
+    const [infoModalVisible,setInfoModalVisible] = useState<boolean>(false)
+    const [quitModalVisible,setQuitModalVisible] = useState<boolean>(false)
+    const [quitModalBtnEnable,setQuitModalBtnEnable] = useState<boolean>(false)
+    const [quitWork,setQuitWork] = useState<boolean>(false)
 
     useEffect(()=>{
         const progressListener = window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
@@ -41,11 +46,19 @@ function Progress(){
         const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
             switch(state){
                 case "working":
-                    navigate('/progress')
+                    setQuitModalVisible(false)
                     break;
                 case "stop":
                 case "error":
                     navigate('/complete')
+                    break;
+                case "pauseWork":
+                    break;
+                case "pause":
+                    setQuitModalBtnEnable(true)
+                    break;
+                case "stopWork":
+                    setQuitWork(true)
                     break;
                 default:
                     break;
@@ -98,11 +111,30 @@ function Progress(){
                 </CircularProgressArea>
             </MainArea>
             <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}> Print Info </Button>
-                <Button color='blue' type='small' onClick={() => {navigate(-2)}}> Quit </Button> 
+                <Button color='gray' type='small' onClick={() => {setInfoModalVisible(true)}}> Print Info </Button>
+                <Button color='blue' type='small' 
+                onClick={() => {
+                    setQuitModalVisible(true)
+                    setQuitModalBtnEnable(false)
+                    window.electronAPI.printCommandRM("pause")}}> Quit </Button> 
             </Footer>
-            <Modal visible={false}>
-
+            <Modal selectVisible={false} visible={infoModalVisible} onBackClicked={() => setInfoModalVisible(false)}>
+                <ModalInfoMainArea>
+                    <ModalInfoTitle text="File Name"/>
+                    <ModalInfoValue text={filename}/>
+                    <ModalInfoTitle text='Material'/>
+                    <ModalInfoValue text={material}/>
+                    <ModalInfoTitle text='Layer Height'/>
+                    <ModalInfoValue text={`${layerHeight}mm/layer`}/>
+                </ModalInfoMainArea>
+            </Modal>
+            <Modal visible={quitModalVisible} btnEnable={quitModalBtnEnable} selectString="Quit" backString="Resume"
+                onBackClicked={() => window.electronAPI.printCommandRM("resume")}
+                onSelectClicked={() => window.electronAPI.printCommandRM("quit")}
+                backVisible={!quitWork} selectVisible={!quitWork}>
+                    {
+                        quitWork ? "wait for movement" : "Are you sure to quit?"
+                    }
             </Modal>
         </div>
     );

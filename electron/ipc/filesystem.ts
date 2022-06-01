@@ -1,5 +1,7 @@
+import AdmZip = require("adm-zip");
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import * as fs from "fs";
+import { InfoSetting } from "../json/infoSetting";
 
 interface DirOrFile{
     name:string;
@@ -23,5 +25,17 @@ async function readDir (event:IpcMainInvokeEvent,path: string) : Promise<DirOrFi
     return list
 }
 
-export {readDir}
+async function getLayerHeight(event:IpcMainInvokeEvent,filePath:string): Promise<number>{
+
+    let zip = new AdmZip(filePath)
+
+    if(!zip.test())
+        return 0
+
+    let fileText = zip.readAsText("info.json","utf8")
+
+    return new InfoSetting(fileText).data.layerHeight
+
+}
+export {readDir,getLayerHeight}
 export type { DirOrFile }

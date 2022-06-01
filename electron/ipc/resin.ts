@@ -1,6 +1,7 @@
+import { IpcMainInvokeEvent } from "electron"
 import { getPrinterSetting } from "../json/printerSetting"
 
-function resinList() : string[] {
+async function resinList(event:IpcMainInvokeEvent) : Promise<string[]> {
     return getPrinterSetting().data.resinList
 }
 

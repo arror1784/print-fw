@@ -34,6 +34,7 @@ function eventRemove(listener:EventListener){
 interface ContextBridgeApi {
     readDirTW: (path : string) => Promise<DirOrFile[]>;
     resinListTW: () => Promise<string[]>;
+    getLayerHeightTW: (filePath:string) => Promise<number>;
     getOffsetSettingsTW: () => Promise<string[]>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
 
@@ -59,6 +60,7 @@ interface ContextBridgeApi {
 const exposedApi: ContextBridgeApi = {
     readDirTW: (path: string) => ipcRenderer.invoke(FileSystemCH.readDirTW,path),
     resinListTW: () => ipcRenderer.invoke(ResinCH.resinListTW),
+    getLayerHeightTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.getLayerHeightTW,filePath),
     getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
 

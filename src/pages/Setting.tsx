@@ -29,7 +29,7 @@ function Setting(){
             </OptionLayout>
 
             <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}>Back</Button>
+                <Button color='gray' type='small' onClick={() => {navigate('/')}}>Back</Button>
             </Footer>
         </div>
     );
