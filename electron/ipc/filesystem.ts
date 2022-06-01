@@ -37,5 +37,14 @@ async function getLayerHeight(event:IpcMainInvokeEvent,filePath:string): Promise
     return new InfoSetting(fileText).data.layerHeight
 
 }
-export {readDir,getLayerHeight}
+async function isCustom(event:IpcMainInvokeEvent,filePath:string): Promise<boolean>{
+
+    let zip = new AdmZip(filePath)
+
+    if(!zip.test())
+        return false
+
+    return zip.getEntry("resin.json") ? true : false
+}
+export {readDir,getLayerHeight,isCustom}
 export type { DirOrFile }

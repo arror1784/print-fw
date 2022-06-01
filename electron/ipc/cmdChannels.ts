@@ -11,7 +11,8 @@ import { type } from "os";
 
 enum FileSystemCH{
     readDirTW = "FileSystem:readDir,RT:DirOrFile[]",
-    getLayerHeightTW = "FileSystem:getLayerHeight,filePath:string"
+    getLayerHeightTW = "FileSystem:getLayerHeight,filePath:string",
+    isCustomTW = "Filesystem:getLayerHeightTW,filePath:string"
 }
 
 enum ResinCH{

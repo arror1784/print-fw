@@ -36,6 +36,7 @@ interface ContextBridgeApi {
     resinListTW: () => Promise<string[]>;
     getLayerHeightTW: (filePath:string) => Promise<number>;
     getOffsetSettingsTW: () => Promise<string[]>;
+    isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
 
 
@@ -62,6 +63,7 @@ const exposedApi: ContextBridgeApi = {
     resinListTW: () => ipcRenderer.invoke(ResinCH.resinListTW),
     getLayerHeightTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.getLayerHeightTW,filePath),
     getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
+    isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),

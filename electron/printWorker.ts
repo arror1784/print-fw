@@ -74,15 +74,19 @@ class PrintWorker{
             return new Error("uart connect error")
         
         this._infoSetting = info.data
-        if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
-            return new Error("resin height not available")
-        if(this._lock)
-            return new Error("print Lock")
-        
-        this._resinSetting = resin.data[info.data.layerHeight.toString()]
         this._resinName = resin.resinName
+
+        if(resin.resinName == "custom"){
+            this._resinSetting = resin.data["custom"]
+        }else{
+            if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
+                return new Error("resin height not available")
+            if(this._lock)
+                return new Error("print Lock")
         
-        this._actions = []
+            this._resinSetting = resin.data[info.data.layerHeight.toString()]
+        }
+
         this.createActions(this._resinSetting,this._infoSetting)
 
         this._uartConnection.init(this._resinSetting)
@@ -97,6 +101,8 @@ class PrintWorker{
     createActions(resinSetting : ResinSettingValue,infoSetting : InfoSettingValue) {
 
         let layerHeight = this._infoSetting.layerHeight * 1000
+        this._actions = []
+
         this._actions.push(new SetImage(0,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
         this._actions.push(new AutoHome(255))

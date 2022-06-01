@@ -17,6 +17,7 @@ function Material(){
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [resinList, setResinList] = useState<SelectListModel[]>([]);
+    const [isCustom, setIsCustom] = useState<boolean>(false);
     const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
     const [selectFileName,setSelectFileName] = useState<string>("")
     const [selectFilePath,setSelectFilePath] = useState<string>("")
@@ -28,17 +29,23 @@ function Material(){
 
         window.electronAPI.resinListTW().then((value:string[]) => {
         
-            var listModel : SelectListModel[] = []
+            var listModel : SelectListModel[] = resinList
             value.forEach((value:string,index:number)=>{
                 listModel.push({name:value,id:index})
             })
             setResinList(listModel)  
         })
         if(selectPath){
+            window.electronAPI.isCustomTW(decode(selectPath)).then((value:boolean) => {
+                var listModel : SelectListModel[] = resinList
+                listModel.unshift({name:"custom",id:-1})
+                setResinList(listModel)  
+            })
             setSelectFilePath(decode(selectPath))
             let nameArr = decode(selectPath).split('/')
             setSelectFileName(nameArr[nameArr.length - 1])
         }
+        
       return () => {}
     },[])
     useEffect(()=>{

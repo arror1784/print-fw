@@ -38,38 +38,66 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
 
     parse(ob : any) : ResinSettingArray{
         let rsa : ResinSettingArray = {}
-
-        Object.keys(ob).forEach((value: string,index :number) => {
-            if(value == "last_update"){
-                this.last_update = ob[value]
-                return
-            }
-            rsa[value] = {
+        if(this.resinName == "custom" && this._resinData){
+            let customOb = JSON.parse(this._resinData)
+            rsa["custom"] = {
                 upMoveSetting: {
-                    accelSpeed: ob[value].up_accel_speed,
-                    decelSpeed: ob[value].up_decel_speed,
-                    initSpeed: ob[value].init_speed,
-                    maxSpeed: ob[value].max_speed
+                    accelSpeed: customOb.up_accel_speed,
+                    decelSpeed: customOb.up_decel_speed,
+                    initSpeed: customOb.init_speed,
+                    maxSpeed: customOb.max_speed
                 },
                 downMoveSetting: {
-                    accelSpeed: ob[value].down_accel_speed,
-                    decelSpeed: ob[value].down_decel_speed,
-                    initSpeed: ob[value].init_speed,
-                    maxSpeed: ob[value].max_speed
+                    accelSpeed: customOb.down_accel_speed,
+                    decelSpeed: customOb.down_decel_speed,
+                    initSpeed: customOb.init_speed,
+                    maxSpeed: customOb.max_speed
                 },
             
-                delay: ob[value].layer_delay,
-                curingTime: ob[value].curing_time,
-                bedCuringTime: ob[value].bed_curing_time,
-                ledOffset: ob[value].led_offset,
+                delay: customOb.layer_delay,
+                curingTime: customOb.curing_time,
+                bedCuringTime: customOb.bed_curing_time,
+                ledOffset: customOb.led_offset,
         
-                bedCuringLayer: ob[value].bed_curing_layer,
-                zHopHeight: ob[value].z_hop_height,
+                bedCuringLayer: customOb.bed_curing_layer,
+                zHopHeight: customOb.z_hop_height,
             
-                pixelContraction: ob[value].pixelContraction || 0,
-                yMult: ob[value].ymult || 1
+                pixelContraction: customOb.pixelContraction || 0,
+                yMult: customOb.ymult || 1
             }
-        })
+        }else{
+            Object.keys(ob).forEach((value: string,index :number) => {
+                if(value == "last_update"){
+                    this.last_update = ob[value]
+                    return
+                }
+                rsa[value] = {
+                    upMoveSetting: {
+                        accelSpeed: ob[value].up_accel_speed,
+                        decelSpeed: ob[value].up_decel_speed,
+                        initSpeed: ob[value].init_speed,
+                        maxSpeed: ob[value].max_speed
+                    },
+                    downMoveSetting: {
+                        accelSpeed: ob[value].down_accel_speed,
+                        decelSpeed: ob[value].down_decel_speed,
+                        initSpeed: ob[value].init_speed,
+                        maxSpeed: ob[value].max_speed
+                    },
+                
+                    delay: ob[value].layer_delay,
+                    curingTime: ob[value].curing_time,
+                    bedCuringTime: ob[value].bed_curing_time,
+                    ledOffset: ob[value].led_offset,
+            
+                    bedCuringLayer: ob[value].bed_curing_layer,
+                    zHopHeight: ob[value].z_hop_height,
+                
+                    pixelContraction: ob[value].pixelContraction || 0,
+                    yMult: ob[value].ymult || 1
+                }
+            })
+        }
          
         return rsa
     }
