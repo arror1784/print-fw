@@ -3,7 +3,7 @@
 {
     "targets": [{ 
         "target_name": "rgbTrans",
-
+        
         'cflags_cc': [ '-std=c++17' ],
         'cflags!': [ "-fno-exceptions" ],
         "cflags_cc!": [ '-fexceptions', '-fno-rtti', '-fno-exceptions','-std=gnu++14' ],
@@ -25,6 +25,7 @@
                 'AdditionalOptions': [ '-std:c++17', ],
             }
         },
+        
         'conditions': [
             [ 'OS=="win"', {
                 'libraries':[
@@ -34,7 +35,14 @@
                 'libraries': [
                     "-ltbb"
                 ],
+            }],['target_arch=="arm"',{
+                'libraries':[
+                    '-Llib'
+                ],
+                'libraries!':[
+                    '-ltbb'
+                ]
             }]
         ]
-    }],
+    }]
 }

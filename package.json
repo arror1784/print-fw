@@ -72,6 +72,7 @@
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
     "react-start-win": "set BROWSER=none && yarn start",
     "addon:init": "node-gyp configure",
+    "addon:arm": "cross-env CC=arm-linux-gnueabihf-gcc cross-env CXX=arm-linux-gnueabihf-g++ node-gyp clean configure --arch=arm build",
     "addon:clean": "node-gyp clean",
     "addon:build": "node-gyp build",
     "addon:build:dev": "node-gyp build --debug"
