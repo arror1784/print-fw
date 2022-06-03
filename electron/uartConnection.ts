@@ -1,4 +1,4 @@
-import * as SerialPort from 'serialport';
+import { SerialPort , DelimiterParser} from 'serialport';
 import { EventEmitter } from 'events'
 import { ResinSetting, ResinSettingValue } from './json/resin';
 import { getPrinterSetting } from './json/printerSetting';
@@ -76,7 +76,7 @@ class UartConnectionTest{
 class UartConnection extends UartConnectionTest{
 
     private port : SerialPort;
-    private parser : SerialPort.parsers.Delimiter;
+    private parser : DelimiterParser;
     private rcb? : (type : UartResponseType, response : number) => void;
     private _moveEvents : EventEmitter = new EventEmitter()
     private _isMove: boolean = false
@@ -84,12 +84,13 @@ class UartConnection extends UartConnectionTest{
     constructor(public readonly serialPortPath:string, onError? : () => void){
         super()
 
-        this.port = new SerialPort(serialPortPath,{
+        this.port = new SerialPort({
+            path: serialPortPath,
             baudRate: 115200,
             autoOpen:false
           })
 
-        this.parser = this.port.pipe(new SerialPort.parsers.Delimiter({ delimiter: [0x03],includeDelimiter:true}))
+        this.parser = this.port.pipe(new DelimiterParser({ delimiter: [0x03],includeDelimiter:true}))
         this.parser.on('data', (response:Buffer)=>{
             let view = new Uint8Array(response)
             let i = view.findIndex((value)=>{ return value == 0x02})
@@ -137,13 +138,12 @@ class UartConnection extends UartConnectionTest{
     sendCommand(command: Uint8Array | string){
 
         console.log(command)
-        let byteWritten:number = 0
 
         let cmd: Uint8Array = command as Uint8Array;
         if(typeof(command) === "string"){
             cmd = transData(parseCommand(command as string))
         }
-        this.port.write(Buffer.from(cmd))
+        this.port.write(cmd)
         // this.port.drain()
         
         //sendCommand
