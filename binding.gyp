@@ -25,7 +25,6 @@
                 'AdditionalOptions': [ '-std:c++17', ],
             }
         },
-        
         'conditions': [
             [ 'OS=="win"', {
                 'libraries':[

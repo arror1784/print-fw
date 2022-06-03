@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, session} from 'electron';
+import {app, BrowserWindow, Menu, screen, session} from 'electron';
 
 import * as path from 'path';
 import * as url from 'url';
@@ -12,6 +12,7 @@ function createWindow() {
     /*
     * 넓이 1920에 높이 1080의 FHD 풀스크린 앱을 실행시킵니다.
     * */
+  
     const mainWin = new BrowserWindow({
         width:480,
         height:320,
@@ -27,12 +28,17 @@ function createWindow() {
         height:2560,
         titleBarStyle: "hidden",
         webPreferences: {
-        preload: path.join(__dirname, 'preload-image.js')
-       },
+            preload: path.join(__dirname, 'preload-image.js')
+        },
+        
     });
-
-    imgWin.close()
-    
+    const displays = screen.getAllDisplays()
+    if(displays.length > 1){
+        const externalDisplay = displays[1]
+        mainWin.setPosition(externalDisplay.bounds.x,externalDisplay.bounds.y)
+    }else{
+        imgWin.close()
+    }
     const template : Array<(Electron.MenuItem)> = []; 
     const menu = Menu.buildFromTemplate(template); 
     Menu.setApplicationMenu(menu);

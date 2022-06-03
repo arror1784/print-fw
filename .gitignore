@@ -38,6 +38,8 @@ psd
 thumb
 sketch
 
+build-addon
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

@@ -3,19 +3,36 @@
   "homepage": ".",
   "description": "print fw hix",
   "author": "JSH",
+  "nodeGypRebuild": true,
   "build": {
     "extends": null,
     "files": [
-      "build/**/*"
+      "build/**/*",
+      {
+        "from": "build-addon/Release",
+        "to": "Release",
+        "filter": "*.node"
+      }
     ],
     "directories": {
       "buildResources": "assets"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "armv7l"
+          ]
+        }
+      ]
     }
   },
   "name": "print-fw",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@serialport/bindings-cpp": "^10.7.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
@@ -67,15 +84,16 @@
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w --no-sandbox\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
     "electron:build": "yarn build && tsc -p electron && electron-builder build",
+    "electron:build:rpi": "rm -rf ./build-addon && yarn addon:arm && mv ./build ./build-addon && yarn build && tsc -p electron && electron-builder build",
     "electron:debug": "tsc -p electron",
-    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron && electron .",
+    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron     && electron .",
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
     "react-start-win": "set BROWSER=none && yarn start",
     "addon:init": "node-gyp configure",
-    "addon:arm": "cross-env CC=arm-linux-gnueabihf-gcc cross-env CXX=arm-linux-gnueabihf-g++ node-gyp clean configure --arch=arm build",
+    "addon:arm": "cross-env CC=arm-linux-gnueabihf-gcc cross-env CXX=arm-linux-gnueabihf-g++ node-gyp clean configure --arch=arm build --release --build-dir=build-addon",
     "addon:clean": "node-gyp clean",
-    "addon:build": "node-gyp build",
-    "addon:build:dev": "node-gyp build --debug"
+    "addon:build": "node-gyp clean configure build --release",
+    "addon:build:dev": "node-gyp clean configure build --debug"
   },
   "eslintConfig": {
     "extends": [
