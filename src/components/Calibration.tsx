@@ -8,27 +8,43 @@ import minusBtnImg from '../assets/minus.png';
 type CalibrationProps = {
   title: string;
   value: number;
-  maxValue: number;
-  minValue: number;
+  maxValue?: number;
+  minValue?: number;
 
   sumValue1: number;
   sumValue2: number;
 
-  
-  onSum?: (v : number) => void;
-
+  onValueChange?: (v : number) => void;
 }
 
-function Calibration({title,value,minValue,maxValue,sumValue1,sumValue2,onSum} : CalibrationProps){
+function Calibration({title,value,minValue,maxValue,sumValue1,sumValue2,onValueChange} : CalibrationProps){
+
+
   return (
       <CalibrationContainer>
         <CalibrationTitle>{title}</CalibrationTitle>
         <CalibrationValue>{value}</CalibrationValue>
-        <SumButton> <SumButtonImg src={plusBtnImg}/> </SumButton>
-        <SumButton> <SumButtonImg src={plusBtnImg}/> </SumButton>
+        <SumButton onClick={()=>{
+          if(!maxValue)
+            return
+          onValueChange && onValueChange(value + sumValue1 >= maxValue ? maxValue : value + sumValue1)
+        }}> <SumButtonImg src={plusBtnImg}/> </SumButton>
+        <SumButton onClick={()=>{
+          if(!maxValue)
+            return
+            onValueChange && onValueChange(value + sumValue2 >= maxValue ? maxValue : value + sumValue2)
+        }}> <SumButtonImg src={plusBtnImg}/> </SumButton>
 
-        <SumButton> <SumButtonImg src={minusBtnImg}/> </SumButton>
-        <SumButton> <SumButtonImg src={minusBtnImg}/> </SumButton>
+        <SumButton onClick={()=>{
+          if(!minValue)
+            return
+          onValueChange && onValueChange(value - sumValue1 <= minValue ? minValue : value - sumValue1)
+        }}> <SumButtonImg src={minusBtnImg}/> </SumButton>
+        <SumButton onClick={()=>{
+          if(!minValue)
+            return
+          onValueChange && onValueChange(value - sumValue2 <= minValue ? minValue : value - sumValue2)
+        }}> <SumButtonImg src={minusBtnImg}/> </SumButton>
 
         <SumValue>{sumValue1}</SumValue>
         <SumValue>{sumValue2}</SumValue>

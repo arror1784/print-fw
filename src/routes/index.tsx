@@ -12,6 +12,7 @@ import Material from '../pages/Material';
 import HeightCalibration from '../pages/HeightCalibration';
 import UpdateFileSelect from '../pages/UpdateFileSelect';
 import Update from '../pages/Update';
+import LEDCalibration from '../pages/LEDCalibration';
 
 const AppRoute = () => {
     return (
@@ -29,9 +30,10 @@ const AppRoute = () => {
 
             <Route path='/setting' element={<Setting/>}/>
 
-            <Route path='/calibration' element={<SliceImage/>}/>
-            <Route path='/calibration/led' element={<SliceImage/>}/>
-            <Route path='/calibration/height' element={<HeightCalibration/>}/>
+            <Route path='/calibration'>
+                <Route path='led' element={<LEDCalibration/>}/>
+                <Route path='height' element={<HeightCalibration/>}/>
+            </Route>
             
             <Route path='/update/' element={<Update/>}/>
             <Route path='/update/file' element={<SliceImage/>}/>

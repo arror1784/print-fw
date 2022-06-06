@@ -10,33 +10,35 @@ import Calibration from '../components/Calibration';
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
 
-function HeightCalibration(){
+function LEDCalibration(){
     const navigate = useNavigate()
-    const [offsetValue, setOffsetValue] = useState<number>(6000);
+    const [ledValue, setLedValue] = useState<number>(100);
 
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const rootPath = "";
 
     return (
         <div>
             <Header>
-                Height Calibration
+                LED Calibration
             </Header>
             <MainArea>
                 <CalibrationArea>
                     <Calibration
-                        title='Bed Height (um)'
-                        value={offsetValue}
+                        title='LED (%)'
+                        value={Number((ledValue * 100).toFixed()) / 100}
                         minValue={80}
-                        maxValue={100}
+                        maxValue={120}
                         sumValue1={1}
-                        sumValue2={2}
-                        onValueChange={(v : number) => {}}/>
+                        sumValue2={0.1}
+                        onValueChange={(v : number) => {
+                            setLedValue(v)
+                        }}/>
                 </CalibrationArea>
 
             </MainArea>            
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
-                <Button color='blue' type='small' onClick={() => {setModalVisible(true)}}>Save Offset</Button>
+                <Button color='blue' type='small' onClick={() => {}}>Save Offset</Button>
             </Footer>
         </div>
 
@@ -47,4 +49,4 @@ function HeightCalibration(){
 export const CalibrationArea = styled.div`
     margin-top: -15px;
 `
-export default HeightCalibration;
+export default LEDCalibration;
