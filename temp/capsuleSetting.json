@@ -1,0 +1,12 @@
+{
+    "default_height": 68000,
+    "height_offset": 0,
+    "led_offset": 100,
+    "material_list": [
+        "Bello3D - C&B",
+        "Graphy"
+    ],
+	"enable_material_list": [],
+	"UV_time_spend": {},
+	"motor_time_spend": {}
+}

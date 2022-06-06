@@ -8,8 +8,9 @@ async function test(){
         console.log("type: ",type)
         console.log("respone: ", response)
     })
-
-    uartConnection.sendCommand("G28 A255")
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await uartConnection.sendCommandMoveLength(5000)
+    // await uartConnection.sendCommand("G28 A255")
+    console.log('finish')
+    await new Promise(resolve => setTimeout(resolve, 50000));
 }
 export {test}

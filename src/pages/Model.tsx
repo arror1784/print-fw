@@ -13,12 +13,16 @@ import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
 
+import { osName,OsTypes } from 'react-device-detect';
+
+import {encode} from 'base-64'
+
 interface DirOrFile extends SelectListModel{
     isDir:boolean;
     path:string;
 }
 
-const rootPath = "/home/jsh/USBtest";
+const rootPath = osName === OsTypes.Windows ? "./temp/USB" : "/home/jsh/USBtest";
 
 function Model(){
 
@@ -29,16 +33,16 @@ function Model(){
     const [selectFile, setSelectFile] = useState<DirOrFile>({name:"",isDir:false,path:"",id:-1});
 
     useEffect(() => {
-        window.electronAPI.readDir(dirPath).then(
-            (value : DirOrFile[]) => {
-                value = value.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
-                value.sort((a:DirOrFile,b:DirOrFile) : number  => {
+        window.electronAPI.readDirTW(dirPath).then(
+            (valueArr : DirOrFile[]) => {
+                let valueArrCopy = valueArr.filter((value:DirOrFile) => {return value.name.endsWith("zip") || value.isDir})
+                valueArrCopy.sort((a:DirOrFile,b:DirOrFile) : number  => {
                     if(a.isDir && b.isDir)
                         return 0
                     else
                         return a.isDir ? -1 : 1
                 })
-                setFileList(value)
+                setFileList(valueArrCopy)
             })
     }, [dirPath])
     
@@ -79,7 +83,7 @@ function Model(){
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
                 <Button color='blue' type='small' onClick={() => {
-                    if(selectFile.name != "") navigate('/material')}}>Select</Button>
+                    if(selectFile.name != "") navigate(`/material/${encode(selectFile.path)}`)}}>Select</Button>
             </Footer>
 
 

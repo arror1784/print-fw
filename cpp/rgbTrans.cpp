@@ -151,10 +151,10 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width
                     transBlue = total;
                 }
             }
-            uint32_t rgba = ( 0xff << 24 | transBlue << 16 | transGreen << 8 | transRed);
+            uint32_t rgba = ( 0xff << 24 | transRed << 16 | transGreen << 8 | transBlue);
             // uint32_t rgba = 0xff00ff00;
 
-            imRef((&target),i/3,x) = rgba;
+            imRef((&target),targetWidth - (i/3),x) = rgba;
         }
     }
     std::vector<uint32_t> out(targetWidth*targetHeight);

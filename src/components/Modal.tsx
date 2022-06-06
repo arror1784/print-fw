@@ -16,7 +16,6 @@ const customStyles = {
     outline: 'none',
     padding: "0px",
     borderRadius: '8px',
-
   },
   overlay: {
     background: "#00000050",
@@ -35,26 +34,34 @@ interface ModalProps{
     backString?: string,
     selectString?: string,
 
+    btnEnable?:boolean,
+
     onBackClicked?: () => void,
     onSelectClicked?: () => void,
 }
-function Modal({ className, visible, children, backVisible,backString,onBackClicked,selectVisible,selectString,onSelectClicked } : ModalProps) {
-  const [modalIsOpen, setIsOpen] = React.useState(visible);
+function Modal({ className, visible, children, backVisible,backString,onBackClicked,selectVisible,selectString,onSelectClicked,btnEnable } : ModalProps) {
   return (
-    <ReactModal isOpen={visible} style={customStyles}>
+    <ReactModal isOpen={visible} style={customStyles} ariaHideApp={false}>
+      <ModalMainArea height={backVisible || selectVisible ? 220 : 280}>
         {children}
+      </ModalMainArea>
         <Footer>
-          <Button color='gray' type='modal' onClick={() => {onBackClicked && onBackClicked()}} visible={backVisible}>{backString}</Button>
-          <Button color='blue' type='modal' onClick={() => {onSelectClicked && onSelectClicked()}} visible={selectVisible}>{selectString}</Button>
+          <Button color='gray' type='modal' enable={btnEnable} onClick={() => {onBackClicked && onBackClicked()}} visible={backVisible}>{backString}</Button>
+          <Button color='blue' type='modal' enable={btnEnable} onClick={() => {onSelectClicked && onSelectClicked()}} visible={selectVisible}>{selectString}</Button>
         </Footer>
     </ReactModal>
   )
 }
 
-
+export const ModalMainArea = styled.div<{height:number}>`
+  width: 100%;
+  height: ${(props) => (props.height)}px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 Modal.defaultProps = {
   visible: true,
-
 
   backVisible: true,
   backString: "Back",

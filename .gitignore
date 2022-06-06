@@ -38,6 +38,8 @@ psd
 thumb
 sketch
 
+build-addon
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -58,3 +60,5 @@ sketch
 .ionide
 
 /dist
+
+temp/print/printFilePath/*

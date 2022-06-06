@@ -3,13 +3,29 @@
   "homepage": ".",
   "description": "print fw hix",
   "author": "JSH",
+  "nodeGypRebuild": true,
   "build": {
     "extends": null,
     "files": [
-      "build/**/*"
+      "build/**/*",
+      {
+        "from": "build-addon/Release",
+        "to": "Release",
+        "filter": "*.node"
+      }
     ],
     "directories": {
       "buildResources": "assets"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "armv7l"
+          ]
+        }
+      ]
     }
   },
   "name": "print-fw",
@@ -19,6 +35,8 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
+    "@types/adm-zip": "^0.5.0",
+    "@types/base-64": "^1.0.0",
     "@types/bindings": "^1.5.1",
     "@types/classnames": "^2.3.1",
     "@types/electron-devtools-installer": "^2.2.2",
@@ -33,7 +51,9 @@
     "@types/react-scroll": "^1.8.3",
     "@types/serialport": "^8.0.2",
     "@types/styled-components": "^5.1.25",
+    "adm-zip": "^0.5.9",
     "asar": "^3.1.0",
+    "base-64": "^1.0.0",
     "bindings": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
@@ -41,34 +61,38 @@
     "global": "^4.4.0",
     "node-addon-api": "^5.0.0",
     "node-wifi": "^2.0.16",
-    "react": "^17.0.2",
+    "react": "^18.1.0",
     "react-circular-progressbar": "^2.0.4",
-    "react-dom": "^17.0.2",
+    "react-device-detect": "^2.2.2",
+    "react-dom": "^18.1.0",
     "react-modal": "^3.15.1",
     "react-router-dom": "^6.2.2",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.1",
     "react-scroll": "^1.8.7",
+    "react-timer-hook": "^3.0.5",
     "serialport": "^10.4.0",
     "styled-components": "^5.3.5",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
+    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w --no-sandbox\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
     "electron:build": "yarn build && tsc -p electron && electron-builder build",
-    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron && electron .",
+    "electron:build:rpi": "rm -rf ./build-addon && yarn addon:arm && mv ./build ./build-addon && yarn build && tsc -p electron && electron-builder build",
+    "electron:debug": "tsc -p electron",
+    "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron     && electron .",
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
     "react-start-win": "set BROWSER=none && yarn start",
     "addon:init": "node-gyp configure",
+    "addon:arm": "cross-env CC=arm-linux-gnueabihf-gcc cross-env CXX=arm-linux-gnueabihf-g++ node-gyp clean configure --arch=arm build --release --build-dir=build-addon",
     "addon:clean": "node-gyp clean",
-    "addon:build": "node-gyp build",
-    "addon:build:dev": "node-gyp build --debug"
-
+    "addon:build": "node-gyp clean configure build --release",
+    "addon:build:dev": "node-gyp clean configure build --debug"
   },
   "eslintConfig": {
     "extends": [

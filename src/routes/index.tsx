@@ -21,7 +21,9 @@ const AppRoute = () => {
             }/>
             <Route path='/home' element={<Home/>}/>
             <Route path='/model' element={<Model/>}/>
-            <Route path='/material' element={<Material/>}/>
+            <Route path='/material'>
+                <Route path=':selectPath' element={<Material/>}></Route>
+            </Route>
             <Route path='/progress' element={<Progress/>}/>
             <Route path='/complete' element={<Complete/>}/>
 

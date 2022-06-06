@@ -4,34 +4,60 @@ import Button from '../components/Button';
 import Footer from '../layout/Footer';
 import Header from '../layout/Header';
 import {SelectList, SelectListModel} from '../components/SelectList';
-import ListContainer from '../components/ListContainer';
+
 import MainArea from '../layout/MainArea';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
+
+import {decode} from 'base-64'
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
 
 function Material(){
     const navigate = useNavigate()
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [resinList, setResinList] = useState<SelectListModel[]>([]);
+    const [isCustom, setIsCustom] = useState<boolean>(false);
     const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
+    const [selectFileName,setSelectFileName] = useState<string>("")
+    const [selectFilePath,setSelectFilePath] = useState<string>("")
+    const [layerheight,setLayerHeight] = useState<number>(0)
 
+    const { selectPath } = useParams()
 
     useEffect(() => {
 
-        window.electronAPI.resinList().then((value:string[]) => {
+        window.electronAPI.resinListTW().then((value:string[]) => {
         
-            var listModel : SelectListModel[] = []
+            var listModel : SelectListModel[] = resinList
             value.forEach((value:string,index:number)=>{
-                listModel.push({name:value,id:index})
+                listModel.push({name:value,id:index + 1})
             })
-            console.log(listModel)
             setResinList(listModel)  
-        })    
+        })
+        if(selectPath){
+            window.electronAPI.isCustomTW(decode(selectPath)).then((value:boolean) => {
+                if(!value)
+                    return
+                var listModel : SelectListModel[] = resinList
+                listModel.unshift({name:"custom",id:0})
+                setResinList(listModel)  
+            })
+            setSelectFilePath(decode(selectPath))
+            let nameArr = decode(selectPath).split('/')
+            setSelectFileName(nameArr[nameArr.length - 1])
+        }
+        
       return () => {}
     },[])
+    useEffect(()=>{
+        window.electronAPI.getLayerHeightTW(selectFilePath).then((value:number) => {
+            setLayerHeight(value)
+        })
+    },[selectFilePath])
 
-    return (<div>
+    return (
+    <div>
         <Header>
             Select a printing material
         </Header>
@@ -47,9 +73,18 @@ function Material(){
             <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
             <Button color='blue' type='small' onClick={() => {setModalVisible(true)}}>Select</Button>
         </Footer>
-        <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {navigate('/progress')}}>
-            {/* {filePath} */}
+        <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {
+            window.electronAPI.printStartRM(selectFilePath,selectResin.name)
+        }}>
+            <ModalInfoMainArea>
+                <ModalInfoTitle text="File Name"/>
+                <ModalInfoValue text={selectFileName}/>
+                <ModalInfoTitle text='Material'/>
+                <ModalInfoValue text={selectResin.name}/>
+                <ModalInfoTitle text='Layer Height'/>
+                <ModalInfoValue text={`${layerheight}mm/layer`}/>
+            </ModalInfoMainArea>
         </Modal>
-        </div>);
+    </div>);
 }
 export default Material;

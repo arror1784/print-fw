@@ -47,13 +47,12 @@ class Wait extends Action{
         super()
     }
 }
-
 class SetImage extends Action{
     type: actionType = "setImage";
 
-    constructor(public readonly src : string){
+    constructor(public readonly index : number,public readonly delta : number,public readonly ymult : number){
         super()
     }
 }
-export {MoveLength,MovePosition,LEDEnable,Wait,Action,AutoHome};
+export {MoveLength,MovePosition,LEDEnable,Wait,Action,AutoHome,SetImage};
 export type { actionType }

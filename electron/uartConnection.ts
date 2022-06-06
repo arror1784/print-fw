@@ -1,6 +1,7 @@
-import { SerialPort , DelimiterParser} from 'serialport';
-import { PrintSettings } from './Settings';
-
+import * as SerialPort from 'serialport';
+import { EventEmitter } from 'events'
+import { ResinSetting, ResinSettingValue } from './json/resin';
+import { getPrinterSetting } from './json/printerSetting';
 
 const enum UartResponseType{
     LCD = 91,
@@ -28,14 +29,14 @@ interface ResponseData{
 function toBytesInt32 (num :number) {
     let arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
     let view = new DataView(arr);
-    view.setInt32(0, num, false); // byteOffset = 0; litteEndian = false
+    view.setInt32(0, num, true); // byteOffset = 0; litteEndian = false
     return arr;
 }
 
 
 class UartConnectionTest{
     
-    init(printSetting : PrintSettings){
+    init(printSetting : ResinSettingValue){
     }
     connect(){
     }
@@ -50,38 +51,49 @@ class UartConnectionTest{
     }
     deleteRespone(){
     }
-    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
+    async sendCommandMoveLength(length:number){
+
+        await new Promise(resolve => setTimeout(resolve,1000));
+
         return true;
     }
-    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
+    async sendCommandMovePosition(position:number){
+
+        await new Promise(resolve => setTimeout(resolve,1000));
+
         return true;
     }
     async sendCommandAutoHome(speed:number){
+
+        await new Promise(resolve => setTimeout(resolve,1000));
+
+        return true;
     }
     async sendCommandLEDEnable(enable : boolean){
+        return true;
     }
 }
 class UartConnection extends UartConnectionTest{
 
     private port : SerialPort;
-    private parser : DelimiterParser;
+    private parser : SerialPort.parsers.Delimiter;
     private rcb? : (type : UartResponseType, response : number) => void;
+    private _moveEvents : EventEmitter = new EventEmitter()
+    private _isMove: boolean = false
 
-    constructor(public readonly serialPortPath:string, onError : () => void){
+    constructor(public readonly serialPortPath:string, onError? : () => void){
         super()
 
-        this.port = new SerialPort({
-            path: serialPortPath,
+        this.port = new SerialPort(serialPortPath,{
             baudRate: 115200,
             autoOpen:false
           })
 
-        this.parser = this.port.pipe(new DelimiterParser({ delimiter: [0x03],includeDelimiter:true}))
+        this.parser = this.port.pipe(new SerialPort.parsers.Delimiter({ delimiter: [0x03],includeDelimiter:true}))
         this.parser.on('data', (response:Buffer)=>{
             let view = new Uint8Array(response)
             let i = view.findIndex((value)=>{ return value == 0x02})
-            
-    
+
             if(i == -1)
                 return;
             
@@ -91,27 +103,27 @@ class UartConnection extends UartConnectionTest{
     
             if(checksum != view[i+4])
                 return;
-    
-            console.log(this.rcb)
+
+            if(view[i+2] == UartResponseType.MOVE){
+                this._moveEvents.emit("MOVE")
+            }
+
             if(this.rcb)
                 this.rcb(view[i + 2],view[i+3])
-        }) // emits data after every '\n'
+        }) // emits data after every '0x03'
 
         this.connect()
-          
-        //connect serialPort
     }
-    init(printSetting : PrintSettings){
-        this.sendCommand(`H32 A${printSetting.upMoveSetting.accelSpeed} M1`)
-        this.sendCommand(`H32 A${printSetting.downMoveSetting.accelSpeed} M0`)
-        this.sendCommand(`H33 A${printSetting.upMoveSetting.decelSpeed} M1`)
-        this.sendCommand(`H33 A${printSetting.downMoveSetting.decelSpeed} M0`)
-        this.sendCommand(`H30 A${printSetting.upMoveSetting.maxSpeed} M1`)
-        this.sendCommand(`H30 A${printSetting.downMoveSetting.maxSpeed} M0`)
-        this.sendCommand(`H31 A${printSetting.upMoveSetting.initSpeed} M1`)
-        this.sendCommand(`H31 A${printSetting.downMoveSetting.initSpeed} M0`)
-
-        this.sendCommand(`H12 A${printSetting.ledOffset}`)
+    init(resinSetting : ResinSettingValue){
+        this.sendCommand(`H32 A${resinSetting.upMoveSetting.accelSpeed} M1`)
+        this.sendCommand(`H32 A${resinSetting.downMoveSetting.accelSpeed} M0`)
+        this.sendCommand(`H33 A${resinSetting.upMoveSetting.decelSpeed} M1`)
+        this.sendCommand(`H33 A${resinSetting.downMoveSetting.decelSpeed} M0`)
+        this.sendCommand(`H30 A${resinSetting.upMoveSetting.maxSpeed} M1`)
+        this.sendCommand(`H30 A${resinSetting.downMoveSetting.maxSpeed} M0`)
+        this.sendCommand(`H31 A${resinSetting.upMoveSetting.initSpeed} M1`)
+        this.sendCommand(`H31 A${resinSetting.downMoveSetting.initSpeed} M0`)
+        this.sendCommand(`H12 A${(getPrinterSetting().data.ledOffset / 100) *  (resinSetting.ledOffset / 100)}`)
     }
     connect(){
         this.port.open()
@@ -124,12 +136,14 @@ class UartConnection extends UartConnectionTest{
     }
     sendCommand(command: Uint8Array | string){
 
+        console.log(command)
+        let byteWritten:number = 0
+
         let cmd: Uint8Array = command as Uint8Array;
         if(typeof(command) === "string"){
             cmd = transData(parseCommand(command as string))
         }
-        console.log(cmd)
-        this.port.write(cmd)
+        this.port.write(Buffer.from(cmd))
         // this.port.drain()
         
         //sendCommand
@@ -141,37 +155,79 @@ class UartConnection extends UartConnectionTest{
     deleteRespone(){
         this.rcb = undefined
     }
-    async sendCommandMoveLength(length:number, onMove? : () => void | undefined){
+    async sendCommandMoveLength(length:number){
+
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
+        let _coVar = true
+
+        this._moveEvents.once("MOVE",() => {_coVar = false})
 
         this.sendCommand(`G01 A${length} M${length < 0 ? 0 : 1}`)
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
-        onMove && onMove()
+        
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+        this._isMove = false
 
         return true;
     }
-    async sendCommandMovePosition(position:number, onMove? : () => void | undefined){
+    async sendCommandMovePosition(position:number){
+
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
+        let _coVar = true
+
+        this._moveEvents.once("MOVE",() => {_coVar = false})
 
         this.sendCommand(`G02 A${position} M1`)
-        
-        onMove && onMove()
+
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+
+        this._isMove = false
 
         return true;
     }
     async sendCommandAutoHome(speed:number){
+
+        if(this._isMove)
+            return false
+
+        this._isMove = true
+
+        let _coVar = true
+
+        this._moveEvents.once("MOVE",() => {_coVar = false})
+
         if(speed > 0)
             this.sendCommand(`G28 A${speed}`)
+
+        while(_coVar) {
+            if(!_coVar) break
+            else await new Promise(resolve => setTimeout(resolve,500));
+        }
+        this._isMove = false
+
+        return true;
     }
     async sendCommandLEDEnable(enable : boolean){
         if(enable)
             this.sendCommand("H11")
         else
             this.sendCommand("H10")
+        return true
     }
 }
-
-
 function parseCommand(command: string) : CommandFormat{
     let paredCommand = command.split(' ')
     let data : CommandFormat = {
@@ -257,5 +313,4 @@ function transData(command: CommandFormat) : Uint8Array{
     buf[24] = 0x03;
     return buf
 }
-export { UartConnection, UartConnectionTest, transData, parseCommand};
-export type {UartResponseType};
+export { UartConnection, UartConnectionTest,UartResponseType, transData, parseCommand};

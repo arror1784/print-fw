@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ImageButton from '../components/ImageButton';
 import fileImg from '../assets/file.png';
 import settingImg from '../assets/settings.png';
@@ -11,12 +11,24 @@ import Modal from '../components/Modal';
 function Home(){
 
     const navigate = useNavigate()
+
     const [version, setVersion] = useState<string>("")
     const [serial, setSerial] = useState<string>("")
     const [wifi, setWifi] = useState<string>("")
     const [ip, setIp] = useState<string>("")
     const [modalVisible,setModalVisible] = useState<boolean>(false)
     
+    
+    useEffect(() => {
+        window.electronAPI.getProductInfoTW().then(
+            (value : string[]) => { //0:version,1:serial,2:wifi,3:ip,
+                setVersion(value[0])
+                setSerial(value[1])
+                setWifi(value[2])
+                setIp(value[3])
+            })
+    }, [])
+
     return (
     <HomeArea>
         <HomeContainer>
