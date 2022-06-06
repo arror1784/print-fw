@@ -21,6 +21,7 @@ function createWindow() {
         webPreferences: {
           preload: path.join(__dirname, 'preload.js'),
         },
+        disableAutoHideCursor: true
     });
 
     const imgWin = new BrowserWindow({
@@ -30,15 +31,20 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload-image.js')
         },
-        
+        fullscreen:true
     });
     const displays = screen.getAllDisplays()
     if(displays.length > 1){
+        
         const externalDisplay = displays[1]
         mainWin.setPosition(externalDisplay.bounds.x,externalDisplay.bounds.y)
+
     }else{
         imgWin.close()
     }
+    if(process.platform === "win32")
+        imgWin.close()
+    
     const template : Array<(Electron.MenuItem)> = []; 
     const menu = Menu.buildFromTemplate(template); 
     Menu.setApplicationMenu(menu);
@@ -76,7 +82,6 @@ function createWindow() {
 
     if (!app.isPackaged) {
         mainWin.webContents.openDevTools();
-        // imgWin.webContents.openDevTools();
 
         require('electron-reload')(__dirname, {
             electron: path.join(__dirname,

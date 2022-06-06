@@ -11,7 +11,8 @@ function App() {
   const style = {
     display: "flex", 
     width: "480px",
-    height: "320px"
+    'user-select': "none",
+    'cursor': "hidden",
   }
   return (
     <div className="App">
