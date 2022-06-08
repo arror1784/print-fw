@@ -6012,14 +6012,6 @@ he@^1.2.0:
   resolved "https://registry.npmjs.org/he/-/he-1.2.0.tgz"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-hide-cursor@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/hide-cursor/-/hide-cursor-0.0.1.tgz#ef7ee27a8c0deec1e1cc04563bb8e6d4f48b71df"
-  integrity sha512-SMujZCnEfLt6GT052qMhTlRpm3X+q1oPdTzha5Czo8KyqZd/wwvma/Ce5FTNoI4qzJMdFMlypQYOdU6CcZmwSQ==
-  dependencies:
-    bindings "^1.5.0"
-    nan "^2.14.0"
-
 history@^5.2.0:
   version "5.3.0"
   resolved "https://registry.npmjs.org/history/-/history-5.3.0.tgz"
