@@ -14,14 +14,15 @@ function createWindow() {
     * */
   
     const mainWin = new BrowserWindow({
-        width:480,
-        height:320,
+        width:400,
+        height:250,
         backgroundColor: "#EEF5F9",
-        titleBarStyle: process.platform === "win32" ? "default":"hidden",
+        // titleBarStyle: process.platform === "win32" ? "default":"hidden",
+        titleBarStyle: "default",
         webPreferences: {
           preload: path.join(__dirname, 'preload.js'),
         },
-        disableAutoHideCursor: true
+        // disableAutoHideCursor: true
     });
 
     const imgWin = new BrowserWindow({
@@ -33,12 +34,11 @@ function createWindow() {
         },
         fullscreen:true
     });
-    const displays = screen.getAllDisplays()
-    if(displays.length > 1){
-        
-        const externalDisplay = displays[1]
-        mainWin.setPosition(externalDisplay.bounds.x,externalDisplay.bounds.y)
-
+    console.log(screen.getAllDisplays())
+    if(process.arch == 'arm'){
+        // displays[0].
+        // mainWin.setPosition(1440,0)
+        imgWin.close()
     }else{
         imgWin.close()
     }
