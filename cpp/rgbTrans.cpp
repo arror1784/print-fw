@@ -11,11 +11,16 @@
 #include <string>
 #include <fstream>
 
+#include "mio/mio.hpp"
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "stb/stb_image.h"
 #include "stb/stb_image_write.h"
+
+#include "communicate.h"
 
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height);
 std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& out,const int width,const int height);
@@ -31,12 +36,7 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
 	std::string path = info[0].As<Napi::String>();
 	int delta = info[1].As<Napi::Number>().Int32Value();
 	double ymult = info[2].As<Napi::Number>().DoubleValue();
-    bool isL10;
-
-    if(info.Length() > 3)
-	    isL10 = info[3].As<Napi::Number>().ToBoolean();
-    else
-        isL10 = false;
+    bool isL10 = info[3].As<Napi::Number>().ToBoolean();
 
 	std::ifstream in(path,std::ios_base::binary);
     in.seekg(0, std::ios::end);
@@ -55,9 +55,6 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     
     uint8_t* png = stbi_load_from_memory(buff.data(), fileSize, &w, &h, &comp, STBI_grey);
 
-    if(w != 2560 || h != 1620)
-        return Napi::String::New(env,"error");
-
     int pngSize = w*h;
 
 	std::vector<uint8_t> finalImg(pngSize,0);
@@ -73,8 +70,10 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
         pngInMem = stbi_write_png_to_mem((const unsigned char*)compressedImage.data(), 2160, 540, 2560, STBI_rgb_alpha, &len);
 
     }else{
-        pngInMem = stbi_write_png_to_mem((const unsigned char*)finalImg.data(), 540, 540, 2560, STBI_grey, &len);
+        pngInMem = stbi_write_png_to_mem((const unsigned char*)finalImg.data(), 1440, 1440, 2560, STBI_grey, &len);
     }
+
+    Communicate::getInstance().addData(pngInMem,len);
     
     std::string result = "data:image/png;base64," + base64_encode(pngInMem,len);
     STBIW_FREE(pngInMem);
@@ -126,7 +125,7 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width
     const int targetHeight = 2560;
 
     image<uint8_t> orig(width, height,ori.data());
-    image<uint32_t> target(targetWidth, targetHeight);
+    image<uint32_t> target(targetWidth, targetHeight,true);
 
     for(int x = 0; x < 2560; x++){
         int y = 1;
@@ -154,27 +153,18 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width
             uint32_t rgba = ( 0xff << 24 | transRed << 16 | transGreen << 8 | transBlue);
             // uint32_t rgba = 0xff00ff00;
 
-            imRef((&target),targetWidth - (i/3),x) = rgba;
+            imRef((&target),targetWidth - (i/3) - 1,x) = rgba;
         }
     }
     std::vector<uint32_t> out(targetWidth*targetHeight);
     std::copy(target.data,target.data + (targetHeight * targetWidth),out.begin());
     return std::move(out);
 }
-//
-// 애드온 이니셜라이져입니다.
-// 자바스크립트 오브젝트(exports)에 함수를 하나씩 집어넣고,
-// 다 집어넣었으면 리턴문으로 반환하면 됩니다.
 Napi::Object init(Napi::Env env, Napi::Object exports) {
-    //d
-    // 위의 함수를 "sayHi"라는 이름으로 집어넣습니다.
+    
     exports.Set(Napi::String::New(env, "transRgbToBase64"), Napi::Function::New(env, transRgbToBase64));
 
-    //
-    // 다 집어넣었다면 반환합니다.
     return exports;
 };
 
-//
-// 애드온의 별명과, 이니셜라이져를 인자로 받습니다.
 NODE_API_MODULE(rgbTrans, init);
