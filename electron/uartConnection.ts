@@ -43,6 +43,7 @@ class UartConnectionTest{
     disconnect(){
     }
     checkConnection(){
+        return true
     }
     sendCommand(command: Uint8Array | string){
         return true;

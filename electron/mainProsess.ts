@@ -8,24 +8,25 @@ import * as fs from "fs"
 import * as AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
+import { getProductSetting } from "./json/productSetting"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
 let uartConnection : UartConnection | UartConnectionTest
 
-if(process.platform === "win32")
+if(process.platform === "win32" || process.arch != 'arm')
     uartConnection = new UartConnectionTest()
 else 
     uartConnection = new UartConnection('/dev/ttyUSB0')
 
-let imageProvider = new ImageProvider('C10',sliceFileRoot)
+let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFileRoot)
 
 let worker = new PrintWorker(uartConnection,imageProvider)
 
 function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
 
-    // if(!uartConnection.checkConnection())
-    //     return new Error("uart connect error")
+    if(!uartConnection.checkConnection())
+        return new Error("uart connect error")
     
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
