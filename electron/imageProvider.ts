@@ -3,7 +3,7 @@ import { existsSync } from "fs";
 type Product = "C10" | "L10"
 
 const binding = require('bindings')
-// const addOn = binding("rgbTrans")
+const addOn = binding("rgbTrans")
 
 
 class ImageProvider{
@@ -24,7 +24,7 @@ class ImageProvider{
             return true
         if(!existsSync(this.rootPath+`/${index}.png`))
             return false
-        // this._cb && this._cb(addOn.transRgbToBase64(this.rootPath+`/${index}.png`,delta,ymult,this._product == "L10"))
+        this._cb && this._cb(addOn.transRgbToBase64(this.rootPath+`/${index}.png`,delta,ymult,this._product == "L10"))
         return true;
     }
 }

@@ -34,7 +34,6 @@ function createWindow() {
         },
         fullscreen:true
     });
-    console.log(screen.getAllDisplays())
     if(process.arch == 'arm'){
         // displays[0].
         // mainWin.setPosition(1440,0)
