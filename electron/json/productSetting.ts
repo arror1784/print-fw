@@ -17,9 +17,9 @@ class ProductSetting extends JsonSetting<ProductSettingValue>{
 
     parse(ob:any) : ProductSettingValue{
         if(ob.product == "L10" || ob.product == "l10")
-            return {product:"C10"}
-        else
             return {product:"L10"}
+        else
+            return {product:"C10"}
     }
     save(ob: ProductSettingValue): string {
         return JSON.stringify(ob)
