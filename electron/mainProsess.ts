@@ -19,6 +19,8 @@ if(process.platform === "win32" || process.arch != 'arm')
 else 
     uartConnection = new UartConnection('/dev/ttyUSB0')
 
+uartConnection.onResponse(handleUartevent)
+
 let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFileRoot)
 
 let worker = new PrintWorker(uartConnection,imageProvider)
@@ -112,6 +114,24 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         worker.unlock()
     })
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{return ["1","2","3","4"]})
+}
+
+function handleUartevent(type:UartResponseType,response:number){
+    switch (type) {
+        case UartResponseType.LCD:
+            if(response){
+
+            }else{
+
+            }
+
+            break;
+        case UartResponseType.SHUTDOWN:
+            //shutdown event
+            break;
+        default:
+            break;
+    }
 }
 
 export {mainProsessing}
