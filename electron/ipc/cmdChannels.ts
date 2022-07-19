@@ -25,7 +25,6 @@ enum ProductCH{
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownMR = "product:onShutDown",
-
 }
 
 enum WorkerCH{
@@ -38,6 +37,8 @@ enum WorkerCH{
     onPrintInfoMR = "worker:onPrintInfo,state:string,material:string,filename:string,layerheight:number,elapsedTime:number,totalTime:number,progress:number,enabelTimer:number",
     onStartErrorMR = "worker:onStartError,error:string",
     onProgressMR = "worker:onProgress,progress:number",
+
+    
 }
 enum ImageCH{
     changeImageMR = 'image:changeImage,image:string',

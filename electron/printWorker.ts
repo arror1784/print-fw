@@ -4,6 +4,7 @@ import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
 import { ResinSetting, ResinSettingValue } from './json/resin';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
+import { BlockList } from 'net';
 
 enum WorkingState{
     working = "working",
@@ -23,6 +24,7 @@ class PrintWorker{
     private _workingState: WorkingState = WorkingState.stop
     private _progress : number = 0
     private _lock : boolean = false
+    private _lcdState : boolean = true
 
     private _onProgressCallback?: (progress : number) => void
     private _onWorkingStateChangedCallback?: (state : WorkingState) => void
@@ -70,10 +72,21 @@ class PrintWorker{
     getPrintInfo(){
         return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,0,0,this._progress,true]
     }
+    
+    setLcdState(v : boolean) {
+        this._lcdState = v;
+        if(!this._lcdState){
+            this.stop()
+        }
+    }
+    
     run(name :string, resin:ResinSetting){
         this._name = name
         let info = new InfoSetting()
 
+        if(!this._lcdState){
+            return new Error("LCD OFF STATE")
+        }
         this._currentStep = 0
         if(!info.isOpen())
             return new Error("uart connect error")
