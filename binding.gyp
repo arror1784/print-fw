@@ -19,7 +19,7 @@
         ],
         # 여기서 타겟 소스파일을 지정합니다.
         "sources": [ "cpp/rgbTrans.cpp","cpp/base64/base64.cpp","cpp/dt/*.h","cpp/stb/stb_image.h","cpp/stb/stb_image_write.h","cpp/stb/stb_image_resize.h"
-                        ,"cpp/communicate.h", "cpp/mio/mio.hpp","cpp/Singleton.h" ],
+                        ,"cpp/communicate.h", "cpp/mio/mio.hpp","cpp/singleton.h" ],
         'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ],
         'msvs_settings': {
             'VCCLCompilerTool': {
