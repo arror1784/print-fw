@@ -36,12 +36,12 @@
                     "-ltbb"
                 ],
             }],['target_arch=="arm"',{
-                'libraries':[
-                    '-Llib'
+                # 'libraries!':[
+                    # '-ltbb'
+                # ],
+                'libraries': [
+                    "-Lprebuilds"
                 ],
-                'libraries!':[
-                    '-ltbb'
-                ]
             }]
         ]
     }]
