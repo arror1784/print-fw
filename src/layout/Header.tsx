@@ -22,7 +22,7 @@ export const HeaderText = styled.div`
 
     letter-spacing: 1px;
     
-    width: 480px;
+    width: 479px;
 
     margin: auto;
     margin-top: 8px;

@@ -14,11 +14,11 @@ function createWindow() {
     * */
   
     const mainWin = new BrowserWindow({
-        width:400,
-        height:250,
+        width:479,
+        height:320,
         backgroundColor: "#EEF5F9",
-        // titleBarStyle: process.platform === "win32" ? "default":"hidden",
-        titleBarStyle: "default",
+        titleBarStyle: process.platform === "win32" ? "default":"hidden",
+        // titleBarStyle: "default",
         webPreferences: {
           preload: path.join(__dirname, 'preload.js'),
         },
@@ -35,8 +35,7 @@ function createWindow() {
         fullscreen:true
     });
     if(process.arch == 'arm'){
-        // displays[0].
-        // mainWin.setPosition(1440,0)
+        mainWin.setFullScreen(true)
         imgWin.close()
     }else{
         imgWin.close()

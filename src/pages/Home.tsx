@@ -53,7 +53,7 @@ function Home(){
 }
 export const HomeArea = styled.div`
     display: flex;
-    width: 480px;
+    width: 479px;
     height: 320px;
 
     justify-content: center;

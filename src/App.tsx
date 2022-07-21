@@ -10,9 +10,10 @@ import ExtraModals from './pages/ExtraPages';
 function App() {
   const style = {
     display: "flex", 
-    width: "480px",
+    width: "479px",
+    height: "320px",
     'user-select': "none",
-    'cursor': "hidden",
+    'cursor': "hidden"
   }
   return (
     <div className="App">

@@ -20,7 +20,7 @@ export const MainAreaDIV = styled.div`
     
     flex-direction: column;
     
-    width: 480px;
+    width: 479px;
     height: 210px;
     
     align-items: center;
