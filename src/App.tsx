@@ -4,7 +4,7 @@ import logo from './logo.svg';
 import './App.css';
 import './routes'
 import AppRoute from './routes';
-import { BrowserRouter,HashRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import ExtraModals from './pages/ExtraPages';
 
 function App() {
