@@ -31,7 +31,6 @@ function ExtraModals(){
                     break;
             }
         })
-        setshutDownVisible(true)
         return ()=>{
             window.electronAPI.removeListener(lcdListener)
             window.electronAPI.removeListener(shutdownListener)
