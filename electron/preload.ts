@@ -31,7 +31,7 @@ function eventRemove(listener:EventListener){
     console.log(listener.channel,ipcRenderer.listenerCount(listener.channel),Object.keys(eventListnerArr).length)
 }
 
-interface ContextBridgeApi {
+interface electronApiInterface {
     readDirTW: (path : string) => Promise<DirOrFile[]>;
     resinListTW: () => Promise<string[]>;
     getLayerHeightTW: (filePath:string) => Promise<number>;
@@ -43,14 +43,15 @@ interface ContextBridgeApi {
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
     unLockRM: () => void;
-    requestPrintInfo: () => void,
+    requestPrintInfoRM: () => void,
+    shutdownRM: () => void,
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => EventListener;
     onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => EventListener;
-    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => EventListener;
+    onShutDownEventMR: (callback:(event:IpcRendererEvent) => void) => EventListener;
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => EventListener;
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => EventListener;
 
@@ -58,7 +59,7 @@ interface ContextBridgeApi {
     removeAllListner : (channel:string) => void;
 
 }
-const exposedApi: ContextBridgeApi = {
+const exposedApi: electronApiInterface = {
     readDirTW: (path: string) => ipcRenderer.invoke(FileSystemCH.readDirTW,path),
     resinListTW: () => ipcRenderer.invoke(ResinCH.resinListTW),
     getLayerHeightTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.getLayerHeightTW,filePath),
@@ -69,14 +70,15 @@ const exposedApi: ContextBridgeApi = {
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
     unLockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
-    requestPrintInfo: () => ipcRenderer.send(WorkerCH.requestPrintInfoMR),
+    requestPrintInfoRM: () => ipcRenderer.send(WorkerCH.requestPrintInfoRM),
+    shutdownRM: () => ipcRenderer.send(ProductCH.onShutDownRM),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => {return eventADD(WorkerCH.onPrintInfoMR,callback)},
     onLCDStateChangedMR: (callback:(event:IpcRendererEvent,state: boolean) => void) => {return eventADD(ProductCH.onLCDStateChangedMR,callback)},
-    onShutDownMR: (callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onShutDownMR,callback)},
+    onShutDownEventMR: (callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onShutDownEventMR,callback)},
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => {return eventADD(WorkerCH.onStartErrorMR,callback)},
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => {return eventADD(WorkerCH.onProgressMR,callback)},
 
@@ -86,4 +88,4 @@ const exposedApi: ContextBridgeApi = {
 
 contextBridge.exposeInMainWorld('electronAPI', exposedApi)
 
-export type {ContextBridgeApi}
+export type {electronApiInterface}

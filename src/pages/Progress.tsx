@@ -64,7 +64,8 @@ function Progress(){
                     break;
             }
         })
-        window.electronAPI.requestPrintInfo()
+        window.electronAPI.requestPrintInfoRM()
+        
         return ()=>{
             window.electronAPI.removeListener(printerInfoListener)
             window.electronAPI.removeListener(progressListener)

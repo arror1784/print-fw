@@ -24,15 +24,17 @@ enum ProductCH{
     getProductInfoTW = "product:getProductInfo,RT:string[]",
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
-    onShutDownMR = "product:onShutDown",
+    onShutDownEventMR = "product:onShutDownEvent",
+
+    onShutDownRM = "product:onShutDown",
 }
 
 enum WorkerCH{
     startRM = "worker:start,path:string,material:string",
     commandRM = "worker:command,cmd:string",
     unlockRM = "worker:unlock",
-    requestPrintInfoMR = "worker:requestPrintInfo",
-
+    
+    requestPrintInfoRM = "worker:requestPrintInfo",
     onWorkingStateChangedMR = "worker:onWorkingStateChanged,state:string",
     onPrintInfoMR = "worker:onPrintInfo,state:string,material:string,filename:string,layerheight:number,elapsedTime:number,totalTime:number,progress:number,enabelTimer:number",
     onStartErrorMR = "worker:onStartError,error:string",

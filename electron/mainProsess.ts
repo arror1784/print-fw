@@ -9,6 +9,7 @@ import * as AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
+import { exec } from "child_process"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -31,9 +32,11 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
             case UartResponseType.SHUTDOWN:
-                mainWindow.webContents.send(ProductCH.onShutDownMR)
+                console.log("event shutdown ")
+                mainWindow.webContents.send(ProductCH.onShutDownEventMR)
                 break;
             case UartResponseType.LCD:
+                console.log("event LCD ")
 
                 if(response){
                     worker.setLcdState(true)
@@ -112,11 +115,24 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
                 break;
         }
     })
-    ipcMain.on(WorkerCH.requestPrintInfoMR,(event:IpcMainEvent)=>{
+    ipcMain.on(WorkerCH.requestPrintInfoRM,(event:IpcMainEvent)=>{
         mainWindow.webContents.send(WorkerCH.onPrintInfoMR,...worker.getPrintInfo())
     })
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
+    })
+    ipcMain.on(ProductCH.onShutDownRM,(event:IpcMainEvent)=>{
+        exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
+            console.log("shutdown -h now")
+            if (error) {
+                console.log(`error: ${error.message}`)
+                return
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`)
+                return
+            }
+            console.log(`stdout: ${stdout}`)})
     })
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{return ["1","2","3","4"]})
 }
