@@ -10,6 +10,8 @@ import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
 import { exec } from "child_process"
+import { getVersionSetting } from "./json/version"
+import { getModelNoInstaceSetting } from "./json/modelNo"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -134,6 +136,8 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
             }
             console.log(`stdout: ${stdout}`)})
     })
-    ipcMain.handle(ProductCH.getProductInfoTW,()=>{return ["1","2","3","4"]})
+    ipcMain.handle(ProductCH.getProductInfoTW,()=>{
+        return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,"3","4"]
+    })
 }
 export {mainProsessing}

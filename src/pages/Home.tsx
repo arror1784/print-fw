@@ -95,6 +95,10 @@ export const TitleText = styled.div`
     color: #474747;
     background-color: #00000000;
 `
-export const ValueText = styled.div``
+export const ValueText = styled.div`
+    font-size: 23px;
+    color: #474747;
+    font-weight: bold;
+`
 export default Home;
 
