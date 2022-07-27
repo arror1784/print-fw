@@ -1,6 +1,7 @@
 #ifndef WIFIINFO_H
 #define WIFIINFO_H
 
+#include <string>
 
 class WifiInfo
 {

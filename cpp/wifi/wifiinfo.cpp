@@ -1,11 +1,6 @@
 #include "wifiinfo.h"
 
-WifiInfo::WifiInfo(QObject *parent) : QObject(parent)
-{
-
-}
-
-WifiInfo::WifiInfo(int networkID, QString ssid, QString bssid, bool flags, int freq, int signal_level, bool saved,bool connected):
+WifiInfo::WifiInfo(int networkID, std::string ssid, std::string bssid, bool flags, int freq, int signal_level, bool saved,bool connected):
     networkID(networkID),ssid(ssid),bssid(bssid),flags(flags),freq(freq),signal_level(signal_level),saved(saved),connected(connected)
 {
 
@@ -61,22 +56,22 @@ void WifiInfo::setFlags(bool &value)
     flags = value;
 }
 
-QString WifiInfo::getBssid() const
+std::string WifiInfo::getBssid() const
 {
     return bssid;
 }
 
-void WifiInfo::setBssid(const QString &value)
+void WifiInfo::setBssid(const std::string &value)
 {
     bssid = value;
 }
 
-QString WifiInfo::getSsid() const
+std::string WifiInfo::getSsid() const
 {
     return ssid;
 }
 
-void WifiInfo::setSsid(const QString &value)
+void WifiInfo::setSsid(const std::string &value)
 {
     ssid = value;
 }
