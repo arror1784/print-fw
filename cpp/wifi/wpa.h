@@ -1,4 +1,4 @@
-#pragma once
+#include "napi.h"
 
 #include <thread>
 #include <mutex>
@@ -12,7 +12,7 @@
 #define WPA_CTRL_INTERFACE "/var/run/wpa_supplicant/wlp3s0"
 #endif
 
-#define TRY_ASSOCIATE "Trying to associate"
+#define TRY_ASSOCIATE_TEXT "Trying to associate"
 
 enum class WIFIInfoType{
     BSSID=0,
@@ -29,28 +29,25 @@ enum class NetworkInfoType{
     SIGLEV=4,
     FLAGS=5,
 };
-
+enum class NoticeType{
+    LIST_UPDATE,
+    STATE_CHANGE,
+    REFRESH_AVAILABLE,
+    TRY_ASSOCIATE,
+    SCAN_FAIL,
+    ASSOCIATE_FAIL
+};
 class WPA
 {
 public:
     WPA();
-    WPA(const char* ctrl_path);
+
+    void init(Napi::Env env,std::string ctrl_path);
+    void init(Napi::Env env);
 
     void selectNetwork(std::string ssid, std::string pwd);
     void runEvent();
 
-    void networkListUpdate();
-    void currentStateChange();
-
-    void connectedChange(bool connected);
-
-    void refreshAvailable();
-    void wifiTryAssociate();
-
-    void wifiScanFail(int value);
-    void wifiAssocFailed(int value);
-
-public:
     void networkScan();
 
     std::vector<WifiInfo*> getWifiList();
@@ -60,12 +57,10 @@ public:
 
     bool networkDisconnect();
 
-    void checkNetworkConnect();
-
+    Napi::ThreadSafeFunction onData;
 private:
-    bool checkFileExists();
     bool checkCommandSucess(char*);
-
+    
     void ctrlConnect();
     void wpa_ctrl_event();
 
