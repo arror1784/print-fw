@@ -61,6 +61,10 @@
         "typeinfo": "cpp",
         "bit": "cpp",
         "execution": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp",
+        "valarray": "cpp"
     }
 }
