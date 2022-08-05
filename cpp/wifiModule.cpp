@@ -7,9 +7,9 @@ Napi::Boolean wifiInit(const Napi::CallbackInfo& info);
 Napi::Boolean wifiScan(const Napi::CallbackInfo& info);
 Napi::Boolean wifiConnect(const Napi::CallbackInfo& info); //ssid:string bssid:string password?:string
 Napi::Boolean wifiDisconnect(const Napi::CallbackInfo& info);
-Napi::Boolean wifiGetList(const Napi::CallbackInfo& info);
+Napi::Array wifiGetList(const Napi::CallbackInfo& info);
 Napi::Boolean wifiDeleteConnection(const Napi::CallbackInfo& info);
-Napi::Boolean wifiGetCurrentConnection(const Napi::CallbackInfo& info);
+Napi::Object wifiGetCurrentConnection(const Napi::CallbackInfo& info);
 Napi::Boolean wifiOnData(const Napi::CallbackInfo& info);
 
 
@@ -43,29 +43,54 @@ Napi::Boolean wifiInit(const Napi::CallbackInfo& info){
     return Napi::Boolean::New(env,true);
 }
 Napi::Boolean wifiScan(const Napi::CallbackInfo& info){
-    wpa.networkScan();
     Napi::Env env = info.Env();
+    wpa.networkScan();
 
-    return Napi::Boolean::New(env,true);
-    
+    return Napi::Boolean::New(env,true);    
 }
 
 Napi::Boolean wifiConnect(const Napi::CallbackInfo& info){
     Napi::Env env = info.Env();
 
+    if(info.Length() != 3){
+        Napi::TypeError::New(env, "Invalid argument count").ThrowAsJavaScriptException();
+    }else if(!info[0].IsString() && !info[1].IsString() && !info[2].IsString()){
+        Napi::TypeError::New(env, "Invalid argument type").ThrowAsJavaScriptException();
+    }
+
+    wpa.networkConnect(info[0].As<Napi::String>(),info[1].As<Napi::String>(),info[2].As<Napi::String>());
+
     return Napi::Boolean::New(env,true);
-    
 }
 Napi::Boolean wifiDisconnect(const Napi::CallbackInfo& info){
     Napi::Env env = info.Env();
 
+    wpa.networkDisconnect();
+
     return Napi::Boolean::New(env,true);
     
 }
-Napi::Boolean wifiGetList(const Napi::CallbackInfo& info){
+Napi::Array wifiGetList(const Napi::CallbackInfo& info){
     Napi::Env env = info.Env();
 
-    return Napi::Boolean::New(env,true);
+    auto result = wpa.getWifiList();
+
+    Napi::Array arr = Napi::Array::New(env);
+
+    for (int i = 0; i < result.size(); i++)
+    {
+        Napi::Object ob = Napi::Object::New(env);
+    
+        ob.Set("bssid",result[i].bssid);
+        ob.Set("ssid",result[i].ssid);
+        ob.Set("flags",result[i].flags);
+        ob.Set("freq",result[i].freq);
+        ob.Set("signal_level",result[i].signal_level);
+
+        arr.Set(i,ob);
+    }
+    
+    return arr;
     
 }
 Napi::Boolean wifiDeleteConnection(const Napi::CallbackInfo& info){
@@ -74,10 +99,18 @@ Napi::Boolean wifiDeleteConnection(const Napi::CallbackInfo& info){
     return Napi::Boolean::New(env,true);
     
 }
-Napi::Boolean wifiGetCurrentConnection(const Napi::CallbackInfo& info){
+Napi::Object wifiGetCurrentConnection(const Napi::CallbackInfo& info){
     Napi::Env env = info.Env();
+    Napi::Object ob = Napi::Object::New(env);
 
-    return Napi::Boolean::New(env,true);
+    auto result = wpa.getCurrentStatus();
+    ob.Set("bssid",result.bssid);
+    ob.Set("ssid",result.ssid);
+    ob.Set("flags",result.flags);
+    ob.Set("freq",result.freq);
+    ob.Set("signal_level",result.signal_level);
+
+    return ob;
     
 }
 Napi::Boolean wifiOnData(const Napi::CallbackInfo& info){

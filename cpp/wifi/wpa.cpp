@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cstring>
 #include <stdio.h>
+#include <utility>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -30,6 +31,8 @@ void WPA::init(Napi::Env env,std::string ctrl_path){
 void WPA::init(Napi::Env env){
     ctrlConnect();
     runEvent();
+
+    networkScan();
 }
 
 void WPA::runEvent()
@@ -45,21 +48,14 @@ void WPA::networkScan()
     ret = wpa_ctrl_cmd(_ctrl, "SCAN", resBuff);
 }
 
-std::vector<WifiInfo*> WPA::getWifiList()
+std::vector<WifiInfo> WPA::getWifiList()
 {
    return _wifiList;
 }
 
-bool WPA::networkConnect(std::string ssid,std::string bssid, std::string passwd,int networkID)
+bool WPA::networkConnect(std::string ssid,std::string bssid, std::string passwd)
 {
-    int id;
-
-    if(networkID == -1){
-        id = networkAdd(_ctrl);
-    }else{
-        id = networkID;
-    }
-
+    int id = networkAdd(_ctrl);
 
     networkSet(_ctrl,id,"ssid",ssid);
     networkSet(_ctrl,id,"bssid",bssid);
@@ -75,19 +71,11 @@ bool WPA::networkConnect(std::string ssid,std::string bssid, std::string passwd,
         networkSet(_ctrl,id,"psk",passwd);
     }
 
-    networkConnect(id);
-
-    return true;
-}
-
-bool WPA::networkConnect(int id)
-{
     networkSelect(_ctrl,id);
     networkEnable(_ctrl,id);
 
     return true;
 }
-
 bool WPA::networkDisconnect()
 {
     char resBuff[4096] = {0};
@@ -108,18 +96,22 @@ void WPA::ctrlConnect()
 
 void WPA::wpa_ctrl_event()
 {
-#ifndef _MSC_VER
-    auto callback = []( Napi::Env env, Napi::Function jsCallback, std::string type) {
-      // Transform native data into JS data, passing it to the provided
-      // `jsCallback` -- the TSFN's JavaScript function.
-      jsCallback.Call( {Napi::String::New( env, type ),{Napi::String::New(env,type)}} );
+    #ifndef _MSC_VER
+    auto callback = []( Napi::Env env, Napi::Function jsCallback, std::pair<int,int> *type) {
+        // Transform native data into JS data, passing it to the provided
+        // `jsCallback` -- the TSFN's JavaScript function.
 
-      // We're finished with the data.
+        jsCallback.Call( {Napi::Number::New( env, type->first ),Napi::Number::New( env, type->second )} );
+
+        delete type;
+
+        // We're finished with the data.
     };
 
     char *resBuff = new char[4096];
     size_t size = 4096;
     int a;
+    std::pair<int,int> res;
 
     if(wpa_ctrl_attach(_ctrl_event)){
         std::cout << "wpa attack error" << _ctrlPath << std::endl;
@@ -136,94 +128,61 @@ void WPA::wpa_ctrl_event()
         wpa_ctrl_recv(_ctrl_event,resBuff,&size);
 
         std::string stdResBuff(resBuff);
-//        qDebug() << QString::fromStdString(stdResBuff) << "event";
         if(stdResBuff.find(WPA_EVENT_SCAN_RESULTS) != std::string::npos){
             clearList();
 
             parseWifiInfo();
-            parseNetworkInfo();
-            parseConnectedWifi();
-
-            // networkListUpdate();
-            onData.BlockingCall("ListUpdate",callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
 
         }else if(stdResBuff.find(WPA_EVENT_CONNECTED) != std::string::npos){
 
+            connected = true;
+
+
             networkSaveConfig(_ctrl);
-            parseConnectedWifi();
-            // networkListUpdate();
-            onData.BlockingCall("ListUpdate",callback);
-            // connectedChange(true);
-            onData.BlockingCall("connectedChagne",callback);
+            // onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
+            // onData.BlockingCall(new std::pair(NoticeType::STATE_CHANGE,0),callback);
 
         }else if(stdResBuff.find(WPA_EVENT_DISCONNECTED) != std::string::npos){
 
-            parseConnectedWifi();
-            networkScan();
+            networkDelete(_ctrl);
+            connected = false;
 
-            // networkListUpdate();
-            onData.BlockingCall("ListUpdate",callback);
-            // connectedChange(false);
-            onData.BlockingCall("ConnectedChange",callback);
+            // onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
+            // onData.BlockingCall(new std::pair(NoticeType::STATE_CHANGE,0),callback);
 
         }else if(stdResBuff.find(WPA_EVENT_SCAN_FAILED) != std::string::npos){
             clearList();
             // networkListUpdate();
-            onData.BlockingCall("ListUpdate",callback);
-            networkDisable(_ctrl,-1);
-            networkDelete(_ctrl,-1);
+            // onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
+            networkDisable(_ctrl);
+            networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
 
             auto pos = stdResBuff.find("ret=");
             if(pos != std::string::npos){
                 auto ret = stdResBuff.substr(pos+4);
                 if(atoi(ret.c_str()) == -52){
-                    // wifiScanFail(-52);
-                    onData.BlockingCall("ScanFail",callback);
+                    // onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,-52),callback);
                 }else{
-                    // wifiScanFail(1);
-                    onData.BlockingCall("ScanFail",callback);
+                    // onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,1),callback);
                 }
             }else{
-                //  wifiScanFail(0);
-                onData.BlockingCall("ScanFail",callback);
+                    // onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,0),callback);
             }
         }else if(stdResBuff.find(WPA_EVENT_ASSOC_REJECT) != std::string::npos){
             std::regex re("bssid=(\\w|:)*");
             std::smatch result;
             auto flag = std::regex_search(stdResBuff,result,re);
-            if(flag){
-                auto bssid = result.str().substr(6);
-                if(bssid == "00:00:00:00:00:00"){
-                    for (int i = 0; i < _wifiList.size();i++) {
-                        if(_wifiList[i]->ssid == _lastTrySsid){
-                            networkDelete(_ctrl,_wifiList[i]->networkID);
-                            _wifiList[i]->saved = false;
-                            _wifiList[i]->networkID = -1;
-                        }
-                    }
-                }else{
-                    for (int i = 0; i < _wifiList.size();i++) {
-                        if(_wifiList[i]->bssid == bssid){
-                            networkDelete(_ctrl,_wifiList[i]->networkID);
-                            _wifiList[i]->saved = false;
-                            _wifiList[i]->networkID = -1;
-                        }
-                    }
-                }
-            }
-            networkDisable(_ctrl,-1);
+            
+            networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
-            // wifiAssocFailed(0);
-            onData.BlockingCall("AssocFail",callback);
-            // networkListUpdate();
-            onData.BlockingCall("ListUpdate",callback);
+
+            // onData.BlockingCall(new std::pair(NoticeType::ASSOCIATE_FAIL,0),callback);
+            // onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
 
         }else if(stdResBuff.find(TRY_ASSOCIATE_TEXT) != std::string::npos){
-            stdResBuff.erase(stdResBuff.end() - 1);
-            _lastTrySsid = stdResBuff.substr(34);
-            // wifiTryAssociate();
-            onData.BlockingCall("TryAssociate",callback);
+            // onData.BlockingCall(new std::pair(NoticeType::TRY_ASSOCIATE,0),callback);
         }
     }
 #endif
@@ -234,7 +193,6 @@ void WPA::clearList()
     std::lock_guard<std::mutex> listLock(_listMutex);
 
     while(_wifiList.size() > 0){
-        delete _wifiList[0];
         _wifiList.erase(_wifiList.begin());
     }
 }
@@ -280,55 +238,17 @@ void WPA::parseWifiInfo()
         }
         if(row.size() == 5){
             if(row[3].find("WPA")){
-                _wifiList.push_back(new WifiInfo(-1,row[4],row[0],true,std::atoi(row[1].data()),std::atoi(row[2].data()),false,false));
+                _wifiList.emplace_back(row[4],row[0],true,std::atoi(row[1].data()),std::atoi(row[2].data()));
             }else{
-                _wifiList.push_back(new WifiInfo(-1,row[4],row[0],false,std::atoi(row[1].data()),std::atoi(row[2].data()),false,false));
+                _wifiList.emplace_back(row[4],row[0],false,std::atoi(row[1].data()),std::atoi(row[2].data()));
             }
         }
     }
 
     return;
 }
-void WPA::parseNetworkInfo()
-{
-    std::lock_guard<std::mutex> listLock(_listMutex);
 
-    bool first = true;
-
-    int ret;
-    char resBuff[4096] = {0};
-
-    do {
-        memset(resBuff,0x00,4096);
-        ret = wpa_ctrl_cmd(_ctrl, "LIST_NETWORKS", resBuff);
-    } while (std::string(resBuff) == "OK");
-
-    std::string myStr(resBuff), val, line;
-    std::stringstream ss(myStr);
-
-    while (getline(ss, line, '\n')) {
-        std::vector<std::string> row;
-        std::stringstream s(line);
-        if(first){
-            first = false;
-            continue;
-        }
-        while (getline(s, val, '\t')) {
-            row.push_back(val);
-        }
-//        if(row.size() == 4){
-        for (int i = 0; i < _wifiList.size();i++) {
-            if(_wifiList[i]->ssid == row[1] && _wifiList[i]->bssid == row[2]){
-                _wifiList[i]->saved = true;
-                _wifiList[i]->networkID = std::atoi(row[0].data());
-            }
-        }
-//        }
-    }
-    //    return vvs;
-}
-
-void WPA::parseConnectedWifi()
+WifiInfo WPA::getCurrentStatus()
 {
     std::lock_guard<std::mutex> listLock(_listMutex);
 
@@ -352,19 +272,7 @@ void WPA::parseConnectedWifi()
             mp.emplace(row[0],row[1]);
         }
     }
-    if(mp["wpa_state"] == "COMPLETED"){
-        for (int i = 0; i < _wifiList.size();i++) {
-            if(_wifiList[i]->ssid == mp["ssid"] && (_wifiList[i]->bssid == mp["bssid"] || mp["bssid"] == "00:00:00:00:00:00")){
-                _wifiList[i]->connected = true;
-            }else{
-                _wifiList[i]->connected  = false;
-            }
-        }
-    }else{
-        for (int i = 0; i < _wifiList.size();i++) {
-            _wifiList[i]->connected = false;
-        }
-    }
+    return std::move(WifiInfo(mp["ssid"],mp["bssid"],false,std::atoi(mp["freq"].data()),0));
 }
 
 bool WPA::checkConnected()
@@ -425,31 +333,23 @@ void WPA::networkEnable(struct wpa_ctrl *ctrl,int id)
     wpa_ctrl_cmd(ctrl,buf.c_str(),resBuff);
 }
 
-void WPA::networkDisable(struct wpa_ctrl *ctrl,int id)
+void WPA::networkDisable(struct wpa_ctrl *ctrl)
 {
     char resBuff[4096] = {0};
     std::string buf;
 
-    if(id == -1){
-        buf = "DISABLE_NETWORK all";
-    }else{
-        buf = "DISABLE_NETWORK ";
-        buf += std::to_string(id);
-    }
+    buf = "DISABLE_NETWORK all";
+
     wpa_ctrl_cmd(ctrl,buf.c_str(),resBuff);
 }
 
-void WPA::networkDelete(struct wpa_ctrl *ctrl,int id)
+void WPA::networkDelete(struct wpa_ctrl *ctrl)
 {
     char resBuff[4096] = {0};
     std::string buf;
 
-    if(id == -1){
-        buf = "REMOVE_NETWORK all";
-    }else{
-        buf = "REMOVE_NETWORK ";
-        buf += std::to_string(id);
-    }
+    buf = "REMOVE_NETWORK all";
+
     wpa_ctrl_cmd(ctrl,buf.c_str(),resBuff);
 }
 void WPA::networkSaveConfig(struct wpa_ctrl *ctrl)
