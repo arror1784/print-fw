@@ -1,8 +1,4 @@
-console.log(require('node-addon-api').gyp)
-console.log(require('node-addon-api').include)
-
 const binding = require('bindings')
-const { brotliDecompressSync } = require('zlib')
 // const addOn = binding("rgbTrans")
 const addOn = binding("wifiModule")
 

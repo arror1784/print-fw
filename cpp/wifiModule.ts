@@ -26,7 +26,7 @@ export interface WifiModuleAddon {
     getList : () => Array<WifiInfo>;
     deleteConnection : () => boolean;
     getCurrentConnection : () => WifiInfo;
-    onData : ((type:WifiCallbackType,value:number) => boolean);
+    onData : ((type:WifiCallbackType,value:number) => void);
 }
 
 const addOn : WifiModuleAddon = binding("wifiModule")
