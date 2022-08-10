@@ -49,7 +49,7 @@ function Home(){
                 <ValueText> {ip} </ValueText>
             </InfoArea>
         </Modal> */}
-        <Typing onTypingFinish={() => {}}/>
+        <Typing onTypingFinish={() => {}} onTyping={()=>{}}/>
     </HomeArea>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }

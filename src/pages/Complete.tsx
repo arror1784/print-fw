@@ -32,7 +32,7 @@ function Complete(){
                 setIsError(true)
         })
         
-        window.electronAPI.requestPrintInfo()
+        window.electronAPI.requestPrintInfoRM()
 
         return ()=>{
             window.electronAPI.removeListener(printInfoListener)

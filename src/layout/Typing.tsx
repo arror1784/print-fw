@@ -8,7 +8,8 @@ import 'react-simple-keyboard/build/css/index.css'
 import './Typing.scss'
 
 interface TypingProp{
-    onTypingFinish: () => void
+    onTyping: (value:string) => void;
+    onTypingFinish: () => void;
 }
 
 const layout = {
@@ -28,7 +29,7 @@ const layout = {
     ]
 }
 
-function Typing({onTypingFinish} : TypingProp){
+function Typing({onTyping,onTypingFinish} : TypingProp){
     
     const [value, setvalue] = useState<string>("")
     const [layoutName, setlayoutName] = useState<string>("default")
@@ -46,7 +47,10 @@ function Typing({onTypingFinish} : TypingProp){
                        '{enter}': 'enter',
                     }
                 }
-                onChange={setvalue}
+                onChange={(input:string)=>{
+                    setvalue(input)
+                    onTyping(input)
+                }}
                 onKeyPress={(button:string)=>{
                     console.log(button)
                     if(button == "{shift}"){
