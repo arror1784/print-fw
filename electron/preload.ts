@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
-import { FileSystemCH, ProductCH, ResinCH, WorkerCH } from './ipc/cmdChannels';
-
+import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH } from './ipc/cmdChannels';
+import {WifiInfo} from '../cpp/wifiModule';
 let _id = 0
 
 interface EventListener{
@@ -38,13 +38,16 @@ interface electronApiInterface {
     getOffsetSettingsTW: () => Promise<string[]>;
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
+    getWifiListTW: () => Promise<WifiInfo[]>;
 
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
     unLockRM: () => void;
-    requestPrintInfoRM: () => void,
-    shutdownRM: () => void,
+    requestPrintInfoRM: () => void;
+    shutdownRM: () => void;
+    connectWifiRM : (ssid:string,bssid:string,passwd:string|null) => void;
+    disconnectWifiRM : () => void;
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -66,12 +69,15 @@ const exposedApi: electronApiInterface = {
     getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
     isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
+    getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
     unLockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
     requestPrintInfoRM: () => ipcRenderer.send(WorkerCH.requestPrintInfoRM),
     shutdownRM: () => ipcRenderer.send(ProductCH.onShutDownRM),
+    connectWifiRM: (ssid:string,bssid:string,passwd:string|null) => ipcRenderer.send(WifiCH.connectWifiRM,ssid,bssid,passwd),
+    disconnectWifiRM: () => ipcRenderer.send(WifiCH.disconnectWifiRM),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 

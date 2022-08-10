@@ -46,4 +46,10 @@ enum ImageCH{
     changeImageMR = 'image:changeImage,image:string',
     changeScaleMR = "image:changeScale,scale:number"
 }
-export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH }
+enum WifiCH{
+    connectWifiRM = 'wifi:connectWifi,ssid:string,bssid:string,passwd:string|null',
+    disconnectWifiRM = 'wifi:disconnectWifiRM',
+
+    getWifiListTW = 'wifi:getWifiListTW'
+}
+export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH }
