@@ -39,7 +39,7 @@ interface electronApiInterface {
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
-
+    getStatusTW: () => Promise<WifiInfo>;
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
@@ -57,6 +57,7 @@ interface electronApiInterface {
     onShutDownEventMR: (callback:(event:IpcRendererEvent) => void) => EventListener;
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => EventListener;
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => EventListener;
+    onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo)=>void) => EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -70,6 +71,7 @@ const exposedApi: electronApiInterface = {
     isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
+    getStatusTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
@@ -87,7 +89,8 @@ const exposedApi: electronApiInterface = {
     onShutDownEventMR: (callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onShutDownEventMR,callback)},
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => {return eventADD(WorkerCH.onStartErrorMR,callback)},
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => {return eventADD(WorkerCH.onProgressMR,callback)},
-
+    onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo) => void) => {return eventADD(WifiCH.onStatusChangeMR,callback)},
+    
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
 }

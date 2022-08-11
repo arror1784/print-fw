@@ -50,6 +50,9 @@ enum WifiCH{
     connectWifiRM = 'wifi:connectWifi,ssid:string,bssid:string,passwd:string|null',
     disconnectWifiRM = 'wifi:disconnectWifiRM',
 
-    getWifiListTW = 'wifi:getWifiListTW'
+    getWifiListTW = 'wifi:getWifiListTW',
+    getStatusTW = 'wifi:getStatusTW',
+
+    onStatusChangeMR = 'wifi:onStatusChangeMR',
 }
 export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH }
