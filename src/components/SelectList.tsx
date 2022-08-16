@@ -53,7 +53,6 @@ function SelectList( {children,width,height,selectListModel,onContainerSelect,hi
             </FileListArea>
         </MainListArea>
     );
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 
 SelectList.defaultProps = {

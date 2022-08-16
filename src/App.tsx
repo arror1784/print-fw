@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FocusEvent, KeyboardEvent, useEffect } from 'react';
 import logo from './logo.svg';
 
 import './App.css';
@@ -6,6 +6,7 @@ import './routes'
 import AppRoute from './routes';
 import { HashRouter } from 'react-router-dom'
 import ExtraModals from './pages/ExtraPages';
+import Typing from './layout/Typing';
 
 function App() {
   const style = {
@@ -22,6 +23,7 @@ function App() {
           <HashRouter>
             <AppRoute></AppRoute>
             <ExtraModals></ExtraModals>
+            <Typing onTypingFinish={()=>{}}></Typing>
           </HashRouter>
         </div>
       </header>

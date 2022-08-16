@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
-import Typing from '../layout/Typing';
 
 function Home(){
 
@@ -32,7 +31,7 @@ function Home(){
 
     return (
     <HomeArea>
-        {/* <HomeContainer>
+        <HomeContainer>
             <ImageButton type="main1" src={fileImg} onClick={() => {navigate('/model')}}>Select File</ImageButton>
             <ImageButton type="main2" src={settingImg} color="gray" onClick={() => {navigate('/setting')}}>Setting</ImageButton>
             <ImageButton type="main2" src={infoImg} color="gray" onClick={()=>{setModalVisible(true)}}>Info</ImageButton> 
@@ -48,8 +47,7 @@ function Home(){
                 <TitleText> IP </TitleText>
                 <ValueText> {ip} </ValueText>
             </InfoArea>
-        </Modal> */}
-        <Typing onTypingFinish={() => {}} onTyping={()=>{}}/>
+        </Modal>
     </HomeArea>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }

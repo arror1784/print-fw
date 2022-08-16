@@ -13,6 +13,7 @@ import HeightCalibration from '../pages/HeightCalibration';
 import UpdateFileSelect from '../pages/UpdateFileSelect';
 import Update from '../pages/Update';
 import LEDCalibration from '../pages/LEDCalibration';
+import Wifi from '../pages/Wifi';
 
 const AppRoute = () => {
     return (
@@ -40,7 +41,7 @@ const AppRoute = () => {
             <Route path='/update/usb' element={<UpdateFileSelect/>}/>
             <Route path='/update/internet' element={<SliceImage/>}/>
 
-            <Route path='/wifi' element={<SliceImage/>}/>
+            <Route path='/wifi' element={<Wifi/>}/>
             
             <Route path='/image' element={<SliceImage/>}/>
 

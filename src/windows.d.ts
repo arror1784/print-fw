@@ -7,3 +7,9 @@ declare global {
     imageAPI: ContextBridgeImageApi;
   }
 }
+
+declare global{
+  interface EventTarget{
+    tagName:string
+  }
+}
