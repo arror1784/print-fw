@@ -26,7 +26,7 @@ enum ProductCH{
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
 
-    onShutDownRM = "product:onShutDown",
+    shutDownRM = "product:onShutDown",
 }
 
 enum WorkerCH{
@@ -49,10 +49,14 @@ enum ImageCH{
 enum WifiCH{
     connectWifiRM = 'wifi:connectWifi,ssid:string,bssid:string,passwd:string|null',
     disconnectWifiRM = 'wifi:disconnectWifiRM',
+    scanWifiRM = 'wifi:scanWifiRM',
 
     getWifiListTW = 'wifi:getWifiListTW',
     getStatusTW = 'wifi:getStatusTW',
 
     onStatusChangeMR = 'wifi:onStatusChangeMR',
+    onWifiListChangeMR = 'wifi:onWifiListChangeMR',
+    onWifiNoticeMR = 'wifi:onWifiNoticeMR',
+
 }
 export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH }
