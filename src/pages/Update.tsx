@@ -36,7 +36,7 @@ function Update(){
         </div>
     );
 }
-export const UpdateInfo = styled.div`
+const UpdateInfo = styled.div`
     color: #474747;
     font-size:23px;
 
@@ -45,7 +45,7 @@ export const UpdateInfo = styled.div`
     margin-bottom: 10px;
     margin-top: -15px;
 `
-export const VersionInfoArea = styled.div`
+const VersionInfoArea = styled.div`
     display: grid;
 
     grid-template-columns: 1fr 1fr;
@@ -60,12 +60,12 @@ export const VersionInfoArea = styled.div`
     border-radius: 8px;
 
 `
-export const VersionText = styled.div`
+const VersionText = styled.div`
     color: #474747;
     font-size:23px;
     margin-left: 15px;
 `
-export const VersionValue = styled.div`
+const VersionValue = styled.div`
     color: #474747;
     font-size:23px;
     font-weight: bold

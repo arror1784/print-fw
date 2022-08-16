@@ -62,7 +62,7 @@ SelectList.defaultProps = {
     extentions: "",
 }
 
-export const MainListArea = styled.div< { width: number,height:number }>`
+const MainListArea = styled.div< { width: number,height:number }>`
     display: flex;
 
     width: ${(props) => (props.width)}px;
@@ -71,7 +71,7 @@ export const MainListArea = styled.div< { width: number,height:number }>`
     flex-direction: column;
     align-items: center;
 `
-export const FileListArea = styled.div< { width: number,height:number }>`
+const FileListArea = styled.div< { width: number,height:number }>`
     display: flex;
     width: ${(props) => (props.width)}px;
     height: ${(props) => (props.height)}px;
@@ -84,7 +84,7 @@ export const FileListArea = styled.div< { width: number,height:number }>`
 
     flex-grow: 1;
 `
-export const FileListBox = styled.div< { width: number,height:number }>`
+const FileListBox = styled.div< { width: number,height:number }>`
     width: ${(props) => (props.width)}px;
     height: ${(props) => (props.height)}px;
 
@@ -97,7 +97,7 @@ export const FileListBox = styled.div< { width: number,height:number }>`
     
     overflow-x: hidden;
 `
-export const ButtonList = styled.div`
+const ButtonList = styled.div`
     display: flex;
 
     flex-direction: column;

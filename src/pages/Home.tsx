@@ -51,7 +51,7 @@ function Home(){
     </HomeArea>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
-export const HomeArea = styled.div`
+const HomeArea = styled.div`
     display: flex;
     width: 479px;
     height: 320px;
@@ -59,7 +59,7 @@ export const HomeArea = styled.div`
     justify-content: center;
     align-items: center;
 `
-export const HomeContainer = styled.div`
+const HomeContainer = styled.div`
     display: grid;
     grid-template-columns: 3fr 2fr;
     grid-template-rows: auto auto;
@@ -82,7 +82,7 @@ export const HomeContainer = styled.div`
 
     }
 `
-export const InfoArea = styled.div`
+const InfoArea = styled.div`
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr 1fr 1fr;
@@ -90,12 +90,12 @@ export const InfoArea = styled.div`
     row-gap: 5px;
     margin-top: 10px;
 `
-export const TitleText = styled.div`
+const TitleText = styled.div`
     font-size: 23px;
     color: #474747;
     background-color: #00000000;
 `
-export const ValueText = styled.div`
+const ValueText = styled.div`
     font-size: 23px;
     color: #474747;
     font-weight: bold;

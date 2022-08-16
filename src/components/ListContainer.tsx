@@ -20,7 +20,7 @@ ListContainer.defaultProps = {
     containerText: ""
 }
 
-export const ListContainerStyled = styled.div<{isHighlight:boolean}>`
+const ListContainerStyled = styled.div<{isHighlight:boolean}>`
     font-size: 20px;
     color:  ${(props) => (props.isHighlight ? '#FFFFFF' : '#474747')};
     background-color: ${(props) => (props.isHighlight ? '#B6CDDC' : '#FFFFFF')};

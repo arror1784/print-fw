@@ -19,13 +19,13 @@ function SliceImage() {
         </BackGround>
         );
 }
-export const BackGround = styled.div`
+const BackGround = styled.div`
     width: 100%;
     height: 100%;
 
     color: #000000; 
 `
-export const IMG = styled.img<{scale:number}>`
+const IMG = styled.img<{scale:number}>`
     width: ${(props) => (props.scale ? `${props.scale}%` : '100%')};
     height: ${(props) => (props.scale ? `${props.scale}%` : '100%')};
 `

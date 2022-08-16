@@ -34,7 +34,7 @@ function ModalInfoValue({text} : ModalInfoValueProp){
     );
 }
 
-export const InfoArea = styled.div`
+const InfoArea = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     justify-items: right;
@@ -42,14 +42,14 @@ export const InfoArea = styled.div`
     column-gap: 26px;
     width: 100%;
 `
-export const TitleText = styled.div`
+const TitleText = styled.div`
     font-size: 23px;
     color: #474747;
     background-color: #00000000;
 
     justify-self: right;
 `
-export const ValueText = styled.div`
+const ValueText = styled.div`
     font-size: 23px;
     color: #000000;
     justify-self: left;

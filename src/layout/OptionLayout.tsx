@@ -12,7 +12,7 @@ function OptionLayout({children} : OptionLayoutProp){
         </OptionContainer>
     );
 }
-export const OptionContainer = styled.div`
+const OptionContainer = styled.div`
     display: grid;
 
     grid-template-columns: 1fr 1fr;

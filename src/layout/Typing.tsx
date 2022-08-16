@@ -103,7 +103,7 @@ function Typing({onTypingFinish} : TypingProp){
         
     );
 }
-export const KeyboardBackground = styled.div`
+const KeyboardBackground = styled.div`
 
     position: absolute;
     top: '50%';
@@ -114,7 +114,7 @@ export const KeyboardBackground = styled.div`
     padding: "0px";
     z-index: 1;
 `
-export const KeyboardFlex = styled.div`
+const KeyboardFlex = styled.div`
     display: flex;
 
     width: 479px;
@@ -127,7 +127,7 @@ export const KeyboardFlex = styled.div`
     background-color: #EEF5F9;
 
 `
-export const ValueText = styled.div`
+const ValueText = styled.div`
     width: 400px;
     height: 40px;
 

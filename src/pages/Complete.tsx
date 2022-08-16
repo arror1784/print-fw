@@ -71,21 +71,21 @@ function Complete(){
     </div>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
-export const FinishArea = styled.div`
+const FinishArea = styled.div`
     display: flex;
     align-items: center;
     /* justify-content: space-evenly; */
     margin-top: 45px;
 `
-export const FinishImg = styled.img``
+const FinishImg = styled.img``
 
-export const FinishText = styled.div`
+const FinishText = styled.div`
     color: black;
 
     font-size: 27px;
     margin-left: 30px;
 `
-export const InfoArea = styled.div`
+const InfoArea = styled.div`
     display: grid;  
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
@@ -94,11 +94,11 @@ export const InfoArea = styled.div`
     row-gap: 10px;
     margin-top: 30px;
 `
-export const InfoText = styled.div`
+const InfoText = styled.div`
     color: #474747;
     justify-self: right;
 `
-export const InfoValue = styled.div`
+const InfoValue = styled.div`
     color: black;
     justify-self: left;
     font-weight: bold;

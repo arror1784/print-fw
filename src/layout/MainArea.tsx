@@ -15,7 +15,7 @@ function MainArea({children} : MainAreaProp){
 }
 
 
-export const MainAreaDIV = styled.div`
+const MainAreaDIV = styled.div`
     display: flex;
     
     flex-direction: column;

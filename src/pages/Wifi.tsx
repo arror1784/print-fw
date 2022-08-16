@@ -84,7 +84,7 @@ function Wifi(){
             </Modal>
         </div>);
 }
-export const PassWD = styled.input`
+const PassWD = styled.input`
     border-color: black;
     width: 210px;
     font-size: 20px;
