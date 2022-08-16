@@ -4,8 +4,6 @@ import styled from 'styled-components'
 
 import Keyboard from 'react-simple-keyboard'
 
-import FocusLock from 'react-focus-lock';
-
 import 'react-simple-keyboard/build/css/index.css'
 import './Typing.scss'
 
