@@ -5,13 +5,14 @@ import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConn
 import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
 import * as fs from "fs"
-import * as AdmZip from 'adm-zip'
+import AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
 import { exec } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
+import { wifiInit } from "./ipc/wifiControl"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -123,7 +124,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
     })
-    ipcMain.on(ProductCH.onShutDownRM,(event:IpcMainEvent)=>{
+    ipcMain.on(ProductCH.shutDownRM,(event:IpcMainEvent)=>{
         exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
             console.log("shutdown -h now")
             if (error) {
@@ -139,5 +140,8 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,"3","4"]
     })
+    
+    wifiInit(mainWindow)
+
 }
 export {mainProsessing}
