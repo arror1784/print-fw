@@ -68,7 +68,7 @@ function Wifi(){
                 <Button color='blue' type='small' onClick={() => {setModalVisible(true)}}>Select</Button>
             </Footer>
     
-            <Modal visible={modalVisible} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {
+            <Modal visible={modalVisible} selectString={"Connect"} onBackClicked={() => {setModalVisible(false)}} onSelectClicked={() => {
     
             }}>
                 <ModalInfoMainArea>
