@@ -140,21 +140,21 @@ void WPA::wpa_ctrl_event()
 
 
             networkSaveConfig(_ctrl);
-            onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
-            onData.BlockingCall(new std::pair(NoticeType::STATE_CHANGE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::STATE_CHANGE,0),callback);
 
         }else if(stdResBuff.find(WPA_EVENT_DISCONNECTED) != std::string::npos){
 
             networkDelete(_ctrl);
             connected = false;
 
-            onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
-            onData.BlockingCall(new std::pair(NoticeType::STATE_CHANGE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::STATE_CHANGE,0),callback);
 
         }else if(stdResBuff.find(WPA_EVENT_SCAN_FAILED) != std::string::npos){
             clearList();
 
-            onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
             networkDisable(_ctrl);
             networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
@@ -163,12 +163,12 @@ void WPA::wpa_ctrl_event()
             if(pos != std::string::npos){
                 auto ret = stdResBuff.substr(pos+4);
                 if(atoi(ret.c_str()) == -52){
-                    onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,-52),callback);
+                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,-52),callback);
                 }else{
-                    onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,1),callback);
+                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,1),callback);
                 }
             }else{
-                    onData.BlockingCall(new std::pair(NoticeType::SCAN_FAIL,0),callback);
+                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,0),callback);
             }
         }else if(stdResBuff.find(WPA_EVENT_ASSOC_REJECT) != std::string::npos){
             std::regex re("bssid=(\\w|:)*");
@@ -178,11 +178,11 @@ void WPA::wpa_ctrl_event()
             networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
 
-            onData.BlockingCall(new std::pair(NoticeType::ASSOCIATE_FAIL,0),callback);
-            onData.BlockingCall(new std::pair(NoticeType::LIST_UPDATE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::ASSOCIATE_FAIL,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
 
         }else if(stdResBuff.find(TRY_ASSOCIATE_TEXT) != std::string::npos){
-            onData.BlockingCall(new std::pair(NoticeType::TRY_ASSOCIATE,0),callback);
+            onData.BlockingCall(new std::pair<int,int>(NoticeType::TRY_ASSOCIATE,0),callback);
         }
     }
 #endif

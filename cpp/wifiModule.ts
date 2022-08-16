@@ -1,4 +1,4 @@
-import * as binding from 'bindings'
+import binding from 'bindings';
 
 export enum WifiCallbackType{
     ListUpdate = 0,
@@ -26,9 +26,18 @@ export interface WifiModuleAddon {
     getList : () => Array<WifiInfo>;
     deleteConnection : () => boolean;
     getCurrentConnection : () => WifiInfo;
-    onData : ((type:WifiCallbackType,value:number) => void);
+    onData : (cb : (type:WifiCallbackType,value:number) => void) => void;
 }
 
 const addOn : WifiModuleAddon = binding("wifiModule")
-
+// const addOn : WifiModuleAddon = {
+//     init : (path? :string) => {return true},
+//     scan : () => {return true},
+//     connect : (ssid :string,bssid:string,passwd?:string) => {return true},
+//     disconnect : ()=> {return true},
+//     getList : () => {return []},
+//     deleteConnection : () => {return true},
+//     getCurrentConnection : () => {return {bssid:"",flags:true,freq:0,signal_level:0,ssid:""}},
+//     onData : (cb : (type:WifiCallbackType,value:number) => void) => {},
+// }
 export { addOn }
