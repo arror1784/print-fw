@@ -80,9 +80,9 @@ function Typing({onTypingFinish} : TypingProp){
                             setlayoutName(layoutName == "default" ? "shift" : "default")
                         }else if(button == "{enter}"){
                             setVisible(false)
-                            console.log(target)
-                            if(target)
-                                target.value = value
+                            if(target){
+                                target.defaultValue = value
+                            }
                             onTypingFinish()
                         }else if(button == "{bksp}"){
                             setValue(value.slice(0, -1))

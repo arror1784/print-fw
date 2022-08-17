@@ -49,6 +49,7 @@ function Wifi(){
     const selectedWifi = isSelected ? wifiList[selectWifi.id] : undefined
     const isLocked : boolean = selectedWifi ? selectedWifi.flags : false
 
+    const ref = useRef<HTMLInputElement | null>(null)
 
     return (
         <div>
@@ -73,12 +74,14 @@ function Wifi(){
             }}>
                 <ModalInfoMainArea>
                     <ModalInfoTitle text="WiFi name"/>
-                    <ModalInfoValue text={selectedWifi ? selectedWifi.ssid : ""}/>
-                    {
+                    if(ref.current && selectContainerWifi){
+                        window.electronAPI.connectWifiRM(selectContainerWifi.ssid,selectContainerWifi.bssid,ref.current.defaultValue)
+                        setModalVisible(false)
+                    }
                         isLocked ? <ModalInfoTitle text="PassWord"/> : <div></div>
                     }
                     {
-                        isLocked ? <PassWD type={"password"} placeholder={"password"} value={passwd} onFocus={()=>{setIsType(true)}}></PassWD> : <div></div>
+                        isLocked ? <PassWD ref={ref} type={"password"} placeholder={"password"}></PassWD> : <div></div>
                     }
                 </ModalInfoMainArea>
             </Modal>
