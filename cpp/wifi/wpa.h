@@ -13,6 +13,7 @@
 #endif
 
 #define TRY_ASSOCIATE_TEXT "Trying to associate"
+#define HANDSHAKE_FAIL "Handshake failed"
 
 enum class WIFIInfoType{
     BSSID=0,

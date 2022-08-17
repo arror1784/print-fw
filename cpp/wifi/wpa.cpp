@@ -170,7 +170,7 @@ void WPA::wpa_ctrl_event()
             }else{
                     onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,0),callback);
             }
-        }else if(stdResBuff.find(WPA_EVENT_ASSOC_REJECT) != std::string::npos){
+        }else if(stdResBuff.find(WPA_EVENT_ASSOC_REJECT) != std::string::npos || stdResBuff.find(HANDSHAKE_FAIL) != std::string::npos){
             std::regex re("bssid=(\\w|:)*");
             std::smatch result;
             auto flag = std::regex_search(stdResBuff,result,re);
@@ -259,7 +259,7 @@ WifiInfo WPA::getCurrentStatus()
 
     std::string myStr(resBuff), val, line;
     std::stringstream ss(myStr);
-    std::vector<std::string> array;
+    std::vector<std::string> array; 
     std::map<std::string,std::string> mp;
 
     while (getline(ss, line, '\n')) {
@@ -272,7 +272,11 @@ WifiInfo WPA::getCurrentStatus()
             mp.emplace(row[0],row[1]);
         }
     }
-    return std::move(WifiInfo(mp["ssid"],mp["bssid"],false,std::atoi(mp["freq"].data()),0));
+    if(mp.find("wpa_state") != mp.end()){
+        if(!mp["wpa_state"].compare("DISCONNECTED")){
+            return std::move(WifiInfo("","",false,0,0,false));
+        }
+    }
     return std::move(WifiInfo(mp["ssid"],mp["bssid"],false,std::atoi(mp["freq"].data()),0,true));
 }
 
