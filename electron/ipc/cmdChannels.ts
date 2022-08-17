@@ -52,7 +52,7 @@ enum WifiCH{
     scanWifiRM = 'wifi:scanWifiRM',
 
     getWifiListTW = 'wifi:getWifiListTW',
-    getStatusTW = 'wifi:getStatusTW',
+    getCurrentWifiStatusTW = 'wifi:getCurrentWifiStatusTW',
 
     onStatusChangeMR = 'wifi:onStatusChangeMR',
     onWifiListChangeMR = 'wifi:onWifiListChangeMR',

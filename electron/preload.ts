@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
 import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH } from './ipc/cmdChannels';
-import {WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
+import { WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
 let _id = 0
 
 interface EventListener{
@@ -19,7 +19,7 @@ function eventADD(channel : string,listner:(...args : any[]) => void) : EventLis
     eventListnerArr[_id.toString()] = listner
     ipcRenderer.on(channel,eventListnerArr[_id.toString()])
 
-    console.log(channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
+    console.log("IPC EVENT ADD",channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
 
     return {channel:channel,id:_id.toString()}
 }
@@ -28,7 +28,7 @@ function eventRemove(listener:EventListener){
 
     delete eventListnerArr[listener.id]
 
-    console.log(listener.channel,ipcRenderer.listenerCount(listener.channel),Object.keys(eventListnerArr).length)
+    console.log("IPC EVENT REMOVE",listener.channel,"Listener Count : ",ipcRenderer.listenerCount(listener.channel),"Total Key Length : ",Object.keys(eventListnerArr).length)
 }
 
 interface electronApiInterface {
@@ -39,7 +39,7 @@ interface electronApiInterface {
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
-    getStatusTW: () => Promise<WifiInfo>;
+    getCurrentWifiStatusTW: () => Promise<WifiInfo>;
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
@@ -74,7 +74,7 @@ const exposedApi: electronApiInterface = {
     isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
-    getStatusTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
+    getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),

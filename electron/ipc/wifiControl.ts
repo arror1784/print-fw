@@ -8,12 +8,13 @@ export function wifiInit(mainWindow:BrowserWindow){
         addOn.connect(ssid,bssid,passwd)
     })
     ipcMain.on(WifiCH.disconnectWifiRM,(event:IpcMainEvent)=>{
+        console.log("disconnect")
         addOn.disconnect()
     })
     ipcMain.on(WifiCH.scanWifiRM,(event:IpcMainEvent)=>{
         addOn.scan()
     })
-    ipcMain.handle(WifiCH.getStatusTW,()=>{
+    ipcMain.handle(WifiCH.getCurrentWifiStatusTW,()=>{
         return addOn.getCurrentConnection()
     })
     ipcMain.handle(WifiCH.getWifiListTW,()=>{
