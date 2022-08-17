@@ -12,6 +12,8 @@ export interface WifiInfo{
     ssid:string;
     bssid:string;
 
+    connected:boolean;
+
     flags:boolean;
     freq:number;
     signal_level:number;

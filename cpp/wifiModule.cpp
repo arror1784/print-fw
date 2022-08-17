@@ -87,6 +87,7 @@ Napi::Array wifiGetList(const Napi::CallbackInfo& info){
         ob.Set("freq",result[i].freq);
         ob.Set("signal_level",result[i].signal_level);
 
+        ob.Set("connected",result[i].connected);
         arr.Set(i,ob);
     }
     
@@ -109,6 +110,8 @@ Napi::Object wifiGetCurrentConnection(const Napi::CallbackInfo& info){
     ob.Set("flags",result.flags);
     ob.Set("freq",result.freq);
     ob.Set("signal_level",result.signal_level);
+
+    ob.Set("connected",result.connected);
 
     return ob;
     
