@@ -6,13 +6,15 @@
 class WifiInfo
 {
 public:
-    WifiInfo(std::string ssid, std::string bssid, bool flags, int freq, int signal_level);
+    WifiInfo(std::string ssid, std::string bssid, bool flags, int freq, int signal_level,bool connected);
 
     std::string ssid;
     std::string bssid;
     bool flags;
     int freq;
     int signal_level;
+
+    bool connected;
 };
 
 #endif // WIFIINFO_H

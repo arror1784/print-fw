@@ -238,9 +238,9 @@ void WPA::parseWifiInfo()
         }
         if(row.size() == 5){
             if(row[3].find("WPA")){
-                _wifiList.emplace_back(row[4],row[0],true,std::atoi(row[1].data()),std::atoi(row[2].data()));
+                _wifiList.emplace_back(row[4],row[0],true,std::atoi(row[1].data()),std::atoi(row[2].data()),false);
             }else{
-                _wifiList.emplace_back(row[4],row[0],false,std::atoi(row[1].data()),std::atoi(row[2].data()));
+                _wifiList.emplace_back(row[4],row[0],false,std::atoi(row[1].data()),std::atoi(row[2].data()),false);
             }
         }
     }
@@ -273,6 +273,7 @@ WifiInfo WPA::getCurrentStatus()
         }
     }
     return std::move(WifiInfo(mp["ssid"],mp["bssid"],false,std::atoi(mp["freq"].data()),0));
+    return std::move(WifiInfo(mp["ssid"],mp["bssid"],false,std::atoi(mp["freq"].data()),0,true));
 }
 
 bool WPA::checkConnected()
