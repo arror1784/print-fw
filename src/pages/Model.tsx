@@ -93,7 +93,7 @@ function Model(){
     );
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
-export const ParentArea = styled.div`
+const ParentArea = styled.div`
     display: flex;
     width: 450px;
     height: 40px;
@@ -101,7 +101,7 @@ export const ParentArea = styled.div`
     align-items: center;
     margin-bottom: 10px;
 `
-export const ParentDirButton = styled.div`
+const ParentDirButton = styled.div`
     width: 38px;
     height: 34px;
 
@@ -112,10 +112,10 @@ export const ParentDirButton = styled.div`
     margin: 5px;
     /* padding: 5px; */
 `
-export const ParentDirImg = styled.img`
+const ParentDirImg = styled.img`
     margin: 5px;
 `
-export const CurrentDirText = styled.div`
+const CurrentDirText = styled.div`
     color: #474747;
     margin-left: 5px;
     font-size: 22px;

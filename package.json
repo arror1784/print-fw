@@ -27,7 +27,8 @@
         {
           "target": "AppImage",
           "arch": [
-            "armv7l"
+            "armv7l",
+            "x64"
           ]
         }
       ]
@@ -57,6 +58,7 @@
     "@types/react-scroll": "^1.8.3",
     "@types/serialport": "^8.0.2",
     "@types/styled-components": "^5.1.25",
+    "address": "^1.2.0",
     "adm-zip": "^0.5.9",
     "asar": "^3.1.0",
     "base-64": "^1.0.0",
@@ -67,7 +69,6 @@
     "global": "^4.4.0",
     "node-addon-api": "^5.0.0",
     "node-gyp-build": "^4.4.0",
-    "node-wifi": "^2.0.16",
     "react": "^18.1.0",
     "react-circular-progressbar": "^2.0.4",
     "react-device-detect": "^2.2.2",
@@ -76,6 +77,7 @@
     "react-router-dom": "^6.2.2",
     "react-scripts": "^5.0.1",
     "react-scroll": "^1.8.7",
+    "react-simple-keyboard": "^3.4.187",
     "react-timer-hook": "^3.0.5",
     "serialport": "^10.4.0",
     "styled-components": "^5.3.5",
@@ -88,15 +90,16 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w --no-sandbox\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
-    "electron:build": "yarn build && tsc -p electron && electron-builder build",
+    "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
+    "electron:dev:nosandbox": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w --no-sandbox\" \"wait-on http://localhost:3000 && tsc -p electron && electron . --no-sandbox\"",
+    "electron:build": "rm -rf ./build-addon && yarn addon:build && mv ./build ./build-addon && yarn build && tsc -p electron && electron-builder build",
     "electron:build:rpi": "rm -rf ./build-addon && yarn addon:arm && mv ./build ./build-addon && yarn build && tsc -p electron && electron-builder build",
     "electron:debug": "tsc -p electron",
     "electron-start-win": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron     && electron .",
     "electron-start-win-watch": "set ELECTRON_START_URL=http://localhost:3000 && tsc -p electron -w ",
     "react-start-win": "set BROWSER=none && yarn start",
     "addon:init": "node-gyp configure",
-    "addon:arm": "cross-env CC=arm-linux-gnueabihf-gcc cross-env CXX=arm-linux-gnueabihf-g++ node-gyp clean configure --arch=arm build --release --build-dir=build-addon",
+    "addon:arm": "cross-env AR=arm-linux-gnueabihf-ar LINK=arm-linux-gnueabihf-g++ CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ node-gyp configure --arch=arm build --release --build-dir=build-addon",
     "addon:clean": "node-gyp clean",
     "addon:build": "node-gyp clean configure build --release",
     "addon:build:dev": "node-gyp clean configure build --debug"

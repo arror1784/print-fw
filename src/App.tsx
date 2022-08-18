@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { FocusEvent, KeyboardEvent, useEffect } from 'react';
 import logo from './logo.svg';
 
 import './App.css';
 import './routes'
 import AppRoute from './routes';
-import { BrowserRouter,HashRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import ExtraModals from './pages/ExtraPages';
+import Typing from './layout/Typing';
 
 function App() {
   const style = {
     display: "flex", 
-    width: "480px",
+    width: "479px",
+    height: "320px",
     'user-select': "none",
-    'cursor': "hidden",
+    'cursor': "hidden"
   }
   return (
     <div className="App">
@@ -21,6 +23,7 @@ function App() {
           <HashRouter>
             <AppRoute></AppRoute>
             <ExtraModals></ExtraModals>
+            <Typing onTypingFinish={()=>{}}></Typing>
           </HashRouter>
         </div>
       </header>

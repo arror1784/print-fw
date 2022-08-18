@@ -15,14 +15,14 @@ function Header({children} : HeaderProp){
 }
 
 
-export const HeaderText = styled.div`
+const HeaderText = styled.div`
     color: #474747;
     font-size: 27px;
     font-weight: 600;
 
     letter-spacing: 1px;
     
-    width: 480px;
+    width: 479px;
 
     margin: auto;
     margin-top: 8px;

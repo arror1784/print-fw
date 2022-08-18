@@ -53,7 +53,7 @@ function Modal({ className, visible, children, backVisible,backString,onBackClic
   )
 }
 
-export const ModalMainArea = styled.div<{height:number}>`
+const ModalMainArea = styled.div<{height:number}>`
   width: 100%;
   height: ${(props) => (props.height)}px;
   display: flex;

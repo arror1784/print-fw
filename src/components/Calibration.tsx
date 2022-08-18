@@ -63,7 +63,7 @@ Calibration.defaultProps = {
   };
 
 
-export const CalibrationContainer = styled.div`
+const CalibrationContainer = styled.div`
   display: grid;
   color: black;
   grid-template-areas:
@@ -77,19 +77,19 @@ export const CalibrationContainer = styled.div`
   column-gap: 15px;
   grid-template-columns: 1fr 1fr 1.1fr 1fr 1fr;
 `
-export const CalibrationTitle = styled.div`
+const CalibrationTitle = styled.div`
   grid-area: title;
 
   color: #666666;
 
   font-size: 20px;
 `
-export const CalibrationValue = styled.div`
+const CalibrationValue = styled.div`
   grid-area: value;
   font-size: 30px;
 `
 
-export const SumButton = styled.div`
+const SumButton = styled.div`
   display: flex;
   
   justify-content: center;
@@ -116,10 +116,10 @@ export const SumButton = styled.div`
   }
 
 `
-export const SumButtonImg = styled.img`
+const SumButtonImg = styled.img`
   width: 30px;
 `
-export const SumValue = styled.div`
+const SumValue = styled.div`
   color: #9CB5C4;
   font-size: 20px;
 

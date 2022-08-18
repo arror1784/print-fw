@@ -15,7 +15,7 @@ function Home(){
     const [version, setVersion] = useState<string>("")
     const [serial, setSerial] = useState<string>("")
     const [wifi, setWifi] = useState<string>("")
-    const [ip, setIp] = useState<string>("")
+    const [ip, setIp] = useState<string[]>([])
     const [modalVisible,setModalVisible] = useState<boolean>(false)
     
     
@@ -25,10 +25,16 @@ function Home(){
                 setVersion(value[0])
                 setSerial(value[1])
                 setWifi(value[2])
-                setIp(value[3])
+                if(value.length > 3){
+                    let a : string[] = []
+                    for (let i = 3; i < value.length; i++) {
+                        a.push(value[i])
+                    }
+                    setIp(a)
+                }
             })
-    }, [])
-
+    }, [modalVisible])
+    
     return (
     <HomeArea>
         <HomeContainer>
@@ -45,21 +51,27 @@ function Home(){
                 <TitleText> WiFi </TitleText>
                 <ValueText> {wifi} </ValueText>
                 <TitleText> IP </TitleText>
-                <ValueText> {ip} </ValueText>
+                <div>
+                {
+                    ip.length != 0 && ip.map((value:string,index:number)=>{
+                        return (<ValueText> {value} </ValueText>)
+                    })
+                }
+                </div>
             </InfoArea>
         </Modal>
     </HomeArea>);
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
-export const HomeArea = styled.div`
+const HomeArea = styled.div`
     display: flex;
-    width: 480px;
+    width: 479px;
     height: 320px;
 
     justify-content: center;
     align-items: center;
 `
-export const HomeContainer = styled.div`
+const HomeContainer = styled.div`
     display: grid;
     grid-template-columns: 3fr 2fr;
     grid-template-rows: auto auto;
@@ -82,19 +94,23 @@ export const HomeContainer = styled.div`
 
     }
 `
-export const InfoArea = styled.div`
+const InfoArea = styled.div`
     display: grid;
     grid-template-columns: 1fr 3fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr auto;
     justify-items: right;
     row-gap: 5px;
     margin-top: 10px;
 `
-export const TitleText = styled.div`
+const TitleText = styled.div`
     font-size: 23px;
     color: #474747;
     background-color: #00000000;
 `
-export const ValueText = styled.div``
+const ValueText = styled.div`
+    font-size: 23px;
+    color: #474747;
+    font-weight: bold;
+`
 export default Home;
 

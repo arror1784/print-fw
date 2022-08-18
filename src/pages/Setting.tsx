@@ -30,6 +30,7 @@ function Setting(){
 
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate('/')}}>Back</Button>
+                <Button color='gray' type='small' visible={false}></Button>
             </Footer>
         </div>
     );

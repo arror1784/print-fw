@@ -1,5 +1,5 @@
 #include "mio/mio.hpp"
-#include "Singleton.h"
+#include "singleton.h"
 
 #include <fstream>
 
@@ -14,7 +14,7 @@ void allocate_file(const std::string& path, const int size)
     file << s;
 }
 
-class Communicate : public Hix::Common::Singleton<Communicate>{
+class Communicate : public Singleton<Communicate>{
 
     struct messageBuf
     {

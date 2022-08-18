@@ -7,6 +7,7 @@
     "outDir": "../build",
     "rootDir": "../",
     "noEmitOnError": true,
+    "esModuleInterop": true,
     "typeRoots": [
       "node_modules/@types"
     ]

@@ -24,23 +24,39 @@ enum ProductCH{
     getProductInfoTW = "product:getProductInfo,RT:string[]",
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
-    onShutDownMR = "product:onShutDown",
+    onShutDownEventMR = "product:onShutDownEvent",
 
+    shutDownRM = "product:onShutDown",
 }
 
 enum WorkerCH{
     startRM = "worker:start,path:string,material:string",
     commandRM = "worker:command,cmd:string",
     unlockRM = "worker:unlock",
-    requestPrintInfoMR = "worker:requestPrintInfo",
-
+    
+    requestPrintInfoRM = "worker:requestPrintInfo",
     onWorkingStateChangedMR = "worker:onWorkingStateChanged,state:string",
     onPrintInfoMR = "worker:onPrintInfo,state:string,material:string,filename:string,layerheight:number,elapsedTime:number,totalTime:number,progress:number,enabelTimer:number",
     onStartErrorMR = "worker:onStartError,error:string",
     onProgressMR = "worker:onProgress,progress:number",
+
+    
 }
 enum ImageCH{
     changeImageMR = 'image:changeImage,image:string',
     changeScaleMR = "image:changeScale,scale:number"
 }
-export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH }
+enum WifiCH{
+    connectWifiRM = 'wifi:connectWifi,ssid:string,bssid:string,passwd:string|null',
+    disconnectWifiRM = 'wifi:disconnectWifiRM',
+    scanWifiRM = 'wifi:scanWifiRM',
+
+    getWifiListTW = 'wifi:getWifiListTW',
+    getCurrentWifiStatusTW = 'wifi:getCurrentWifiStatusTW',
+
+    onStatusChangeMR = 'wifi:onStatusChangeMR',
+    onWifiListChangeMR = 'wifi:onWifiListChangeMR',
+    onWifiNoticeMR = 'wifi:onWifiNoticeMR',
+
+}
+export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH }

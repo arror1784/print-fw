@@ -4,7 +4,7 @@
        {
        "type": "lldb",
        "request": "launch",
-       "name": "Launch Program",
+       "name": "addon debug",
        "preLaunchTask": "npm: addon:build:dev",
        "program": "/usr/local/bin/node",
        "args": [

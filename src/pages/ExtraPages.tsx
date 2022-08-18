@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import { IpcRendererEvent } from 'electron';
+import { NoticeText } from '../components/NoticeText';
 
 function ExtraModals(){
 
@@ -14,7 +15,7 @@ function ExtraModals(){
         const lcdListener = window.electronAPI.onLCDStateChangedMR((event:IpcRendererEvent,state:boolean)=>{
             setlcdOFFVisible(state)
         })
-        const shutdownListener = window.electronAPI.onShutDownMR((event:IpcRendererEvent)=>{
+        const shutdownListener = window.electronAPI.onShutDownEventMR((event:IpcRendererEvent)=>{
             setshutDownVisible(true)
         })
         const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
@@ -45,8 +46,11 @@ function ExtraModals(){
         </Modal>
 
         { /* ShutDown */ }
-        <Modal visible={shutDownVisible} onBackClicked={() => {setshutDownVisible(false)}} selectString={"exit"} onSelectClicked={() => {navigate('/progress')}}>
-        
+        <Modal visible={shutDownVisible} onBackClicked={() => {setshutDownVisible(false)}} selectString={"exit"} onSelectClicked={
+            () => {window.electronAPI.shutdownRM()}}>
+            <NoticeText>
+                Are you sure to exit?
+            </NoticeText>
         </Modal>
         
     </div>);

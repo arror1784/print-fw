@@ -4,11 +4,17 @@ import { PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
 import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
-import * as fs from "fs"
-import * as AdmZip from 'adm-zip'
+import fs from "fs"
+import {NetworkInterfaceInfo, networkInterfaces} from 'os'
+import AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
+import { exec } from "child_process"
+import { getVersionSetting } from "./json/version"
+import { getModelNoInstaceSetting } from "./json/modelNo"
+import { getWifiName, wifiInit } from "./ipc/wifiControl"
+import address from 'address'
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -31,9 +37,18 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
             case UartResponseType.SHUTDOWN:
-                mainWindow.webContents.send(ProductCH.onShutDownMR)
+                console.log("event shutdown ")
+                mainWindow.webContents.send(ProductCH.onShutDownEventMR)
                 break;
             case UartResponseType.LCD:
+                console.log("event LCD ")
+
+                if(response){
+                    worker.setLcdState(true)
+                }else{
+                    worker.setLcdState(false)
+                }
+
                 mainWindow.webContents.send(ProductCH.onLCDStateChangedMR,response)
                 break;
             case UartResponseType.ERROR:
@@ -105,13 +120,39 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
                 break;
         }
     })
-    ipcMain.on(WorkerCH.requestPrintInfoMR,(event:IpcMainEvent)=>{
+    ipcMain.on(WorkerCH.requestPrintInfoRM,(event:IpcMainEvent)=>{
         mainWindow.webContents.send(WorkerCH.onPrintInfoMR,...worker.getPrintInfo())
     })
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
     })
-    ipcMain.handle(ProductCH.getProductInfoTW,()=>{return ["1","2","3","4"]})
-}
+    ipcMain.on(ProductCH.shutDownRM,(event:IpcMainEvent)=>{
+        exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
+            console.log("shutdown -h now")
+            if (error) {
+                console.log(`error: ${error.message}`)
+                return
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`)
+                return
+            }
+            console.log(`stdout: ${stdout}`)})
+    })
+    ipcMain.handle(ProductCH.getProductInfoTW,()=>{
 
+        const nets = networkInterfaces();
+        const results : string[] = [] // Or just '{}', an empty object
+        
+        for (const name of Object.keys(nets)) {
+            if(name == 'lo')
+                continue
+            console.log(name)
+            console.log(address.ip(name))    
+            results.push(address.ip(name));
+        }
+        return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
+    })
+    wifiInit(mainWindow)
+}
 export {mainProsessing}

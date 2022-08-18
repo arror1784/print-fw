@@ -44,7 +44,7 @@ function HeightCalibration(){
     );
     // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
-export const CalibrationArea = styled.div`
+const CalibrationArea = styled.div`
     margin-top: -15px;
 `
 export default HeightCalibration;
