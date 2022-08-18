@@ -1,6 +1,6 @@
 import AdmZip = require("adm-zip");
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import * as fs from "fs";
+import fs from "fs";
 import { InfoSetting } from "../json/infoSetting";
 
 interface DirOrFile{
