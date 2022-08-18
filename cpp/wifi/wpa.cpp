@@ -93,21 +93,21 @@ void WPA::ctrlConnect()
 //    checkConnected();
 #endif
 }
+void WPA::callbackSend(NoticeType type,int value){
 
-void WPA::wpa_ctrl_event()
-{
-    #ifndef _MSC_VER
     auto callback = []( Napi::Env env, Napi::Function jsCallback, std::pair<int,int> *type) {
-        // Transform native data into JS data, passing it to the provided
-        // `jsCallback` -- the TSFN's JavaScript function.
-
         jsCallback.Call( {Napi::Number::New( env, type->first ),Napi::Number::New( env, type->second )} );
 
         delete type;
-
-        // We're finished with the data.
     };
-
+    if(!onData)
+        return;
+        
+    onData.BlockingCall(new std::pair<int,int>(type,value),callback);
+}
+void WPA::wpa_ctrl_event()
+{
+    #ifndef _MSC_VER
     char *resBuff = new char[4096];
     size_t size = 4096;
     int a;
@@ -132,7 +132,7 @@ void WPA::wpa_ctrl_event()
             clearList();
 
             parseWifiInfo();
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
+            callbackSend(NoticeType::LIST_UPDATE,0);
 
         }else if(stdResBuff.find(WPA_EVENT_CONNECTED) != std::string::npos){
 
@@ -140,21 +140,21 @@ void WPA::wpa_ctrl_event()
 
 
             networkSaveConfig(_ctrl);
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::STATE_CHANGE,0),callback);
+            callbackSend(NoticeType::LIST_UPDATE,0);
+            callbackSend(NoticeType::STATE_CHANGE,0);
 
         }else if(stdResBuff.find(WPA_EVENT_DISCONNECTED) != std::string::npos){
 
             networkDelete(_ctrl);
             connected = false;
 
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::STATE_CHANGE,0),callback);
+            callbackSend(NoticeType::LIST_UPDATE,0);
+            callbackSend(NoticeType::STATE_CHANGE,0);
 
         }else if(stdResBuff.find(WPA_EVENT_SCAN_FAILED) != std::string::npos){
             clearList();
 
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
+            callbackSend(NoticeType::LIST_UPDATE,0);
             networkDisable(_ctrl);
             networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
@@ -163,12 +163,12 @@ void WPA::wpa_ctrl_event()
             if(pos != std::string::npos){
                 auto ret = stdResBuff.substr(pos+4);
                 if(atoi(ret.c_str()) == -52){
-                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,-52),callback);
+                    callbackSend(NoticeType::SCAN_FAIL,-52);
                 }else{
-                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,1),callback);
+                    callbackSend(NoticeType::SCAN_FAIL,1);
                 }
             }else{
-                    onData.BlockingCall(new std::pair<int,int>(NoticeType::SCAN_FAIL,0),callback);
+                    callbackSend(NoticeType::SCAN_FAIL,0);
             }
         }else if(stdResBuff.find(WPA_EVENT_ASSOC_REJECT) != std::string::npos || stdResBuff.find(HANDSHAKE_FAIL) != std::string::npos){
             std::regex re("bssid=(\\w|:)*");
@@ -178,11 +178,11 @@ void WPA::wpa_ctrl_event()
             networkDelete(_ctrl);
             networkSaveConfig(_ctrl);
 
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::ASSOCIATE_FAIL,0),callback);
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::LIST_UPDATE,0),callback);
+            callbackSend(NoticeType::ASSOCIATE_FAIL,0);
+            callbackSend(NoticeType::LIST_UPDATE,0);
 
         }else if(stdResBuff.find(TRY_ASSOCIATE_TEXT) != std::string::npos){
-            onData.BlockingCall(new std::pair<int,int>(NoticeType::TRY_ASSOCIATE,0),callback);
+            callbackSend(NoticeType::TRY_ASSOCIATE,0);
         }
     }
 #endif

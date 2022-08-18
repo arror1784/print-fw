@@ -39,7 +39,7 @@ const addOn : WifiModuleAddon = binding("wifiModule")
 //     disconnect : ()=> {return true},
 //     getList : () => {return []},
 //     deleteConnection : () => {return true},
-//     getCurrentConnection : () => {return {bssid:"",flags:true,freq:0,signal_level:0,ssid:""}},
+//     getCurrentConnection : () => {return {bssid:"",flags:true,freq:0,signal_level:0,ssid:"",connected:false}},
 //     onData : (cb : (type:WifiCallbackType,value:number) => void) => {},
 // }
 addOn.init()

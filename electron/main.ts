@@ -1,8 +1,8 @@
 import {app, BrowserWindow, Menu, screen, session} from 'electron';
 
-import * as path from 'path';
-import * as url from 'url';
-import * as isDev from 'electron-is-dev';
+import path from 'path';
+import url from 'url';
+import isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
 import { test } from './test';
@@ -52,8 +52,8 @@ function createWindow() {
     * 만일 URL을 따로 지정하지 않을경우 (프로덕션빌드) React 앱이
     * 빌드되는 build 폴더의 index.html 파일을 로드합니다.
     * */
-    const mainUrl = isDev
-        ? "http://localhost:3000" : 
+    const mainUrl = 
+        isDev ? "http://localhost:3000" : 
         process.env.ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '/../index.html'),
         protocol: 'file:',

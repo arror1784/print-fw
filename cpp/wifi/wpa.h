@@ -57,8 +57,9 @@ public:
     bool networkDisconnect();
     WifiInfo getCurrentStatus();
 
-    Napi::ThreadSafeFunction onData;
+    Napi::ThreadSafeFunction onData = NULL;
 private:
+    void callbackSend(NoticeType type,int value);
     bool checkCommandSucess(char*);
     
     void ctrlConnect();
