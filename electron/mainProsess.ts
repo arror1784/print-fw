@@ -4,7 +4,8 @@ import { PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
 import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
-import * as fs from "fs"
+import fs from "fs"
+import {NetworkInterfaceInfo, networkInterfaces} from 'os'
 import AdmZip from 'adm-zip'
 import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
@@ -12,7 +13,8 @@ import { getProductSetting } from "./json/productSetting"
 import { exec } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
-import { wifiInit } from "./ipc/wifiControl"
+import { getWifiName, wifiInit } from "./ipc/wifiControl"
+import address from 'address'
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -138,10 +140,19 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
             console.log(`stdout: ${stdout}`)})
     })
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{
-        return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,"3","4"]
-    })
-    
-    wifiInit(mainWindow)
 
+        const nets = networkInterfaces();
+        const results : string[] = [] // Or just '{}', an empty object
+        
+        for (const name of Object.keys(nets)) {
+            if(name == 'lo')
+                continue
+            console.log(name)
+            console.log(address.ip(name))    
+            results.push(address.ip(name));
+        }
+        return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
+    })
+    wifiInit(mainWindow)
 }
 export {mainProsessing}

@@ -3,7 +3,6 @@ import { WifiCH } from './cmdChannels'
 import {WifiCallbackType,WifiInfo,WifiModuleAddon,addOn} from "../../cpp/wifiModule";
 
 export function wifiInit(mainWindow:BrowserWindow){
-    addOn.init()
     ipcMain.on(WifiCH.connectWifiRM,(event:IpcMainEvent,ssid:string,bssid:string,passwd:string|undefined)=>{
         addOn.connect(ssid,bssid,passwd)
     })
@@ -40,4 +39,11 @@ export function wifiInit(mainWindow:BrowserWindow){
                 break;
         }
     })
+}
+
+export function getWifiName():string{
+    const a = addOn.getCurrentConnection()
+    if(a.connected)
+        return a.ssid
+    return ""
 }

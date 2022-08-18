@@ -42,4 +42,6 @@ const addOn : WifiModuleAddon = binding("wifiModule")
 //     getCurrentConnection : () => {return {bssid:"",flags:true,freq:0,signal_level:0,ssid:""}},
 //     onData : (cb : (type:WifiCallbackType,value:number) => void) => {},
 // }
+addOn.init()
+
 export { addOn }

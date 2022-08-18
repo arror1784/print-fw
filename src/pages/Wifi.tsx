@@ -80,7 +80,7 @@ function Wifi(){
                             return
                         }else{
                             setCurrentWifi(undefined)
-                            // setConnectingNotice(ConnectingNotice.DisConnect)
+                            setConnectingNotice(ConnectingNotice.DisConnect)
                         }
                     })
                     break;
