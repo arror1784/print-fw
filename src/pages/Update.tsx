@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components'
 
@@ -7,10 +8,11 @@ import Footer from '../layout/Footer';
 
 import Header from '../layout/Header';
 import MainArea from '../layout/MainArea';
+import UpdateLayout from '../layout/UpdateLayout';
 
 
 function Update(){
-
+    const navigate = useNavigate()
     
 
     return (
@@ -19,55 +21,15 @@ function Update(){
                 Update
             </Header>
             <MainArea>
-                <UpdateInfo>Network not connected</UpdateInfo>
-                <VersionInfoArea>
-                    <VersionText>Current Version</VersionText>
-                    <VersionValue>1.4.1</VersionValue>
-                    <VersionText>Latest version</VersionText>
-                    <VersionValue>2.1.1</VersionValue>
-                </VersionInfoArea>
+                <UpdateLayout currentVersion='' latestVersion='' stateString='updateCheck'/>
             </MainArea>
 
             <Footer>
-                <Button color='gray' type='small' onClick={() => {console.log("back btn clicked")}}>Back</Button>
+                <Button color='gray' type='small' onClick={() => {navigate(-2)  }}>Back</Button>
                 <Button color='blue' type='small' onClick={() => {console.log("back btn clicked")}}>Update</Button>
 
             </Footer>
         </div>
     );
 }
-const UpdateInfo = styled.div`
-    color: #474747;
-    font-size:23px;
-
-    align-self: flex-start;
-    margin-left: 30px;
-    margin-bottom: 10px;
-    margin-top: -15px;
-`
-const VersionInfoArea = styled.div`
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-
-    justify-items: start;
-    align-items: center;
-
-    background-color: #ffffff;
-    width: 450px;
-    height: 115px;
-    border-radius: 8px;
-
-`
-const VersionText = styled.div`
-    color: #474747;
-    font-size:23px;
-    margin-left: 15px;
-`
-const VersionValue = styled.div`
-    color: #474747;
-    font-size:23px;
-    font-weight: bold
-`
 export default Update;
