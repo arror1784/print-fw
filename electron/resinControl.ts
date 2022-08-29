@@ -11,12 +11,9 @@ class ResinControl{
     }
 
     private url :string = "https://services.hix.co.kr/resin/"
-    public getResinList():string[]{
-        return getPrinterSetting().data.resinList
-    }
 
-    public getResinLastupdate():string{
-        let lastUpdate = new Date(0)
+    public getResinLatestupdate():Date{
+        let latestUpdate = new Date(0)
         for (const i of getPrinterSetting().data.resinList) {
             
             let tmpid =  new ResinSetting(i)
@@ -24,10 +21,10 @@ class ResinControl{
                 continue
             let tmpdate = new Date(tmpid.last_update)
 
-            if(lastUpdate.getTime() < tmpdate.getTime())
-                lastUpdate = tmpdate
+            if(latestUpdate.getTime() < tmpdate.getTime())
+                latestUpdate = tmpdate
         }
-        return lastUpdate.toUTCString()
+        return latestUpdate
     }
 
     /**
@@ -35,11 +32,11 @@ class ResinControl{
      * Or return null 
      * @returns string|null
      */
-    public async checkAvailableToUpdateNetwork():Promise<string|null>{
+    public async checkAvailableToUpdateNetwork():Promise<Date|null>{
 
         // const request = net.request({method: 'GET',protocol: 'https:',hostname: 'services.hix.co.kr',  path: '/resin/update/C10'})
-        let currentLastUpdate = new Date(this.getResinLastupdate())
-        let serverLastUpdate : string|null = null
+        let currentLatestUpdate = new Date(this.getResinLatestupdate())
+        let serverLatestUpdate : Date|null = null
 
         await requestPromise({url:this.url+"update/"+getProductSetting().data.product.toUpperCase(),json:true},(error,response)=>{
             if(error){
@@ -47,14 +44,14 @@ class ResinControl{
             }
 
             if(getPrinterSetting().data.resinList.length > Object.keys(response.body).length){
-                currentLastUpdate = new Date(0)
+                currentLatestUpdate = new Date(0)
                 for (const i of response.body) {
                     for (const name of Object.keys(i)) {
                         let temptime = new Date(i[name])
 
-                        if(currentLastUpdate.getTime() < temptime.getTime()){
-                            currentLastUpdate = temptime
-                            serverLastUpdate = temptime.toLocaleString()
+                        if(currentLatestUpdate.getTime() < temptime.getTime()){
+                            currentLatestUpdate = temptime
+                            serverLatestUpdate = temptime
                         }
                     }
                 }
@@ -63,17 +60,17 @@ class ResinControl{
             for (const i of response.body) {
                 for (const name of Object.keys(i)) {
                     let temptime = new Date(i[name])
-                    console.log(currentLastUpdate.getTime(),temptime.getTime())
-                    if(currentLastUpdate.getTime() < temptime.getTime()){
-                        currentLastUpdate = temptime
-                        serverLastUpdate = temptime.toLocaleString()
+                    console.log(currentLatestUpdate.getTime(),temptime.getTime())
+                    if(currentLatestUpdate.getTime() < temptime.getTime()){
+                        currentLatestUpdate = temptime
+                        serverLatestUpdate = temptime
                     }
                 }
             } // if resin update or add
 
         })
         
-        return serverLastUpdate
+        return serverLatestUpdate
     }
 
     public async resinUpdate(){

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
-import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH } from './ipc/cmdChannels';
+import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH, SoftwareCH } from './ipc/cmdChannels';
 import { WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
 let _id = 0
 
@@ -40,6 +40,11 @@ interface electronApiInterface {
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
     getCurrentWifiStatusTW: () => Promise<WifiInfo>;
+    getCurrentLatestResinVersionTW: () => Promise<Date>;
+    checkAvailableToResinUpdateNetworkTW: () => Promise<Date|null>;
+    getCurrentVersionTW: ()=>Promise<string>;
+    getServerVersionTW: ()=>Promise<string|null>;
+
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
@@ -49,6 +54,8 @@ interface electronApiInterface {
     connectWifiRM : (ssid:string,bssid:string,passwd:string|undefined) => void;
     disconnectWifiRM : () => void;
     scanWifiRM : () => void;
+    resinUpdateRM :() => void;
+    softwareUpdateRM: () => void;
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -61,6 +68,8 @@ interface electronApiInterface {
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo)=>void) => EventListener;
     onWifiListChangeMR: (callback:(evnet:IpcRendererEvent,wifiList: WifiInfo[]) => void) => EventListener;
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
+    onResinUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:number)=>void ) => EventListener;
+    onSoftwareUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:number)=>void ) => EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -75,6 +84,10 @@ const exposedApi: electronApiInterface = {
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
     getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
+    getCurrentLatestResinVersionTW:()=>ipcRenderer.invoke(ResinCH.getCurrentLatestResinVersionTW),
+    checkAvailableToResinUpdateNetworkTW:()=>ipcRenderer.invoke(ResinCH.checkAvailableToResinUpdateNetworkTW),
+    getCurrentVersionTW:()=>ipcRenderer.invoke(SoftwareCH.getCurrentVersionTW),
+    getServerVersionTW:()=>ipcRenderer.invoke(SoftwareCH.getServerVersionTW),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
@@ -84,6 +97,8 @@ const exposedApi: electronApiInterface = {
     connectWifiRM: (ssid:string,bssid:string,passwd:string|undefined) => ipcRenderer.send(WifiCH.connectWifiRM,ssid,bssid,passwd),
     disconnectWifiRM: () => ipcRenderer.send(WifiCH.disconnectWifiRM),
     scanWifiRM: () => ipcRenderer.send(WifiCH.scanWifiRM),
+    resinUpdateRM: ()=>ipcRenderer.send(ResinCH.resinUpdateRM),
+    softwareUpdateRM:()=>ipcRenderer.send(SoftwareCH.softwareUpdateRM),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -96,7 +111,9 @@ const exposedApi: electronApiInterface = {
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo) => void) => {return eventADD(WifiCH.onStatusChangeMR,callback)},
     onWifiListChangeMR: (callback:(event:IpcRendererEvent,wifiList:WifiInfo[]) => void) => {return eventADD(WifiCH.onWifiListChangeMR,callback)},
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
-    
+    onResinUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:number)=>void) => {return eventADD(ResinCH.onResinUpdateNoticeMR,callback)},
+    onSoftwareUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:number)=>void) => {return eventADD(ResinCH.onResinUpdateNoticeMR,callback)},
+
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
 }
