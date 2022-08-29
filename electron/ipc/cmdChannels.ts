@@ -16,9 +16,23 @@ enum FileSystemCH{
 }
 
 enum ResinCH{
-    resinListTW = "resin:resinList,RT:string[]"
-}
+    resinListTW = "resin:resinList,RT:string[]",
 
+    getCurrentLatestResinVersionTW = "resin:getCurrentLatestResinVersion,RT:string",
+    checkAvailableToUpdateNetworkTW = "resin:checkAvailableToUpdateNetwork",
+
+    resinUpdateRM = "resin:resinUpdateRM",
+
+    resinUpdateNoticeMR = "resin:resinUpdateNoticeMR"
+}
+enum SoftwareCH{
+    getCurrentVersionTW = "software:getCurrentVersion",
+    getServerVersionTW = "software:getServerVersion",
+    
+    softwareUpdateRM = "software:softwareUpdate",
+    
+    softWareUpdateNoticeMR = "software:softwareUpdateNotice"
+}
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
     getProductInfoTW = "product:getProductInfo,RT:string[]",
