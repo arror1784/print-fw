@@ -1,3 +1,4 @@
+
 import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { PrintWorker, WorkingState } from "./printWorker"
@@ -5,16 +6,17 @@ import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConn
 import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
-import {NetworkInterfaceInfo, networkInterfaces} from 'os'
+import {networkInterfaces} from 'os'
 import AdmZip from 'adm-zip'
-import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
 import { exec } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
 import { getWifiName, wifiInit } from "./ipc/wifiControl"
+
 import address from 'address'
+import { ResinControl } from "./resinControl"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -29,7 +31,12 @@ let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFile
 
 let worker = new PrintWorker(uartConnection,imageProvider)
 
-function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+let rc = new ResinControl()
+
+
+async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+
+    console.log(await rc.resinUpdate() +"  adssaddsa")
 
     if(!uartConnection.checkConnection())
         return new Error("uart connect error")
