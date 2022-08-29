@@ -1,4 +1,3 @@
-import { app, net } from "electron";
 import { getPrinterSetting } from "./json/printerSetting";
 import { ResinSetting } from "./json/resin";
 
@@ -31,6 +30,11 @@ class ResinControl{
         return lastUpdate.toUTCString()
     }
 
+    /**
+     * if can update return string
+     * Or return null 
+     * @returns string|null
+     */
     public async checkAvailableToUpdateNetwork():Promise<string|null>{
 
         // const request = net.request({method: 'GET',protocol: 'https:',hostname: 'services.hix.co.kr',  path: '/resin/update/C10'})
@@ -41,6 +45,7 @@ class ResinControl{
             if(error){
                 return
             }
+
             if(getPrinterSetting().data.resinList.length > Object.keys(response.body).length){
                 currentLastUpdate = new Date(0)
                 for (const i of response.body) {
