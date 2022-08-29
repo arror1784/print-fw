@@ -112,6 +112,11 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
     toJsonString(ob : ResinSettingArray) : string{
 
         let jsonOb : any = {}
+        this.last_update && Object.defineProperty(jsonOb,"last_update",{
+            value: this.last_update,
+            writable:true,
+            enumerable:true
+        })
 
         Object.keys(ob).forEach((key: string) => {
             Object.defineProperty(jsonOb,key,{
