@@ -9,7 +9,7 @@ abstract class JsonSetting<T>{
     private _fileData? : string
     private _isOpen : boolean
 
-    constructor(private _filePath : string,{fileData} : ConstructProps<T>){
+    constructor(protected _filePath : string,{fileData} : ConstructProps<T>){
         this._fileData = fileData
 
         if(fileData){
@@ -28,9 +28,9 @@ abstract class JsonSetting<T>{
         this.data = this.parse(this.data as any)
     }
     abstract parse(ob : any) : T
-    abstract save(ob : T) : string
+    abstract toJsonString(ob : T) : string
     saveFile(){
-        writeFileSync(this._filePath,this.save(this.data))
+        writeFileSync(this._filePath,this.toJsonString(this.data))
     }
     isOpen(){
         return this._isOpen

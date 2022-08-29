@@ -109,7 +109,7 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
          
         return rsa
     }
-    save(ob : ResinSettingArray) : string{
+    toJsonString(ob : ResinSettingArray) : string{
 
         let jsonOb : any = {}
         Object.keys(ob).forEach((value: string,index :number) => {
@@ -136,6 +136,7 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
                 }
             })
         })
+        return JSON.stringify(jsonOb,null,2)
 
         return JSON.stringify(jsonOb)
     }

@@ -16,12 +16,12 @@ class InfoSetting extends JsonSetting<InfoSettingValue>{
     parse(ob : any) : InfoSettingValue{
         return {layerHeight: ob.layer_height,totalLayer: ob.total_layer}
     }
-    save(ob : InfoSettingValue) : string{
+    toJsonString(ob : InfoSettingValue) : string{
 
         return JSON.stringify({
             layer_height: ob.layerHeight,
             total_layer: ob.totalLayer
-        })
+        },null,2)
     }
 }
 

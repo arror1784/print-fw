@@ -15,8 +15,8 @@ class ModelNO extends JsonSetting<ModelNoValue>{
     parse(ob: any): ModelNoValue {
         return ob
     }
-    save(ob: ModelNoValue): string {
-        return JSON.stringify(ob)
+    toJsonString(ob: ModelNoValue): string {
+        return JSON.stringify(ob,null,2)
     }
 }
 
