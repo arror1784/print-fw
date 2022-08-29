@@ -44,7 +44,6 @@ function LEDCalibration(){
 
             
     );
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 const CalibrationArea = styled.div`
     margin-top: -15px;

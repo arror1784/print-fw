@@ -91,7 +91,6 @@ function Model(){
 
             
     );
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 const ParentArea = styled.div`
     display: flex;

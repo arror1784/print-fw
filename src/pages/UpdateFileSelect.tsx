@@ -15,7 +15,7 @@ function UpdateFileSelect(){
     return (
     <MainArea>
         <Header>
-            WiFi Update
+            Select a file (*.updateFile)
         </Header>
         <MainArea>
             {/* <SelectList selectListModel={fileList} 
@@ -27,7 +27,7 @@ function UpdateFileSelect(){
                     }
                     else
                         setSelectFile(value)
-                }} highlightId={selectFile.id} extentions=".">
+                }} highlightId={selectFile.id} extentions=".updateFile">
                 
             </SelectList> */}
         </MainArea>
@@ -36,6 +36,5 @@ function UpdateFileSelect(){
             <Button color='blue' type='small' onClick={() => {navigate('update')}}>Select</Button>
         </Footer>
     </MainArea>);
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 export default UpdateFileSelect;

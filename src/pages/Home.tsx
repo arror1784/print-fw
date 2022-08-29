@@ -61,7 +61,6 @@ function Home(){
             </InfoArea>
         </Modal>
     </HomeArea>);
-    // return (<div> <img src={wifiImg} sizes="(min-width: 600px) 200px, 50vw"/> </div>);
 }
 const HomeArea = styled.div`
     display: flex;
