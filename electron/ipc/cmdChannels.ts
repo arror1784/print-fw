@@ -18,20 +18,20 @@ enum FileSystemCH{
 enum ResinCH{
     resinListTW = "resin:resinList,RT:string[]",
 
-    getCurrentLatestResinVersionTW = "resin:getCurrentLatestResinVersion,RT:string",
-    checkAvailableToResinUpdateNetworkTW = "resin:checkAvailableToResinUpdateNetworkTW",
-
-    resinUpdateRM = "resin:resinUpdateRM",
-
-    onResinUpdateNoticeMR = "resin:onResinUpdateNoticeMR"
 }
-enum SoftwareCH{
+enum UpdateCH{
+
     getCurrentVersionTW = "software:getCurrentVersion",
     getServerVersionTW = "software:getServerVersion",
     
     softwareUpdateRM = "software:softwareUpdate",
     
-    onSoftwareUpdateNoticeMR = "software:onSoftwareUpdateNoticeMR"
+    getCurrentLatestResinVersionTW = "resin:getCurrentLatestResinVersion,RT:string",
+    checkAvailableToResinUpdateNetworkTW = "resin:checkAvailableToResinUpdateNetworkTW",
+
+    resinUpdateRM = "resin:resinUpdateRM",
+
+    onUpdateNoticeMR = "resin:onResinUpdateNoticeMR"
 }
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
@@ -73,4 +73,4 @@ enum WifiCH{
     onWifiNoticeMR = 'wifi:onWifiNoticeMR',
 
 }
-export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH,SoftwareCH }
+export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH,UpdateCH }
