@@ -29,7 +29,7 @@ function Setting(){
             </OptionLayout>
 
             <Footer>
-                <Button color='gray' type='small' onClick={() => {navigate('-1')}}>Back</Button>
+                <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
                 <Button color='gray' type='small' visible={false}></Button>
             </Footer>
         </div>

@@ -15,7 +15,7 @@ import Update from '../pages/Update';
 import LEDCalibration from '../pages/LEDCalibration';
 import Wifi from '../pages/Wifi';
 import UpdateSetting from '../pages/UpdateSetting';
-import UpdateModeSetting from '../layout/UpdateModeSetting';
+import UpdateModeSetting from '../pages/UpdateModeSetting';
 
 const AppRoute = () => {
     return (
@@ -42,14 +42,11 @@ const AppRoute = () => {
                 <Route path=''  element={<UpdateSetting/>}/>
                 <Route path=':updateTarget'>
                     <Route path='' element={<UpdateModeSetting/>}/>
-                    <Route path='network' element={<Navigate to='update'/>}/>
                     <Route path='usb' element={<UpdateFileSelect/>}/>
-                    <Route path=':updateMode'>
-                        <Route path="update" element={<Update/>}/>
-                    </Route>
                 </Route>
             </Route>
-
+            <Route path='/update/:updateTarget/:updateMode/:updatePath' element={<Update/>}/>
+            <Route path='/update/:updateTarget/:updateMode' element={<Update/>}/>
             <Route path='/wifi' element={<Wifi/>}/>
             
             <Route path='/image' element={<SliceImage/>}/>
