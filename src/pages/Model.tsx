@@ -74,7 +74,7 @@ function Model(){
                         }
                         else
                             setSelectFile(value)
-                    }} highlightId={selectFile.id} extentions=".zip">
+                    }} highlightId={selectFile.id}>
                     
                 </SelectList>
             </MainArea>

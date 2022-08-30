@@ -136,7 +136,7 @@ function Wifi(){
                 <SelectList selectListModel={wifiContainerList} 
                     onContainerSelect={(model:SelectListModel) => {
                         setSelectContainerWifi(model as WifiListModel)
-                    }} highlightId={selectContainerWifi ? selectContainerWifi.id : -1} extentions=".zip">
+                    }} highlightId={selectContainerWifi ? selectContainerWifi.id : -1}>
                 </SelectList>
             </MainArea>
             <Footer>

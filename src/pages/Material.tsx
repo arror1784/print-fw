@@ -65,7 +65,7 @@ function Material(){
             <SelectList selectListModel={resinList} 
                 onContainerSelect={(model:SelectListModel) => {
                     setSelectResin(model)
-                }} highlightId={selectResin.id} extentions=".zip">
+                }} highlightId={selectResin.id}>
                 
             </SelectList>
         </MainArea>

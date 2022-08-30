@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components'
 
-type updateState = 'updateAvailable' | 'updateNotAvailable' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck'
+type UpdateState = 'updateAvailable' | 'updateNotAvailable' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck'
 
 interface UpdateLayoutProp{
     currentVersion:string;
     latestVersion:string;
-    stateString: updateState;
+    stateString: UpdateState;
 }
 
 function UpdateLayout({currentVersion,latestVersion,stateString} : UpdateLayoutProp){
@@ -64,7 +64,7 @@ const UpdateInfo = styled.div`
 const VersionInfoArea = styled.div`
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 3fr;
     grid-template-rows: 1fr 1fr;
 
     justify-items: start;
@@ -84,6 +84,8 @@ const VersionText = styled.div`
 const VersionValue = styled.div`
     color: #474747;
     font-size:23px;
-    font-weight: bold
+    font-weight: bold;
+    margin-left: 10px;
 `
 export default UpdateLayout;
+export type {UpdateState}
