@@ -23,7 +23,6 @@ interface SelectListProps {
     selectListModel: SelectListModel[];
     highlightId : number | undefined;
     onContainerSelect: ((model : SelectListModel) => void) | undefined
-    extentions: string;
 }
 
 function SelectList( {children,width,height,selectListModel,onContainerSelect,highlightId} : SelectListProps){
@@ -59,7 +58,6 @@ SelectList.defaultProps = {
     width: 450,
     height: 210,
     highlightIndex: -1,
-    extentions: "",
 }
 
 const MainListArea = styled.div< { width: number,height:number }>`
