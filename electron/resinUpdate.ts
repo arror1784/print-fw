@@ -4,6 +4,9 @@ import { ResinSetting } from "./json/resin";
 import requestPromise from 'request-promise'
 import { getProductSetting } from "./json/productSetting";
 import { Update, UpdateNotice } from "./update";
+import AdmZip from "adm-zip";
+
+import fs from 'fs'
 
 
 class ResinControl extends Update<Date>{
@@ -75,6 +78,37 @@ class ResinControl extends Update<Date>{
         
         return serverLatestUpdate
     }
+    public async fileVersion(path: string): Promise<Date | null> {
+        
+        if(!fs.existsSync(path))
+            return null
+
+        let zip = new AdmZip(path)
+        if(!zip.test())
+            return null
+        
+        if(!zip.getEntries().find((value:AdmZip.IZipEntry)=> value.name === "material_list.json"))
+            return null
+        
+        let materialListBuffer = zip.readFile("material_list.json")
+        if(!materialListBuffer)
+            return null
+
+        let materialList = JSON.parse(materialListBuffer.toString())
+
+        let latestUpdate = new Date(0)
+        for (const i of materialList) {
+            Object.keys(i).forEach((value:string)=>{
+                let tmpLatestUpdate = new Date(i[value])
+
+                if(latestUpdate < tmpLatestUpdate)
+                    latestUpdate = tmpLatestUpdate
+
+            })
+        }
+
+        return latestUpdate
+    }
 
     public async update(){
 
@@ -87,13 +121,7 @@ class ResinControl extends Update<Date>{
                 rt = false
                 return
             }
-            
-            for (const i of getPrinterSetting().data.resinList) {
-                let a = new ResinSetting(i)
-                a.deleteFile()
-            }
-            getPrinterSetting().data.resinList = []
-            getPrinterSetting().saveFile()
+            this.removeResinList()
 
             for (const name of Object.keys(response.body)) {
                 console.log(name)
@@ -113,6 +141,57 @@ class ResinControl extends Update<Date>{
             this.updateCB && this.updateCB(UpdateNotice.finish)
 
         return rt
+    }
+    public async updateFile(path:string ) {
+                
+        this.updateCB && this.updateCB(UpdateNotice.start)
+
+        if(!fs.existsSync(path)){
+            this.updateCB && this.updateCB(UpdateNotice.error)
+            return false
+        }
+
+        let zip = new AdmZip(path)
+        if(!zip.test()){
+            this.updateCB && this.updateCB(UpdateNotice.error)
+            return false
+        }
+        
+        if(!zip.getEntries().find((value:AdmZip.IZipEntry)=> value.name === "material_list.json")){
+            this.updateCB && this.updateCB(UpdateNotice.error)
+            return false
+        }        
+        let materialLatestUpdateList = JSON.parse(zip.readAsText("material_list.json"))
+        let materialList :string[] = []
+
+        this.removeResinList()
+
+        for (const i of materialLatestUpdateList) {
+
+            Object.keys(i).forEach((value:string)=>{
+
+                materialList.push(value)
+                let a = new ResinSetting(value,zip.readAsText(value+".json"))
+                a.saveFile()
+
+            })
+
+        }
+        getPrinterSetting().data.resinList = materialList
+
+        getPrinterSetting().saveFile()
+
+        this.updateCB && this.updateCB(UpdateNotice.finish)
+        return true
+    }
+    private removeResinList(){
+            
+        for (const i of getPrinterSetting().data.resinList) {
+            let a = new ResinSetting(i)
+            a.deleteFile()
+        }
+        getPrinterSetting().data.resinList = []
+        getPrinterSetting().saveFile()
     }
 }
 

@@ -12,10 +12,10 @@ abstract class Update<T>{
 
     abstract currentVersion() : T
     abstract serverVersion() : Promise<T | null>
-
+    abstract fileVersion(path:string) : Promise<T | null>
     
-    abstract update() : void
-                updateVersion = response.body["version"]
+    abstract update() : Promise<boolean>
+    abstract updateFile(path:string) : Promise<boolean>
 }
 
 export { Update,UpdateNotice }
