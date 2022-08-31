@@ -38,6 +38,8 @@ let sw = new SWUpdate()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
 
+    console.log(await rc.fileVersion("/home/jsh/USBtest/updateFile/resin_20201231.updateFile"))
+    
     if(!uartConnection.checkConnection())
         return new Error("uart connect error")
     
@@ -149,17 +151,23 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
-    ipcMain.handle(UpdateCH.getCurrentLatestResinVersionTW,()=>{
+    ipcMain.handle(UpdateCH.getResinCurrentVersion,()=>{
         return rc.currentVersion()
     })
-    ipcMain.handle(UpdateCH.checkAvailableToResinUpdateNetworkTW,()=>{
+    ipcMain.handle(UpdateCH.getResinServerVersion,()=>{
         return rc.serverVersion()
     })
-    ipcMain.handle(UpdateCH.getCurrentVersionTW,()=>{
+    ipcMain.handle(UpdateCH.getResinFileVersion,(event:Electron.IpcMainInvokeEvent,path:string)=>{
+        return rc.fileVersion(path)
+    })
+    ipcMain.handle(UpdateCH.getSWCurrentVersionTW,()=>{
         return sw.currentVersion()
     })
-    ipcMain.handle(UpdateCH.getServerVersionTW,()=>{
+    ipcMain.handle(UpdateCH.getSWServerVersionTW,()=>{
         return sw.serverVersion()
+    })
+    ipcMain.handle(UpdateCH.getSWFileVersionTW,(event:Electron.IpcMainInvokeEvent,path:string)=>{
+        return sw.fileVersion(path)
     })
 
     ipcMain.on(UpdateCH.resinUpdateRM,(event:IpcMainEvent)=>{
@@ -167,6 +175,12 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(UpdateCH.softwareUpdateRM,(event:IpcMainEvent)=>{
         sw.update()
+    })
+    ipcMain.on(UpdateCH.resinFileUpdateRM,(event:IpcMainEvent,path:string)=>{
+        rc.updateFile(path)
+    })
+    ipcMain.on(UpdateCH.softwareFileUpdateRM,(event:IpcMainEvent,path:string)=>{
+        sw.updateFile(path)
     })
 
     rc.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)

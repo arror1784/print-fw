@@ -20,49 +20,66 @@ enum UpdateNotice{
 function Update(){
     const navigate = useNavigate()
     const {updateTarget,updatePath,updateMode} = useParams()
+    
+    const [updateEnable, setupdateEnable] = useState(true)
     const [currentVersion, setcurrentVersion] = useState("")
     const [latestVersion, setlatestVersion] = useState("")
     const [statusString, setstatusString] = useState<UpdateState>('updateCheck')
+    
 
     const decodingUpdatePath = updatePath && decode(updatePath)
 
     const getCurrentVersion = ()=>{
         if(updateTarget == "resin"){
-            if(updateMode == "network"){
-                window.electronAPI.getCurrentLatestResinVersionTW().then((v:Date)=>{
-                    setcurrentVersion(v.toLocaleString())
-                })
-            }
+            window.electronAPI.getResinCurrentVersion().then((v:Date)=>{
+                setcurrentVersion(v.toLocaleString())
+            })
         }else{
-            if(updateMode == "network"){
-                window.electronAPI.getCurrentVersionTW().then((v:string)=>{
-                    setcurrentVersion(v)
-                })
-            }
+            window.electronAPI.getSWCurrentVersionTW().then((v:string)=>{
+                setcurrentVersion(v)
+            })
         }
     }
     const getServerVersion = () => {
         if(updateTarget == "resin"){
             if(updateMode == "network"){
-                window.electronAPI.checkAvailableToResinUpdateNetworkTW().then((v:Date|null)=>{
+                window.electronAPI.getResinServerVersion().then((v:Date|null)=>{
                     if(v)
                         setlatestVersion(v.toLocaleString())
                     else
                         setstatusString('networkError')
                 })
             }else{
-                // resin usb
+                if(!decodingUpdatePath){
+                    setstatusString("fileError")
+                    return
+                }
+                window.electronAPI.getResinFileVersion(decodingUpdatePath).then((v:Date|null)=>{
+                    if(v)
+                        setlatestVersion(v.toLocaleString())
+                    else
+                        setstatusString('fileError')
+                })
             }
         }else{
             if(updateMode == "network"){
-                window.electronAPI.getServerVersionTW().then((v:string|null)=>{
+                window.electronAPI.getSWServerVersionTW().then((v:string|null)=>{
                     if(v)
                         setlatestVersion(v)
                     else
                         setstatusString('networkError')
                 })
             }else{
-                //SW usb
+                if(!decodingUpdatePath){
+                    setstatusString("fileError")
+                    return
+                }
+                window.electronAPI.getSWFileVersionTW(decodingUpdatePath).then((v:string|null)=>{
+                    if(v)
+                        setlatestVersion(v)
+                    else
+                        setstatusString('fileError')
+                })
             }
         }
     }
@@ -74,9 +91,11 @@ function Update(){
                     break;
                 case UpdateNotice.finish:
                     getCurrentVersion()
+                    setupdateEnable(true)
                     setstatusString('updateFinish')
                     break;
                 case UpdateNotice.error:
+                    setupdateEnable(true)
                     setstatusString('updateError')
                     break;
                 default:
@@ -113,18 +132,27 @@ function Update(){
                         navigate(-2)
                     else
                         navigate(-3)}}>Back</Button>
-                <Button color='blue' type='small' onClick={() => {
+                <Button color='blue' type='small' enable={updateEnable} onClick={() => {
+                    setupdateEnable(false)
                     if(updateTarget == 'resin'){
                         if(updateMode == 'network'){
                             window.electronAPI.resinUpdateRM()
                         }else{
-
+                            if(!decodingUpdatePath){
+                                setstatusString("fileError")
+                                return
+                            }
+                            window.electronAPI.resinFileUpdateRM(decodingUpdatePath)
                         }
                     }else{
                         if(updateMode == 'network'){
                             window.electronAPI.softwareUpdateRM()
                         }else{
-
+                            if(!decodingUpdatePath){
+                                setstatusString("fileError")
+                                return
+                            }
+                            window.electronAPI.softwareFileUpdateRM(decodingUpdatePath)
                         }
                     }
                 }}>Update</Button>

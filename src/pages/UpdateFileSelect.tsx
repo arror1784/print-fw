@@ -63,7 +63,9 @@ function UpdateFileSelect(){
         </MainArea>
         <Footer>
             <Button color='gray' type='small' onClick={() => {navigate(-2)}}>Back</Button>
-            <Button color='blue' type='small' onClick={() => {navigate('/update/' + updateTarget + '/usb/' + encode(selectFile.path))}}>Select</Button>
+            <Button color='blue' type='small' onClick={() => {
+                console.log('/update/' + updateTarget + '/usb/' + encode(selectFile.path))
+                navigate('/update/' + updateTarget + '/usb/' + encode(selectFile.path))}}>Select</Button>
         </Footer>
     </MainArea>);
 }

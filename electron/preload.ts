@@ -41,10 +41,12 @@ interface electronApiInterface {
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
     getCurrentWifiStatusTW: () => Promise<WifiInfo>;
-    getCurrentLatestResinVersionTW: () => Promise<Date>;
-    checkAvailableToResinUpdateNetworkTW: () => Promise<Date|null>;
-    getCurrentVersionTW: ()=>Promise<string>;
-    getServerVersionTW: ()=>Promise<string|null>;
+    getResinCurrentVersion: () => Promise<Date>;
+    getResinServerVersion: () => Promise<Date|null>;
+    getResinFileVersion: (path:string) => Promise<Date|null>;
+    getSWCurrentVersionTW: ()=>Promise<string>;
+    getSWServerVersionTW: ()=>Promise<string|null>;
+    getSWFileVersionTW: (path:string)=>Promise<string|null>
 
 
     printStartRM: (path : string, material : string) => void;
@@ -56,7 +58,9 @@ interface electronApiInterface {
     disconnectWifiRM : () => void;
     scanWifiRM : () => void;
     resinUpdateRM :() => void;
+    resinFileUpdateRM:(path:string) => void;
     softwareUpdateRM: () => void;
+    softwareFileUpdateRM: (path:string) => void;
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -84,10 +88,12 @@ const exposedApi: electronApiInterface = {
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
     getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
-    getCurrentLatestResinVersionTW:()=>ipcRenderer.invoke(UpdateCH.getCurrentLatestResinVersionTW),
-    checkAvailableToResinUpdateNetworkTW:()=>ipcRenderer.invoke(UpdateCH.checkAvailableToResinUpdateNetworkTW),
-    getCurrentVersionTW:()=>ipcRenderer.invoke(UpdateCH.getCurrentVersionTW),
-    getServerVersionTW:()=>ipcRenderer.invoke(UpdateCH.getServerVersionTW),
+    getResinCurrentVersion:()=>ipcRenderer.invoke(UpdateCH.getResinCurrentVersion),
+    getResinServerVersion:()=>ipcRenderer.invoke(UpdateCH.getResinServerVersion),
+    getResinFileVersion: (path:string)=>ipcRenderer.invoke(UpdateCH.getResinFileVersion,path),
+    getSWCurrentVersionTW:()=>ipcRenderer.invoke(UpdateCH.getSWCurrentVersionTW),
+    getSWServerVersionTW:()=>ipcRenderer.invoke(UpdateCH.getSWServerVersionTW),
+    getSWFileVersionTW: (path:string)=>ipcRenderer.invoke(UpdateCH.getSWFileVersionTW,path),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
@@ -98,7 +104,9 @@ const exposedApi: electronApiInterface = {
     disconnectWifiRM: () => ipcRenderer.send(WifiCH.disconnectWifiRM),
     scanWifiRM: () => ipcRenderer.send(WifiCH.scanWifiRM),
     resinUpdateRM: ()=>ipcRenderer.send(UpdateCH.resinUpdateRM),
+    resinFileUpdateRM:(path:string) => ipcRenderer.send(UpdateCH.resinFileUpdateRM,path),
     softwareUpdateRM:()=>ipcRenderer.send(UpdateCH.softwareUpdateRM),
+    softwareFileUpdateRM:(path:string)=>ipcRenderer.send(UpdateCH.softwareFileUpdateRM,path),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 

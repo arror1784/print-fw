@@ -21,17 +21,21 @@ enum ResinCH{
 }
 enum UpdateCH{
 
-    getCurrentVersionTW = "software:getCurrentVersion",
-    getServerVersionTW = "software:getServerVersion",
+    getSWCurrentVersionTW = "update:getSWCurrentVersionTW",
+    getSWServerVersionTW = "update:getSWServerVersionTW",
+    getSWFileVersionTW = "update:getSWFileVersionTW",
     
-    softwareUpdateRM = "software:softwareUpdate",
+    softwareUpdateRM = "update:softwareUpdate",
+    softwareFileUpdateRM = "update:softwareFileUpdate",
     
-    getCurrentLatestResinVersionTW = "resin:getCurrentLatestResinVersion,RT:string",
-    checkAvailableToResinUpdateNetworkTW = "resin:checkAvailableToResinUpdateNetworkTW",
+    getResinCurrentVersion = "update:getResinCurrentVersion,RT:string",
+    getResinServerVersion = "update:getResinServerVersion",
+    getResinFileVersion = "update:getResinFileVersion",
 
-    resinUpdateRM = "resin:resinUpdateRM",
+    resinUpdateRM = "update:resinUpdateRM",
+    resinFileUpdateRM = "pdate:resinFileUpdateRM",
 
-    onUpdateNoticeMR = "resin:onResinUpdateNoticeMR"
+    onUpdateNoticeMR = "update:onResinUpdateNoticeMR"
 }
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",

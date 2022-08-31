@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components'
 
-type UpdateState = 'updateAvailable' | 'latestVersion' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck' | 'updateError'
+type UpdateState = 'updateAvailable' | 'latestVersion' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck' | 'updateError' | 'fileError'
 
 interface UpdateLayoutProp{
     currentVersion:string;
@@ -32,6 +32,9 @@ function UpdateLayout({currentVersion,latestVersion,stateString} : UpdateLayoutP
             break;
         case 'updateError':
             s = "Update Error"
+            break;
+        case 'fileError':
+            s = "Wrong File"
             break;
         default:
             break;
