@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components'
 
-type UpdateState = 'updateAvailable' | 'updateNotAvailable' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck'
+type UpdateState = 'updateAvailable' | 'latestVersion' | 'networkError' | 'updating' | 'updateFinish' | 'updateCheck' | 'updateError'
 
 interface UpdateLayoutProp{
     currentVersion:string;
@@ -21,7 +21,7 @@ function UpdateLayout({currentVersion,latestVersion,stateString} : UpdateLayoutP
         case 'updateFinish':
             s = "Update finished"
             break;
-        case 'updateNotAvailable':
+        case 'latestVersion':
             s = "Current version is the latest"
             break;
         case 'updating':
@@ -29,6 +29,9 @@ function UpdateLayout({currentVersion,latestVersion,stateString} : UpdateLayoutP
             break;
         case 'updateCheck':
             s = "Update Check"
+            break;
+        case 'updateError':
+            s = "Update Error"
             break;
         default:
             break;

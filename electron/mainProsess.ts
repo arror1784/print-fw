@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
-import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
+import { ImageCH, ProductCH, ResinCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
 import {networkInterfaces} from 'os'
@@ -16,7 +16,9 @@ import { getModelNoInstaceSetting } from "./json/modelNo"
 import { getWifiName, wifiInit } from "./ipc/wifiControl"
 
 import address from 'address'
-import { ResinControl } from "./resinControl"
+import { ResinControl } from "./resinUpdate"
+import { SWUpdate } from "./swUpdate"
+import { UpdateNotice } from "./update"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -32,11 +34,9 @@ let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFile
 let worker = new PrintWorker(uartConnection,imageProvider)
 
 let rc = new ResinControl()
-
+let sw = new SWUpdate()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
-
-    console.log(await rc.resinUpdate() +"  adssaddsa")
 
     if(!uartConnection.checkConnection())
         return new Error("uart connect error")
@@ -135,16 +135,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(ProductCH.shutDownRM,(event:IpcMainEvent)=>{
         exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
-            console.log("shutdown -h now")
-            if (error) {
-                console.log(`error: ${error.message}`)
-                return
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`)
-                return
-            }
-            console.log(`stdout: ${stdout}`)})
+            console.log("shutdown -h now")})
     })
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{
 
@@ -153,13 +144,34 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         
         for (const name of Object.keys(nets)) {
             if(name == 'lo')
-                continue
-            console.log(name)
-            console.log(address.ip(name))    
+                continue    
             results.push(address.ip(name));
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
+    ipcMain.handle(UpdateCH.getCurrentLatestResinVersionTW,()=>{
+        return rc.currentVersion()
+    })
+    ipcMain.handle(UpdateCH.checkAvailableToResinUpdateNetworkTW,()=>{
+        return rc.serverVersion()
+    })
+    ipcMain.handle(UpdateCH.getCurrentVersionTW,()=>{
+        return sw.currentVersion()
+    })
+    ipcMain.handle(UpdateCH.getServerVersionTW,()=>{
+        return sw.serverVersion()
+    })
+
+    ipcMain.on(UpdateCH.resinUpdateRM,(event:IpcMainEvent)=>{
+        rc.update()
+    })
+    ipcMain.on(UpdateCH.softwareUpdateRM,(event:IpcMainEvent)=>{
+        sw.update()
+    })
+
+    rc.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
+    sw.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
+
     wifiInit(mainWindow)
 }
 export {mainProsessing}

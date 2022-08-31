@@ -3,16 +3,18 @@ import { ResinSetting } from "./json/resin";
 
 import requestPromise from 'request-promise'
 import { getProductSetting } from "./json/productSetting";
+import { Update, UpdateNotice } from "./update";
 
 
-class ResinControl{
+class ResinControl extends Update<Date>{
 
     constructor(){
+        super()
     }
 
     private url :string = "https://services.hix.co.kr/resin/"
 
-    public getResinLatestupdate():Date{
+    public currentVersion() : Date{
         let latestUpdate = new Date(0)
         for (const i of getPrinterSetting().data.resinList) {
             
@@ -32,16 +34,18 @@ class ResinControl{
      * Or return null 
      * @returns string|null
      */
-    public async checkAvailableToUpdateNetwork():Promise<Date|null>{
+    public async serverVersion():Promise<Date|null>{
 
         // const request = net.request({method: 'GET',protocol: 'https:',hostname: 'services.hix.co.kr',  path: '/resin/update/C10'})
-        let currentLatestUpdate = new Date(this.getResinLatestupdate())
+        let currentLatestUpdate = new Date(this.currentVersion())
         let serverLatestUpdate : Date|null = null
 
         await requestPromise({url:this.url+"update/"+getProductSetting().data.product.toUpperCase(),json:true},(error,response)=>{
             if(error){
                 return
             }
+
+            serverLatestUpdate = currentLatestUpdate
 
             if(getPrinterSetting().data.resinList.length > Object.keys(response.body).length){
                 currentLatestUpdate = new Date(0)
@@ -60,22 +64,23 @@ class ResinControl{
             for (const i of response.body) {
                 for (const name of Object.keys(i)) {
                     let temptime = new Date(i[name])
-                    console.log(currentLatestUpdate.getTime(),temptime.getTime())
+
                     if(currentLatestUpdate.getTime() < temptime.getTime()){
                         currentLatestUpdate = temptime
                         serverLatestUpdate = temptime
                     }
                 }
             } // if resin update or add
-
         })
         
         return serverLatestUpdate
     }
 
-    public async resinUpdate(){
+    public async update(){
 
         let rt = false
+        
+        this.updateCB && this.updateCB(UpdateNotice.start)
 
         await requestPromise({url:this.url+"download/"+getProductSetting().data.product.toUpperCase(),json:true},(error,response)=>{
             if(error){
@@ -101,6 +106,11 @@ class ResinControl{
             getPrinterSetting().saveFile()
             rt = true
         })
+
+        if(!rt)
+            this.updateCB && this.updateCB(UpdateNotice.error)
+        else
+            this.updateCB && this.updateCB(UpdateNotice.finish)
 
         return rt
     }
