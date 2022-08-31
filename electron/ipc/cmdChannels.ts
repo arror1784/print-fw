@@ -35,7 +35,11 @@ enum UpdateCH{
     resinUpdateRM = "update:resinUpdateRM",
     resinFileUpdateRM = "pdate:resinFileUpdateRM",
 
+
+    factoryRestRM = "update:factoryResetRM",
+
     onUpdateNoticeMR = "update:onResinUpdateNoticeMR"
+
 }
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",

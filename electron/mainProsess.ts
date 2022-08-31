@@ -67,6 +67,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
                 break;
         }
     })
+    
     imageProvider.imageCB((src : string) => {
         if(!imageWindow.isDestroyed())
             imageWindow.webContents.send(ImageCH.changeImageMR,src)

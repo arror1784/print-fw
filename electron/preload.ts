@@ -61,6 +61,7 @@ interface electronApiInterface {
     resinFileUpdateRM:(path:string) => void;
     softwareUpdateRM: () => void;
     softwareFileUpdateRM: (path:string) => void;
+    factoryRestRM:()=>void,
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -107,6 +108,7 @@ const exposedApi: electronApiInterface = {
     resinFileUpdateRM:(path:string) => ipcRenderer.send(UpdateCH.resinFileUpdateRM,path),
     softwareUpdateRM:()=>ipcRenderer.send(UpdateCH.softwareUpdateRM),
     softwareFileUpdateRM:(path:string)=>ipcRenderer.send(UpdateCH.softwareFileUpdateRM,path),
+    factoryRestRM:()=>ipcRenderer.send(UpdateCH.factoryRestRM),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 

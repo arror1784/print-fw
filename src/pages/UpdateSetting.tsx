@@ -22,7 +22,7 @@ function UpdateSetting(){
             <OptionLayout>
                 <ImageButton src={resinImg} type='middle' color='gray' onClick={()=>{navigate('resin')}}> Resin </ImageButton>
                 <ImageButton src={softwareImg}  type='middle' color='gray' onClick={()=>{navigate('software')}}> Software </ImageButton>
-                <ImageButton src={factoryResetImg}  type='middle' color='gray' onClick={()=>{}}> Factory Reset </ImageButton>
+                <ImageButton src={factoryResetImg}  type='middle' color='gray' onClick={()=>{navigate('/factoryReset')}}> Factory Reset </ImageButton>
             </OptionLayout>
 
             <Footer>
