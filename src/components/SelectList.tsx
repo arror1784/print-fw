@@ -45,8 +45,8 @@ function SelectList( {children,width,height,selectListModel,onContainerSelect,hi
                 {
                 selectListModel.length > 5 &&
                     <ButtonList>
-                        <ImageButton color='gray' src={upButton} onClick={()=>{scroll.scrollMore(-130,{containerId:"containerElement",duration:200})}}></ImageButton>
-                        <ImageButton color='gray' src={downButton} onClick={()=>{scroll.scrollMore(130,{containerId:"containerElement",duration:200})}}></ImageButton>
+                        <ImageButton color='gray' type='side' src={upButton} onClick={()=>{scroll.scrollMore(-130,{containerId:"containerElement",duration:200})}}></ImageButton>
+                        <ImageButton color='gray' type='side' src={downButton} onClick={()=>{scroll.scrollMore(130,{containerId:"containerElement",duration:200})}}></ImageButton>
                     </ButtonList>
                 }
             </FileListArea>
