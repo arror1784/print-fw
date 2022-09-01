@@ -29,7 +29,6 @@ public:
 
         ummap.map(mmpPath,0,mio::map_entire_file,error);
     }
-
     void addData(uint8_t *data,int size){
         std::copy_n(data,size,ummap.begin());
 
@@ -49,8 +48,9 @@ private:
         if (msgsnd( mqKey, &mybuf, sizeof(mybuf), IPC_NOWAIT) == -1)
         {
             perror("msgsnd error : ");
-            exit(0);
+            // exit(0);
         }
+        
     }
 
 
