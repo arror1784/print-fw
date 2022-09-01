@@ -3,6 +3,7 @@ import { DirOrFile } from './ipc/filesystem'
 import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH, UpdateCH } from './ipc/cmdChannels';
 import { WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
 import { UpdateNotice } from './update';
+import { MoveMotorCommand } from './printWorker';
 let _id = 0
 
 interface EventListener{
@@ -36,7 +37,7 @@ interface electronApiInterface {
     readDirTW: (path : string) => Promise<DirOrFile[]>;
     resinListTW: () => Promise<string[]>;
     getLayerHeightTW: (filePath:string) => Promise<number>;
-    getOffsetSettingsTW: () => Promise<string[]>;
+    getOffsetSettingsTW: () => Promise<number[]>;
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
@@ -61,7 +62,10 @@ interface electronApiInterface {
     resinFileUpdateRM:(path:string) => void;
     softwareUpdateRM: () => void;
     softwareFileUpdateRM: (path:string) => void;
-    factoryRestRM:()=>void,
+    factoryRestRM:()=>void;
+    saveLEDOffsetRM:(offset:number)=>void;
+    saveHeightOffsetRM:(offset:number)=>void;
+    moveMotorRM:(command:MoveMotorCommand,value:number)=>void;
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -75,6 +79,7 @@ interface electronApiInterface {
     onWifiListChangeMR: (callback:(evnet:IpcRendererEvent,wifiList: WifiInfo[]) => void) => EventListener;
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
     onUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:UpdateNotice)=>void ) => EventListener;
+    onMoveFinishMR: (callback:(event:IpcRendererEvent)=>void)=>EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -109,6 +114,9 @@ const exposedApi: electronApiInterface = {
     softwareUpdateRM:()=>ipcRenderer.send(UpdateCH.softwareUpdateRM),
     softwareFileUpdateRM:(path:string)=>ipcRenderer.send(UpdateCH.softwareFileUpdateRM,path),
     factoryRestRM:()=>ipcRenderer.send(UpdateCH.factoryRestRM),
+    saveHeightOffsetRM: (offset:number) => ipcRenderer.send(ProductCH.saveHeightOffsetRM,offset),
+    saveLEDOffsetRM:(offset:number)=> ipcRenderer.send(ProductCH.saveLEDOffsetRM,offset),
+    moveMotorRM:(command:MoveMotorCommand,value:number) => ipcRenderer.send(ProductCH.moveMotorRM,command,value),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -122,6 +130,7 @@ const exposedApi: electronApiInterface = {
     onWifiListChangeMR: (callback:(event:IpcRendererEvent,wifiList:WifiInfo[]) => void) => {return eventADD(WifiCH.onWifiListChangeMR,callback)},
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
     onUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:UpdateNotice) => void) => {return eventADD(UpdateCH.onUpdateNoticeMR,callback)},
+    onMoveFinishMR:(callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
 
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),

@@ -47,8 +47,12 @@ enum ProductCH{
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
+    onMoveFinishMR = "product:onMoveFinishMR",
 
     shutDownRM = "product:onShutDown",
+    saveLEDOffsetRM = "product:saveLEDOffsetRM,int",
+    saveHeightOffsetRM = "product:saveHeightOffsetRM",
+    moveMotorRM = "product:moveBedHeightRM,command:string,value:number",
 }
 
 enum WorkerCH{

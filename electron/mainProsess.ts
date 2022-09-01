@@ -1,7 +1,7 @@
 
 import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
-import { PrintWorker, WorkingState } from "./printWorker"
+import { MoveMotorCommand, PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
 import { ImageCH, ProductCH, ResinCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
 
@@ -19,6 +19,7 @@ import address from 'address'
 import { ResinControl } from "./resinUpdate"
 import { SWUpdate } from "./swUpdate"
 import { UpdateNotice } from "./update"
+import { getPrinterSetting } from "./json/printerSetting"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -152,6 +153,29 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
+    ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
+
+        let offsetArr : number[] = []
+
+        offsetArr.push(getPrinterSetting().data.heightOffset)
+        offsetArr.push(getPrinterSetting().data.ledOffset)
+
+        return [...offsetArr]
+    })
+    ipcMain.on(ProductCH.saveHeightOffsetRM,(event:IpcMainEvent,offset:number)=>{
+        getPrinterSetting().data.heightOffset = offset
+        getPrinterSetting().saveFile()
+    })
+    ipcMain.on(ProductCH.saveLEDOffsetRM,(event:IpcMainEvent,offset:number)=>{
+        getPrinterSetting().data.ledOffset = offset;
+        getPrinterSetting().saveFile()
+    })
+    ipcMain.on(ProductCH.moveMotorRM, async (event:IpcMainEvent,command:MoveMotorCommand,value:number)=>{
+        await worker.moveMotor(command,value)
+        mainWindow.webContents.send(ProductCH.onMoveFinishMR)
+    })
+
+
     ipcMain.handle(UpdateCH.getResinCurrentVersion,()=>{
         return rc.currentVersion()
     })

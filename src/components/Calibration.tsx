@@ -8,16 +8,18 @@ import minusBtnImg from '../assets/minus.png';
 type CalibrationProps = {
   title: string;
   value: number;
-  maxValue?: number;
-  minValue?: number;
+  maxValue: number | undefined;
+  minValue: number | undefined;
 
   sumValue1: number;
   sumValue2: number;
 
-  onValueChange?: (v : number) => void;
+  btnEnable: boolean;
+
+  onValueChange?: (v : number,diff:number) => void;
 }
 
-function Calibration({title,value,minValue,maxValue,sumValue1,sumValue2,onValueChange} : CalibrationProps){
+function Calibration({title,value,minValue,maxValue,sumValue1,sumValue2,btnEnable,onValueChange} : CalibrationProps){
 
 
   return (
@@ -25,25 +27,41 @@ function Calibration({title,value,minValue,maxValue,sumValue1,sumValue2,onValueC
         <CalibrationTitle>{title}</CalibrationTitle>
         <CalibrationValue>{value}</CalibrationValue>
         <SumButton onClick={()=>{
-          if(!maxValue)
+          if(!btnEnable)
             return
-          onValueChange && onValueChange(value + sumValue1 >= maxValue ? maxValue : value + sumValue1)
+          if(!maxValue){
+            onValueChange && onValueChange(value + sumValue1,sumValue1)
+          }else{
+            onValueChange && onValueChange(value + sumValue1 >= maxValue ? maxValue : value + sumValue1,sumValue1)
+          }
         }}> <SumButtonImg src={plusBtnImg}/> </SumButton>
         <SumButton onClick={()=>{
-          if(!maxValue)
+          if(!btnEnable)
             return
-            onValueChange && onValueChange(value + sumValue2 >= maxValue ? maxValue : value + sumValue2)
+          if(!maxValue){
+            onValueChange && onValueChange(value + sumValue2,sumValue2)
+          }else{
+            onValueChange && onValueChange(value + sumValue2 >= maxValue ? maxValue : value + sumValue2,sumValue2)
+          }
         }}> <SumButtonImg src={plusBtnImg}/> </SumButton>
 
         <SumButton onClick={()=>{
-          if(!minValue)
+          if(!btnEnable)
             return
-          onValueChange && onValueChange(value - sumValue1 <= minValue ? minValue : value - sumValue1)
+          if(!minValue){
+            onValueChange && onValueChange(value - sumValue1,-sumValue1)
+          }else{
+            onValueChange && onValueChange(value - sumValue1 <= minValue ? minValue : value - sumValue1,-sumValue1)
+          }
         }}> <SumButtonImg src={minusBtnImg}/> </SumButton>
         <SumButton onClick={()=>{
-          if(!minValue)
+          if(!btnEnable)
             return
-          onValueChange && onValueChange(value - sumValue2 <= minValue ? minValue : value - sumValue2)
+          if(!minValue){
+            onValueChange && onValueChange(value - sumValue2,-sumValue2)
+          }else{
+            onValueChange && onValueChange(value - sumValue2 <= minValue ? minValue : value - sumValue2,-sumValue2)
+          }
         }}> <SumButtonImg src={minusBtnImg}/> </SumButton>
 
         <SumValue>{sumValue1}</SumValue>
@@ -60,6 +78,7 @@ Calibration.defaultProps = {
   minValue: 0.0,
   sumValue1: 0.0,
   sumValue2: 0.0,
+  btnEnable: true,
   };
 
 

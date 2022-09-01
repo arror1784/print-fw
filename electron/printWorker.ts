@@ -15,6 +15,12 @@ enum WorkingState{
     error = "error"
 }
 
+enum MoveMotorCommand{
+    GoHome="GoHome",
+    AutoHome="AutoHome",
+    MoveMicro="MoveMicro",
+    MoveMaxHeight="MoveMaxHeight",
+}
 class PrintWorker{
 
     private _actions: Array<Action> = new Array<Action>(10000);
@@ -234,6 +240,26 @@ class PrintWorker{
     onStateChangeCB(cb : (state : WorkingState) => void){
         this._onWorkingStateChangedCallback = cb
     }
+
+    async moveMotor(command : MoveMotorCommand,value:number){
+        switch (command) {
+            case MoveMotorCommand.AutoHome:
+                await this._uartConnection.sendCommandAutoHome(255)
+                break;
+            case MoveMotorCommand.GoHome:
+                await this._uartConnection.sendCommandMovePosition(-15000)
+                break;
+            case MoveMotorCommand.MoveMaxHeight:
+                await this._uartConnection.sendCommandMoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset))
+                break;
+            case MoveMotorCommand.MoveMicro:
+                await this._uartConnection.sendCommandMoveLength(value)
+                break;
+            default:
+                break;
+        }
+
+    }
 }
 
-export {PrintWorker,WorkingState}
+export {PrintWorker,WorkingState,MoveMotorCommand}

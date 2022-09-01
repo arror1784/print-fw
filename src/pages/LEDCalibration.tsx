@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components'
 
 import Button from '../components/Button';
@@ -14,7 +14,13 @@ function LEDCalibration(){
     const navigate = useNavigate()
     const [ledValue, setLedValue] = useState<number>(100);
 
-    const rootPath = "";
+
+    useEffect(() => {
+      window.electronAPI.getOffsetSettingsTW().then((value:number[])=>{
+        setLedValue(value[1])
+      })
+    }, [])
+    
 
     return (
         <div>
@@ -30,15 +36,21 @@ function LEDCalibration(){
                         maxValue={120}
                         sumValue1={1}
                         sumValue2={0.1}
-                        onValueChange={(v : number) => {
+                        onValueChange={(v : number,diff:number) => {
                             setLedValue(v)
-                        }}/>
+                        }}
+                        />
                 </CalibrationArea>
 
             </MainArea>            
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
-                <Button color='blue' type='small' onClick={() => {}}>Save Offset</Button>
+                <Button color='blue' type='small' onClick={() => {
+
+                    window.electronAPI.saveLEDOffsetRM(ledValue)
+                    navigate(-1)
+
+                }}>Save Offset</Button>
             </Footer>
         </div>
 
