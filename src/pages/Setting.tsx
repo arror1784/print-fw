@@ -24,12 +24,12 @@ function Setting(){
             <OptionLayout>
                 <ImageButton src={calibrationImg} type='middle' color='gray' onClick={()=>{navigate('/calibration/height')}}> Height Calibration </ImageButton>
                 <ImageButton src={lightImg}  type='middle' color='gray' onClick={()=>{navigate('/calibration/led')}}> LED Calibartion </ImageButton>
-                <ImageButton src={updateImg}  type='middle' color='gray'> Update </ImageButton>
+                <ImageButton src={updateImg}  type='middle' color='gray' onClick={()=>{navigate('/updateSetting')}}> Update </ImageButton>
                 <ImageButton src={wifiImg}  type='middle' color='gray' onClick={()=>{navigate('/wifi')}}> WiFi </ImageButton>
             </OptionLayout>
 
             <Footer>
-                <Button color='gray' type='small' onClick={() => {navigate('/')}}>Back</Button>
+                <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
                 <Button color='gray' type='small' visible={false}></Button>
             </Footer>
         </div>

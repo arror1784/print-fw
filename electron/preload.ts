@@ -1,7 +1,9 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { DirOrFile } from './ipc/filesystem'
-import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH } from './ipc/cmdChannels';
+import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH, UpdateCH } from './ipc/cmdChannels';
 import { WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
+import { UpdateNotice } from './update';
+import { MoveMotorCommand } from './printWorker';
 let _id = 0
 
 interface EventListener{
@@ -35,11 +37,18 @@ interface electronApiInterface {
     readDirTW: (path : string) => Promise<DirOrFile[]>;
     resinListTW: () => Promise<string[]>;
     getLayerHeightTW: (filePath:string) => Promise<number>;
-    getOffsetSettingsTW: () => Promise<string[]>;
+    getOffsetSettingsTW: () => Promise<number[]>;
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
     getWifiListTW: () => Promise<WifiInfo[]>;
     getCurrentWifiStatusTW: () => Promise<WifiInfo>;
+    getResinCurrentVersion: () => Promise<Date>;
+    getResinServerVersion: () => Promise<Date|null>;
+    getResinFileVersion: (path:string) => Promise<Date|null>;
+    getSWCurrentVersionTW: ()=>Promise<string>;
+    getSWServerVersionTW: ()=>Promise<string|null>;
+    getSWFileVersionTW: (path:string)=>Promise<string|null>
+
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
@@ -49,6 +58,14 @@ interface electronApiInterface {
     connectWifiRM : (ssid:string,bssid:string,passwd:string|undefined) => void;
     disconnectWifiRM : () => void;
     scanWifiRM : () => void;
+    resinUpdateRM :() => void;
+    resinFileUpdateRM:(path:string) => void;
+    softwareUpdateRM: () => void;
+    softwareFileUpdateRM: (path:string) => void;
+    factoryRestRM:()=>void;
+    saveLEDOffsetRM:(offset:number)=>void;
+    saveHeightOffsetRM:(offset:number)=>void;
+    moveMotorRM:(command:MoveMotorCommand,value:number)=>void;
 
     onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -61,6 +78,8 @@ interface electronApiInterface {
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo)=>void) => EventListener;
     onWifiListChangeMR: (callback:(evnet:IpcRendererEvent,wifiList: WifiInfo[]) => void) => EventListener;
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
+    onUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:UpdateNotice)=>void ) => EventListener;
+    onMoveFinishMR: (callback:(event:IpcRendererEvent)=>void)=>EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -75,6 +94,12 @@ const exposedApi: electronApiInterface = {
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
     getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
+    getResinCurrentVersion:()=>ipcRenderer.invoke(UpdateCH.getResinCurrentVersion),
+    getResinServerVersion:()=>ipcRenderer.invoke(UpdateCH.getResinServerVersion),
+    getResinFileVersion: (path:string)=>ipcRenderer.invoke(UpdateCH.getResinFileVersion,path),
+    getSWCurrentVersionTW:()=>ipcRenderer.invoke(UpdateCH.getSWCurrentVersionTW),
+    getSWServerVersionTW:()=>ipcRenderer.invoke(UpdateCH.getSWServerVersionTW),
+    getSWFileVersionTW: (path:string)=>ipcRenderer.invoke(UpdateCH.getSWFileVersionTW,path),
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
@@ -84,6 +109,14 @@ const exposedApi: electronApiInterface = {
     connectWifiRM: (ssid:string,bssid:string,passwd:string|undefined) => ipcRenderer.send(WifiCH.connectWifiRM,ssid,bssid,passwd),
     disconnectWifiRM: () => ipcRenderer.send(WifiCH.disconnectWifiRM),
     scanWifiRM: () => ipcRenderer.send(WifiCH.scanWifiRM),
+    resinUpdateRM: ()=>ipcRenderer.send(UpdateCH.resinUpdateRM),
+    resinFileUpdateRM:(path:string) => ipcRenderer.send(UpdateCH.resinFileUpdateRM,path),
+    softwareUpdateRM:()=>ipcRenderer.send(UpdateCH.softwareUpdateRM),
+    softwareFileUpdateRM:(path:string)=>ipcRenderer.send(UpdateCH.softwareFileUpdateRM,path),
+    factoryRestRM:()=>ipcRenderer.send(UpdateCH.factoryRestRM),
+    saveHeightOffsetRM: (offset:number) => ipcRenderer.send(ProductCH.saveHeightOffsetRM,offset),
+    saveLEDOffsetRM:(offset:number)=> ipcRenderer.send(ProductCH.saveLEDOffsetRM,offset),
+    moveMotorRM:(command:MoveMotorCommand,value:number) => ipcRenderer.send(ProductCH.moveMotorRM,command,value),
 
     onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
@@ -96,7 +129,9 @@ const exposedApi: electronApiInterface = {
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo) => void) => {return eventADD(WifiCH.onStatusChangeMR,callback)},
     onWifiListChangeMR: (callback:(event:IpcRendererEvent,wifiList:WifiInfo[]) => void) => {return eventADD(WifiCH.onWifiListChangeMR,callback)},
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
-    
+    onUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:UpdateNotice) => void) => {return eventADD(UpdateCH.onUpdateNoticeMR,callback)},
+    onMoveFinishMR:(callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
+
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
 }

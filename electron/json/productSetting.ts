@@ -21,8 +21,8 @@ class ProductSetting extends JsonSetting<ProductSettingValue>{
         else
             return {product:"C10"}
     }
-    save(ob: ProductSettingValue): string {
-        return JSON.stringify(ob)
+    toJsonString(ob: ProductSettingValue): string {
+        return JSON.stringify(ob,null,2)
     }
 }
 

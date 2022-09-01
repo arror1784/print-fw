@@ -14,6 +14,9 @@ import UpdateFileSelect from '../pages/UpdateFileSelect';
 import Update from '../pages/Update';
 import LEDCalibration from '../pages/LEDCalibration';
 import Wifi from '../pages/Wifi';
+import UpdateSetting from '../pages/UpdateSetting';
+import UpdateModeSetting from '../pages/UpdateModeSetting';
+import FactoryReset from '../pages/FactoryReset';
 
 const AppRoute = () => {
     return (
@@ -36,14 +39,19 @@ const AppRoute = () => {
                 <Route path='height' element={<HeightCalibration/>}/>
             </Route>
             
-            <Route path='/update/' element={<Update/>}/>
-            <Route path='/update/file' element={<SliceImage/>}/>
-            <Route path='/update/usb' element={<UpdateFileSelect/>}/>
-            <Route path='/update/internet' element={<SliceImage/>}/>
-
+            <Route path='/updateSetting'>
+                <Route path=''  element={<UpdateSetting/>}/>
+                <Route path=':updateTarget'>
+                    <Route path='' element={<UpdateModeSetting/>}/>
+                    <Route path='usb' element={<UpdateFileSelect/>}/>
+                </Route>
+            </Route>
+            <Route path='/update/:updateTarget/:updateMode/:updatePath' element={<Update/>}/>
+            <Route path='/update/:updateTarget/:updateMode' element={<Update/>}/>
             <Route path='/wifi' element={<Wifi/>}/>
             
             <Route path='/image' element={<SliceImage/>}/>
+            <Route path='/factoryReset' element={<FactoryReset/>}/>
 
         </Routes>
         );

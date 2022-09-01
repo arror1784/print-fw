@@ -1,5 +1,5 @@
 import { JsonSetting } from "./json";
-
+import fs from 'fs'
 interface MoveSettings{
     accelSpeed: number;
     decelSpeed: number;
@@ -32,7 +32,7 @@ const _resinPath : string = process.platform === "win32" ? process.cwd() + "/tem
 class ResinSetting extends JsonSetting<ResinSettingArray>{
 
     public last_update?: string
-
+    
     constructor(private _resinName:string,private _resinData?:string){
         super(_resinPath + _resinName + '.json',{fileData:_resinData})
 
@@ -109,35 +109,45 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
          
         return rsa
     }
-    save(ob : ResinSettingArray) : string{
+    toJsonString(ob : ResinSettingArray) : string{
 
         let jsonOb : any = {}
-        Object.keys(ob).forEach((value: string,index :number) => {
-            Object.defineProperty(jsonOb,value,{
+        this.last_update && Object.defineProperty(jsonOb,"last_update",{
+            value: this.last_update,
+            writable:true,
+            enumerable:true
+        })
+
+        Object.keys(ob).forEach((key: string) => {
+            Object.defineProperty(jsonOb,key,{
                 writable:true,
+                enumerable: true,
                 value:{
-                    up_accel_speed : (ob[value] as ResinSettingValue).upMoveSetting.accelSpeed,
-                    up_decel_speed : ob[value].upMoveSetting.decelSpeed,
+                    up_accel_speed : ob[key].upMoveSetting.accelSpeed,
+                    up_decel_speed : ob[key].upMoveSetting.decelSpeed,
 
-                    down_accel_speed : ob[value].downMoveSetting.accelSpeed,
-                    down_decel_speed : ob[value].downMoveSetting.decelSpeed,
-                    init_speed : ob[value].downMoveSetting.initSpeed,
-                    max_speed : ob[value].downMoveSetting.maxSpeed,
+                    down_accel_speed : ob[key].downMoveSetting.accelSpeed,
+                    down_decel_speed : ob[key].downMoveSetting.decelSpeed,
+                    init_speed : ob[key].downMoveSetting.initSpeed,
+                    max_speed : ob[key].downMoveSetting.maxSpeed,
 
-                    layer_delay : ob[value].delay,
-                    curing_time : ob[value].curingTime,
-                    bed_curing_time : ob[value].bedCuringTime,
-                    led_offset : ob[value].ledOffset,
-                    bed_curing_layer : ob[value].bedCuringLayer,
-                    z_hop_height : ob[value].zHopHeight,
+                    layer_delay : ob[key].delay,
+                    curing_time : ob[key].curingTime,
+                    bed_curing_time : ob[key].bedCuringTime,
+                    led_offset : ob[key].ledOffset,
+                    bed_curing_layer : ob[key].bedCuringLayer,
+                    z_hop_height : ob[key].zHopHeight,
 
-                    pixelContraction : ob[value].pixelContraction,
-                    ymult : ob[value].yMult
+                    pixelContraction : ob[key].pixelContraction,
+                    ymult : ob[key].yMult
                 }
             })
         })
+        return JSON.stringify(jsonOb,null,2)
+    }
 
-        return JSON.stringify(jsonOb)
+    deleteFile(){
+        fs.unlinkSync(this._filePath)
     }
 }
 

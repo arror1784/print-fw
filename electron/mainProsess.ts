@@ -1,20 +1,25 @@
+
 import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
-import { PrintWorker, WorkingState } from "./printWorker"
+import { MoveMotorCommand, PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
-import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
+import { ImageCH, ProductCH, ResinCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
-import {NetworkInterfaceInfo, networkInterfaces} from 'os'
+import {networkInterfaces} from 'os'
 import AdmZip from 'adm-zip'
-import { getPrinterSetting } from "./json/printerSetting"
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
 import { exec } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
 import { getWifiName, wifiInit } from "./ipc/wifiControl"
+
 import address from 'address'
+import { ResinControl } from "./resinUpdate"
+import { SWUpdate } from "./swUpdate"
+import { UpdateNotice } from "./update"
+import { getPrinterSetting } from "./json/printerSetting"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -29,8 +34,13 @@ let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFile
 
 let worker = new PrintWorker(uartConnection,imageProvider)
 
-function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+let rc = new ResinControl()
+let sw = new SWUpdate()
 
+async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+
+    console.log(await rc.fileVersion("/home/jsh/USBtest/updateFile/resin_20201231.updateFile"))
+    
     if(!uartConnection.checkConnection())
         return new Error("uart connect error")
     
@@ -58,6 +68,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
                 break;
         }
     })
+    
     imageProvider.imageCB((src : string) => {
         if(!imageWindow.isDestroyed())
             imageWindow.webContents.send(ImageCH.changeImageMR,src)
@@ -128,16 +139,7 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     })
     ipcMain.on(ProductCH.shutDownRM,(event:IpcMainEvent)=>{
         exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
-            console.log("shutdown -h now")
-            if (error) {
-                console.log(`error: ${error.message}`)
-                return
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`)
-                return
-            }
-            console.log(`stdout: ${stdout}`)})
+            console.log("shutdown -h now")})
     })
     ipcMain.handle(ProductCH.getProductInfoTW,()=>{
 
@@ -146,13 +148,69 @@ function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
         
         for (const name of Object.keys(nets)) {
             if(name == 'lo')
-                continue
-            console.log(name)
-            console.log(address.ip(name))    
+                continue    
             results.push(address.ip(name));
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
+    ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
+
+        let offsetArr : number[] = []
+
+        offsetArr.push(getPrinterSetting().data.heightOffset)
+        offsetArr.push(getPrinterSetting().data.ledOffset)
+
+        return [...offsetArr]
+    })
+    ipcMain.on(ProductCH.saveHeightOffsetRM,(event:IpcMainEvent,offset:number)=>{
+        getPrinterSetting().data.heightOffset = offset
+        getPrinterSetting().saveFile()
+    })
+    ipcMain.on(ProductCH.saveLEDOffsetRM,(event:IpcMainEvent,offset:number)=>{
+        getPrinterSetting().data.ledOffset = offset;
+        getPrinterSetting().saveFile()
+    })
+    ipcMain.on(ProductCH.moveMotorRM, async (event:IpcMainEvent,command:MoveMotorCommand,value:number)=>{
+        await worker.moveMotor(command,value)
+        mainWindow.webContents.send(ProductCH.onMoveFinishMR)
+    })
+
+
+    ipcMain.handle(UpdateCH.getResinCurrentVersion,()=>{
+        return rc.currentVersion()
+    })
+    ipcMain.handle(UpdateCH.getResinServerVersion,()=>{
+        return rc.serverVersion()
+    })
+    ipcMain.handle(UpdateCH.getResinFileVersion,(event:Electron.IpcMainInvokeEvent,path:string)=>{
+        return rc.fileVersion(path)
+    })
+    ipcMain.handle(UpdateCH.getSWCurrentVersionTW,()=>{
+        return sw.currentVersion()
+    })
+    ipcMain.handle(UpdateCH.getSWServerVersionTW,()=>{
+        return sw.serverVersion()
+    })
+    ipcMain.handle(UpdateCH.getSWFileVersionTW,(event:Electron.IpcMainInvokeEvent,path:string)=>{
+        return sw.fileVersion(path)
+    })
+
+    ipcMain.on(UpdateCH.resinUpdateRM,(event:IpcMainEvent)=>{
+        rc.update()
+    })
+    ipcMain.on(UpdateCH.softwareUpdateRM,(event:IpcMainEvent)=>{
+        sw.update()
+    })
+    ipcMain.on(UpdateCH.resinFileUpdateRM,(event:IpcMainEvent,path:string)=>{
+        rc.updateFile(path)
+    })
+    ipcMain.on(UpdateCH.softwareFileUpdateRM,(event:IpcMainEvent,path:string)=>{
+        sw.updateFile(path)
+    })
+
+    rc.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
+    sw.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
+
     wifiInit(mainWindow)
 }
 export {mainProsessing}

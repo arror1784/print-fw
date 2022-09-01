@@ -16,8 +16,8 @@ class VersionSetting extends JsonSetting<VersionValue>{
     parse(ob: any): VersionValue {
         return ob
     }
-    save(ob: VersionValue): string {
-        return JSON.stringify(ob)
+    toJsonString(ob: VersionValue): string {
+        return JSON.stringify(ob,null,2)
     }
 }
 

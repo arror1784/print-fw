@@ -22,14 +22,14 @@ class PrinterSetting extends JsonSetting<PrinterSettingValue>{
             ledOffset: ob.led_offset,
             resinList: ob.material_list as Array<string>}
     }
-    save(ob : PrinterSettingValue): string{
+    toJsonString(ob : PrinterSettingValue): string{
         
         return JSON.stringify({
             default_height: ob.height,
             height_offset: ob.heightOffset,
             led_offset: ob.ledOffset,
             material_list: ob.resinList
-        })
+        },null,2)
     }
 }
 

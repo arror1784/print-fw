@@ -16,17 +16,43 @@ enum FileSystemCH{
 }
 
 enum ResinCH{
-    resinListTW = "resin:resinList,RT:string[]"
-}
+    resinListTW = "resin:resinList,RT:string[]",
 
+}
+enum UpdateCH{
+
+    getSWCurrentVersionTW = "update:getSWCurrentVersionTW",
+    getSWServerVersionTW = "update:getSWServerVersionTW",
+    getSWFileVersionTW = "update:getSWFileVersionTW",
+    
+    softwareUpdateRM = "update:softwareUpdate",
+    softwareFileUpdateRM = "update:softwareFileUpdate",
+    
+    getResinCurrentVersion = "update:getResinCurrentVersion,RT:string",
+    getResinServerVersion = "update:getResinServerVersion",
+    getResinFileVersion = "update:getResinFileVersion",
+
+    resinUpdateRM = "update:resinUpdateRM",
+    resinFileUpdateRM = "pdate:resinFileUpdateRM",
+
+
+    factoryRestRM = "update:factoryResetRM",
+
+    onUpdateNoticeMR = "update:onResinUpdateNoticeMR"
+
+}
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
     getProductInfoTW = "product:getProductInfo,RT:string[]",
     
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
+    onMoveFinishMR = "product:onMoveFinishMR",
 
     shutDownRM = "product:onShutDown",
+    saveLEDOffsetRM = "product:saveLEDOffsetRM,int",
+    saveHeightOffsetRM = "product:saveHeightOffsetRM",
+    moveMotorRM = "product:moveBedHeightRM,command:string,value:number",
 }
 
 enum WorkerCH{
@@ -59,4 +85,4 @@ enum WifiCH{
     onWifiNoticeMR = 'wifi:onWifiNoticeMR',
 
 }
-export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH }
+export { FileSystemCH,WorkerCH,ProductCH,ResinCH,ImageCH,WifiCH,UpdateCH }
