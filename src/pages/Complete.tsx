@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import Footer from '../layout/Footer';
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { IpcRendererEvent } from 'electron';
 
 function Complete(){
@@ -20,8 +20,10 @@ function Complete(){
 
     const [isError, setIsError] = useState<boolean>(false);
     const [filename, setFilename] = useState<string>("helll world");
-    const [spentTime, setSpentTime] = useState<string>("15min 20sec");
+    const [spentTime, setSpentTime] = useState<string>("Calculating");
     const [resin, setResin] = useState<string>("none");
+
+    const { totalElapsedTime } = useParams()
 
     useEffect(()=>{
         const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
@@ -33,7 +35,12 @@ function Complete(){
         })
         
         window.electronAPI.requestPrintInfoRM()
+        if(totalElapsedTime){
 
+            let a = new Date(Number(totalElapsedTime))
+            setSpentTime(a.getMinutes() +"min " + a.getSeconds() + "sec")
+    
+        }
         return ()=>{
             window.electronAPI.removeListener(printInfoListener)
         }

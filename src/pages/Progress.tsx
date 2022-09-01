@@ -14,8 +14,9 @@ import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 
-import { useTimer } from 'react-timer-hook';
 import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
+
+import { Stopwatch } from 'ts-stopwatch'
 
 function Progress(){
 
@@ -25,36 +26,48 @@ function Progress(){
     const [filename, setFilename] = useState<string>("")
     const [material, setMaterial] = useState<string>("")
     const [layerHeight, setLayerHeight] = useState<number>(0.1)
-    const [expiryTimestamp, setExpiryTimestamp] = useState<Date>(new Date())
+    const [totalTime, setTotalTime] = useState(0)
 
     const [infoModalVisible,setInfoModalVisible] = useState<boolean>(false)
     const [quitModalVisible,setQuitModalVisible] = useState<boolean>(false)
     const [quitModalBtnEnable,setQuitModalBtnEnable] = useState<boolean>(false)
     const [quitWork,setQuitWork] = useState<boolean>(false)
 
+    const [timerID, settimerID] = useState<NodeJS.Timer>()
+
+    const [stopwatch, setstopwatch] = useState(new Stopwatch)
+    const [elaspedTime, setelaspedTime] = useState(0)
+
     useEffect(()=>{
         const progressListener = window.electronAPI.onProgressMR((event:IpcRendererEvent, progress:number) => {
             setProgressValue(Number((progress*100).toFixed()))
         })
-
+        const setTotalTimeListener = window.electronAPI.onSetTotalTimeMR((event:IpcRendererEvent,value:number)=>{
+            console.log(value)
+            setTotalTime(value)
+        })
         const printerInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
             ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
             setFilename(filename)
             setMaterial(material)
             setLayerHeight(layerHeight)
+            setTotalTime(totalTime)
         })
         const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
             switch(state){
                 case "working":
                     setQuitModalVisible(false)
+                    stopwatch.start()
                     break;
                 case "stop":
                 case "error":
-                    navigate('/complete')
+                    stopwatch.stop()
+                    navigate('/complete/'+stopwatch.getTime())
                     break;
                 case "pauseWork":
                     break;
                 case "pause":
+                    stopwatch.stop()
                     setQuitModalBtnEnable(true)
                     break;
                 case "stopWork":
@@ -64,15 +77,24 @@ function Progress(){
                     break;
             }
         })
+
         window.electronAPI.requestPrintInfoRM()
-        
+        stopwatch.start()
+
+        settimerID(setInterval(() => {
+
+            setelaspedTime(stopwatch.getTime())
+        }, 100))
+
         return ()=>{
             window.electronAPI.removeListener(printerInfoListener)
             window.electronAPI.removeListener(progressListener)
             window.electronAPI.removeListener(workingStateListener)
+            window.electronAPI.removeListener(setTotalTimeListener)
         }
     },[])
     
+    let time = new Date(totalTime - elaspedTime)
     return (
         <div>
             <Header>
@@ -91,7 +113,7 @@ function Progress(){
                         Remaining time
                     </TitleText>
                     <ValueText>
-                        asd
+                        {totalTime == 0 ? "Calculating" : time.getMinutes() +"min " + time.getSeconds() + "sec"}
                     </ValueText>
 
                     <CircleProgress>
