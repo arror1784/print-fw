@@ -10791,6 +10791,11 @@ tryer@^1.0.1:
   resolved "https://registry.npmjs.org/tryer/-/tryer-1.0.1.tgz"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
 
+ts-stopwatch@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/ts-stopwatch/-/ts-stopwatch-0.0.4.tgz#9bf07edbd1d3d16c48a1b6deccd0dd2f11e68b9e"
+  integrity sha512-YUAV6lT4YiCrLckGkUsUp12Eo77NX3DK7HzFuFeDV702g/+Jz/IU80s7Boq+JhrqlocLELdgmpH+/y5XGBxLCQ==
+
 tsconfig-paths@^3.12.0:
   version "3.14.0"
   resolved "https://registry.npmjs.org/tsconfig-paths/-/tsconfig-paths-3.14.0.tgz"
