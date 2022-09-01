@@ -23,10 +23,6 @@ function ExtraModals(){
                 case "working":
                     navigate('/progress')
                     break;
-                case "stop":
-                case "error":
-                    navigate('/complete')
-                    break;
                 default:
                     break;
             }
