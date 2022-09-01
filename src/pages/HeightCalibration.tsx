@@ -9,6 +9,8 @@ import Header from '../layout/Header';
 import Calibration from '../components/Calibration';
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
+import { IpcRendererEvent } from 'electron';
 
 
 enum MoveMotorCommand{
@@ -22,16 +24,40 @@ function HeightCalibration(){
     const navigate = useNavigate()
     const [offsetValue, setOffsetValue] = useState<number>(0);
 
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [buttonEnable, setbuttonEnable] = useState(true)
+
+    const [waitforVisible, setwaitforVisible] = useState(false)
+
+    let moveMotor = (command:MoveMotorCommand,value:number)=>{
+        window.electronAPI.moveMotorRM(command,value)
+    }
 
     useEffect(() => {
         window.electronAPI.getOffsetSettingsTW().then((value:number[])=>{
           setOffsetValue(value[0])
         })
-        const moveFinishListener = window.electronAPI.onMoveFinishMR(()=>{
-            setbuttonEnable(true)
+        const moveFinishListener = window.electronAPI.onMoveFinishMR((event:IpcRendererEvent,command:MoveMotorCommand,value:number)=>{
+            switch(command){
+                case MoveMotorCommand.AutoHome:
+                    moveMotor(MoveMotorCommand.MoveMaxHeight,0)
+                    break;
+                case MoveMotorCommand.GoHome:
+                    navigate(-1)
+                    break;
+                case MoveMotorCommand.MoveMaxHeight:
+                    setwaitforVisible(false)
+                    setbuttonEnable(true)
+                    break;
+                case MoveMotorCommand.MoveMicro:
+                    setbuttonEnable(true)
+                    break;
+                default:
+                    break;
+            }
         })
+        moveMotor(MoveMotorCommand.AutoHome,0)
+        setwaitforVisible(true)
+
         return ()=>{
             window.electronAPI.removeListener(moveFinishListener)
         }
@@ -54,20 +80,27 @@ function HeightCalibration(){
                             console.log(diff)
                             setbuttonEnable(false)
                             setOffsetValue(v)
-                            window.electronAPI.moveMotorRM(MoveMotorCommand.MoveMicro,-diff)
+                            moveMotor(MoveMotorCommand.MoveMicro,-diff)
                         }}
                         btnEnable={buttonEnable}/>
                 </CalibrationArea>
 
             </MainArea>            
             <Footer>
-                <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
-                <Button color='blue' type='small' enable={buttonEnable} onClick={() => {
+                <Button color='gray' type='small' enable={!waitforVisible} onClick={() => {
+                    moveMotor(MoveMotorCommand.GoHome,0)
+                    setwaitforVisible(true)
+
+                }}>Back</Button>
+                <Button color='blue' type='small' enable={!waitforVisible && buttonEnable} onClick={() => {
                     window.electronAPI.saveHeightOffsetRM(offsetValue)
-                    navigate(-1)
-                    
+                    moveMotor(MoveMotorCommand.GoHome,0)
+                    setwaitforVisible(true)
                 }}>Save Offset</Button>
             </Footer>
+            <Modal visible={waitforVisible} btnEnable={false} backVisible={false} selectVisible={false}>
+                wait for movement
+            </Modal>
         </div>
 
             

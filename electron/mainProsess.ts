@@ -175,7 +175,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(ProductCH.moveMotorRM, async (event:IpcMainEvent,command:MoveMotorCommand,value:number)=>{
         await worker.moveMotor(command,value)
-        mainWindow.webContents.send(ProductCH.onMoveFinishMR)
+        mainWindow.webContents.send(ProductCH.onMoveFinishMR,command,value)
     })
 
 

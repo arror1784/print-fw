@@ -277,9 +277,11 @@ class PrintWorker{
     }
     onSetTotalTimeCB(cb : (value : number) => void){
         this._onSetTotaltime = cb
+        
     }
 
     async moveMotor(command : MoveMotorCommand,value:number){
+        console.log(command)
         switch (command) {
             case MoveMotorCommand.AutoHome:
                 await this._uartConnection.sendCommandAutoHome(255)

@@ -80,7 +80,7 @@ interface electronApiInterface {
     onWifiListChangeMR: (callback:(evnet:IpcRendererEvent,wifiList: WifiInfo[]) => void) => EventListener;
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
     onUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:UpdateNotice)=>void ) => EventListener;
-    onMoveFinishMR: (callback:(event:IpcRendererEvent)=>void)=>EventListener;
+    onMoveFinishMR: (callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number)=>void)=>EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -132,7 +132,7 @@ const exposedApi: electronApiInterface = {
     onWifiListChangeMR: (callback:(event:IpcRendererEvent,wifiList:WifiInfo[]) => void) => {return eventADD(WifiCH.onWifiListChangeMR,callback)},
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
     onUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:UpdateNotice) => void) => {return eventADD(UpdateCH.onUpdateNoticeMR,callback)},
-    onMoveFinishMR:(callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
+    onMoveFinishMR:(callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
 
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
