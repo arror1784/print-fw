@@ -13,6 +13,7 @@ import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IpcRendererEvent } from 'electron';
+import SlideText from '../components/SlideText';
 
 function Complete(){
     
@@ -59,7 +60,9 @@ function Complete(){
             </FinishArea>
             <InfoArea>
                 <InfoText>File Name</InfoText>
-                <InfoValue>{filename}</InfoValue>
+                <InfoValue>
+                    <SlideText text={filename}/>
+                </InfoValue>
                 <InfoText>Material</InfoText>
                 <InfoValue>{resin}</InfoValue>
                 <InfoText>Time Spent</InfoText>
@@ -92,13 +95,14 @@ const FinishText = styled.div`
     margin-left: 30px;
 `
 const InfoArea = styled.div`
-    display: grid;  
+    display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     
     column-gap: 15px;
     row-gap: 10px;
     margin-top: 30px;
+    font-size: 20px;
 `
 const InfoText = styled.div`
     color: #474747;
@@ -108,6 +112,9 @@ const InfoValue = styled.div`
     color: black;
     justify-self: left;
     font-weight: bold;
+
+    width: auto;
+    max-width: 200px;
 `
 
 export default Complete;
