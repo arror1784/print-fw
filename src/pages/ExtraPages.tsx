@@ -5,12 +5,13 @@ import Modal from '../components/Modal';
 import { IpcRendererEvent } from 'electron';
 import { NoticeText } from '../components/NoticeText';
 
-function ExtraModals(){
+function ExtraPages(){
 
     const navigate = useNavigate()
 
     const [lcdOFFVisible, setlcdOFFVisible] = useState<boolean>(false)
     const [shutDownVisible, setshutDownVisible] = useState<boolean>(false)
+
     useEffect(()=>{
         const lcdListener = window.electronAPI.onLCDStateChangedMR((event:IpcRendererEvent,state:boolean)=>{
             setlcdOFFVisible(state)
@@ -38,7 +39,7 @@ function ExtraModals(){
 
         { /* LCD OFF */ }
         <Modal visible={lcdOFFVisible} onBackClicked={() => {setlcdOFFVisible(false)}} selectVisible={false}>
-
+            LCD OFF
         </Modal>
 
         { /* ShutDown */ }
@@ -51,4 +52,4 @@ function ExtraModals(){
         
     </div>);
 }
-export default ExtraModals
+export default ExtraPages
