@@ -66,10 +66,6 @@ enum WorkerCH{
     onStartErrorMR = "worker:onStartError,error:string",
     onProgressMR = "worker:onProgress,progress:number",
     onSetTotalTimeMR = "worker:onSetTotalTimeMR",
-
-
-
-    
 }
 enum ImageCH{
     changeImageMR = 'image:changeImage,image:string',

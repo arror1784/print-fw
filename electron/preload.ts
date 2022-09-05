@@ -21,7 +21,7 @@ function eventADD(channel : string,listner:(...args : any[]) => void) : EventLis
     eventListnerArr[_id.toString()] = listner
     ipcRenderer.on(channel,eventListnerArr[_id.toString()])
 
-    console.log("IPC EVENT ADD",channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
+    // console.log("IPC EVENT ADD",channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
 
     return {channel:channel,id:_id.toString()}
 }
@@ -30,7 +30,7 @@ function eventRemove(listener:EventListener){
 
     delete eventListnerArr[listener.id]
 
-    console.log("IPC EVENT REMOVE",listener.channel,"Listener Count : ",ipcRenderer.listenerCount(listener.channel),"Total Key Length : ",Object.keys(eventListnerArr).length)
+    // console.log("IPC EVENT REMOVE",listener.channel,"Listener Count : ",ipcRenderer.listenerCount(listener.channel),"Total Key Length : ",Object.keys(eventListnerArr).length)
 }
 
 interface electronApiInterface {
