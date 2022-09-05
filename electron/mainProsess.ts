@@ -10,7 +10,7 @@ import {networkInterfaces} from 'os'
 import AdmZip from 'adm-zip'
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
-import { exec } from "child_process"
+import { exec, execSync } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
 import { getWifiName, wifiInit } from "./ipc/wifiControl"
@@ -106,6 +106,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
             
+            execSync("vcgencmd display_power 0") // hdmi power off
+            execSync("vcgencmd display_power 1") // hdmi power on
+
             worker.run(name,resin)
             
         } catch (error) {
