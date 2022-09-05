@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { osName,OsTypes } from 'react-device-detect';
 
 import {encode} from 'base-64'
+import Modal from '../components/Modal';
+import { ModalNotice } from '../layout/ModalInfo';
 
 interface DirOrFile extends SelectListModel{
     isDir:boolean;
@@ -29,26 +31,30 @@ function Model(){
     const [dirPath, setDirPath] = useState<string>("");
     const [fileList, setFileList] = useState<DirOrFile[]>([]);
     const [selectFile, setSelectFile] = useState<DirOrFile>({name:"",isDir:false,path:"",id:-1});
+    const [storageDisconnectModalVisible, setstorageDisconnectModalVisible] = useState(false)
 
     const findRootPathTimer = useRef<NodeJS.Timer>()
     const rootPath = useRef("")
 
     const findRootPath = ()=>{
         window.electronAPI.getUSBPathTW().then((value:string)=>{
-            console.log(value)
-            if(value == "")
+            if(value == ""){
+                if(rootPath.current.length != 0){
+                    if(findRootPathTimer.current)
+                        clearInterval(findRootPathTimer.current)
+                    setstorageDisconnectModalVisible(true)
+                }
+                return
+            }
+            if(rootPath.current == value)
                 return
             rootPath.current = value
             setDirPath(value)
-            if(findRootPathTimer.current)
-                clearInterval(findRootPathTimer.current)
         })
     }
     useEffect(()=>{
         findRootPathTimer.current = setInterval(findRootPath,500)
         return ()=>{
-            if(findRootPathTimer.current)
-                clearInterval(findRootPathTimer.current)
         }
     },[])
 
@@ -98,14 +104,15 @@ function Model(){
                     
                 </SelectList>
             </MainArea>
-
-            
             <Footer>
                 <Button color='gray' type='small' onClick={() => {navigate(-1)}}>Back</Button>
                 <Button color='blue' type='small' onClick={() => {
                     if(selectFile.name != "") navigate(`/material/${encode(selectFile.path)}`)}}>Select</Button>
             </Footer>
-
+            
+            <Modal visible={storageDisconnectModalVisible} onBackClicked={() => {navigate(-1)}} selectVisible={false}>
+                <ModalNotice text={"USB 연결이 끊겼습니다."}/>
+            </Modal>
 
         </div>
 
