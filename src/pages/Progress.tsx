@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import styled from 'styled-components'
@@ -34,9 +34,8 @@ function Progress(){
     const [quitModalBtnEnable,setQuitModalBtnEnable] = useState<boolean>(false)
     const [quitWork,setQuitWork] = useState<boolean>(false)
 
-    const [timerID, settimerID] = useState<NodeJS.Timer>()
-
-    const [stopwatch, setstopwatch] = useState(new Stopwatch)
+    const isError = useRef(false)
+    const stopwatchRef = useRef(new Stopwatch)
     const [elaspedTime, setelaspedTime] = useState(0)
 
     useEffect(()=>{
@@ -58,17 +57,22 @@ function Progress(){
             switch(state){
                 case "working":
                     setQuitModalVisible(false)
-                    stopwatch.start()
+                    stopwatchRef.current.start()
+                    break;
+                case "error":
+                    isError.current = true
+                    setQuitModalVisible(true)
+                    setQuitWork(true)
                     break;
                 case "stop":
-                case "error":
-                    stopwatch.stop()
-                    navigate('/complete/'+stopwatch.getTime())
+                    stopwatchRef.current.stop()
+                    console.log('/complete/'+stopwatchRef.current.getTime()+"/"+String(isError.current))
+                    navigate('/complete/'+stopwatchRef.current.getTime()+"/"+String(isError.current))
                     break;
                 case "pauseWork":
                     break;
                 case "pause":
-                    stopwatch.stop()
+                    stopwatchRef.current.stop()
                     setQuitModalBtnEnable(true)
                     break;
                 case "stopWork":
@@ -80,18 +84,20 @@ function Progress(){
         })
 
         window.electronAPI.requestPrintInfoRM()
-        stopwatch.start()
+        stopwatchRef.current.start()
 
-        settimerID(setInterval(() => {
+        const id = setInterval(() => {
 
-            setelaspedTime(stopwatch.getTime())
-        }, 100))
+            setelaspedTime(stopwatchRef.current.getTime())
+        }, 100)
 
         return ()=>{
             window.electronAPI.removeListener(printerInfoListener)
             window.electronAPI.removeListener(progressListener)
             window.electronAPI.removeListener(workingStateListener)
             window.electronAPI.removeListener(setTotalTimeListener)
+
+            clearInterval(id)
         }
     },[])
     

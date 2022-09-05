@@ -30,7 +30,7 @@ const AppRoute = () => {
                 <Route path=':selectPath' element={<Material/>}></Route>
             </Route>
             <Route path='/progress' element={<Progress/>}/>
-            <Route path='/complete/:totalElapsedTime' element={<Complete/>}/>
+            <Route path='/complete/:totalElapsedTime/:error' element={<Complete/>}/>
 
             <Route path='/setting' element={<Setting/>}/>
 

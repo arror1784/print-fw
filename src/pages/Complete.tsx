@@ -24,7 +24,7 @@ function Complete(){
     const [spentTime, setSpentTime] = useState<string>("Calculating");
     const [resin, setResin] = useState<string>("none");
 
-    const { totalElapsedTime } = useParams()
+    const { totalElapsedTime,error } = useParams()
 
     useEffect(()=>{
         const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
@@ -42,6 +42,8 @@ function Complete(){
             setSpentTime(a.getMinutes() +"min " + a.getSeconds() + "sec")
     
         }
+        console.log(error)
+        setIsError(error?.toLowerCase() == "true" ? true : false)
         return ()=>{
             window.electronAPI.removeListener(printInfoListener)
         }

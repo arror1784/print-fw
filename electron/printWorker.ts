@@ -69,6 +69,7 @@ class PrintWorker{
         pixelContraction: 0,
         yMult:1
     };
+
     private _infoSetting : InfoSettingValue = {
         layerHeight: 0,
         totalLayer: 0,
@@ -214,6 +215,10 @@ class PrintWorker{
                     this._workingState = WorkingState.stop
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
                     return;
+                case WorkingState.error:
+                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error)
+                    this.stop()
+                    return;
                 default:
                     break;
             }
@@ -243,7 +248,11 @@ class PrintWorker{
 
                     break;
                 case "setImage":
-                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
+                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value:Boolean)=>{
+                        if(!value){
+                            console.log("ERROR")
+                            this._workingState = WorkingState.error
+                        }})
                     
                     break;
                 case "checkTime":

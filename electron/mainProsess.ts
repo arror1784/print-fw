@@ -92,6 +92,10 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             if(!zip.test())
                 return new Error("can not open zip")
             
+            fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
+                fs.rmSync(sliceFileRoot + value)
+            })
+
             zip.extractAllTo(sliceFileRoot,true)
             let resin : ResinSetting
             if(fs.existsSync(sliceFileRoot+'/resin.json')){
