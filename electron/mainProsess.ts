@@ -114,6 +114,8 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             }
 
         } catch (error) {
+            
+            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
             console.log((error as Error).stack)
         }
     })
