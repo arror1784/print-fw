@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components'
 
 import Button from '../components/Button';
@@ -22,15 +22,35 @@ interface DirOrFile extends SelectListModel{
     path:string;
 }
 
-const rootPath = osName === OsTypes.Windows ? "./temp/USB" : "/home/jsh/USBtest";
-
 function Model(){
 
     const navigate = useNavigate()
 
-    const [dirPath, setDirPath] = useState<string>(rootPath);
+    const [dirPath, setDirPath] = useState<string>("");
     const [fileList, setFileList] = useState<DirOrFile[]>([]);
     const [selectFile, setSelectFile] = useState<DirOrFile>({name:"",isDir:false,path:"",id:-1});
+
+    const findRootPathTimer = useRef<NodeJS.Timer>()
+    const rootPath = useRef("")
+
+    const findRootPath = ()=>{
+        window.electronAPI.getUSBPathTW().then((value:string)=>{
+            console.log(value)
+            if(value == "")
+                return
+            rootPath.current = value
+            setDirPath(value)
+            if(findRootPathTimer.current)
+                clearInterval(findRootPathTimer.current)
+        })
+    }
+    useEffect(()=>{
+        findRootPathTimer.current = setInterval(findRootPath,500)
+        return ()=>{
+            if(findRootPathTimer.current)
+                clearInterval(findRootPathTimer.current)
+        }
+    },[])
 
     useEffect(() => {
         window.electronAPI.readDirTW(dirPath).then(
@@ -54,13 +74,13 @@ function Model(){
             <MainArea>
                 <ParentArea>
                     <ParentDirButton onClick={() => {
-                        if(dirPath !== rootPath)
+                        if(dirPath !== rootPath.current)
                             setDirPath(dirPath.slice(0,dirPath.lastIndexOf("/")))
                     }}>
                         <ParentDirImg width='20px' src={arrowDirImg}></ParentDirImg>
                     </ParentDirButton>
                     <CurrentDirText>{
-                        dirPath !== rootPath &&
+                        dirPath !== rootPath.current &&
                             dirPath.split('/').pop()
                     } </CurrentDirText>
                 </ParentArea>

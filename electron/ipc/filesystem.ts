@@ -10,9 +10,13 @@ interface DirOrFile{
     id:number;
 }
 
+const rootPath :string = process.platform === "win32" || process.arch != 'arm' ? "/home/jsh/USBtest" : "/media/pi"
+
 async function readDir (event:IpcMainInvokeEvent,path: string) : Promise<DirOrFile[]> {
 
     var list : DirOrFile[] = []
+    if(!fs.existsSync(path))
+        return []
     fs.readdirSync(path,{withFileTypes:true}).forEach((value: fs.Dirent,index:number)=>{
         list.push({
             name: value.name,
@@ -21,8 +25,18 @@ async function readDir (event:IpcMainInvokeEvent,path: string) : Promise<DirOrFi
             id: index
         })
     })
-
     return list
+}
+
+async function getUSBPath() {
+    let tmp = fs.readdirSync(rootPath,{withFileTypes:true}).filter((value:fs.Dirent)=>{
+        return value.isDirectory() && !value.name.match("recoveryfs[0-9]*")
+    })
+
+    if(tmp.length == 0)
+        return ""
+    else
+        return rootPath + '/' + tmp[0].name
 }
 
 async function getLayerHeight(event:IpcMainInvokeEvent,filePath:string): Promise<number>{
@@ -57,5 +71,5 @@ async function isCustom(event:IpcMainInvokeEvent,filePath:string): Promise<boole
         return false
     }
 }
-export {readDir,getLayerHeight,isCustom}
+export {readDir,getLayerHeight,isCustom,getUSBPath}
 export type { DirOrFile }
