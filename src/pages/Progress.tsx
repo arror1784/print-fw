@@ -17,6 +17,7 @@ import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
 
 import { Stopwatch } from 'ts-stopwatch'
+import SlideText from '../components/SlideText';
 
 function Progress(){
 
@@ -107,7 +108,7 @@ function Progress(){
                         File name
                     </TitleText>
                     <ValueText>
-                        {filename}
+                        <SlideText text={filename}/>
                     </ValueText>
                     <TitleText>
                         Remaining time
@@ -201,6 +202,7 @@ const ValueText = styled.div`
     font-weight: bold;
     justify-self: start;
     align-self: start;
+    max-width: 200px;
 `
 const CircleProgress = styled.div`
     grid-column-start: 2;

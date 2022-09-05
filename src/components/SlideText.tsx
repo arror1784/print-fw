@@ -14,31 +14,40 @@ const sleep = async (ms?: number) => new Promise(resolve => setTimeout(resolve, 
 
 function SlideText({text}:SlideTextProps){
     const [slideID, setslideID] = useState("")
-    const [timerID, settimerID] = useState<NodeJS.Timer>()
 
     const ref = useRef<HTMLDivElement|null>(null)
+    const timerRef = useRef<NodeJS.Timer>()
+
     const countref = useRef<number>(0)
     
     const slideSpeed = 23
 
-    const doAnimaion =  async ()=>{
+    const doAnimaion = ()=>{
         if(!ref.current)
             return
-        const bouncingWidth = ref.current.getBoundingClientRect().width
+        
+        if(countref.current > 0){
+            countref.current = countref.current - 1
+            return
+        }
+
+        const bouncingWidth = ref.current.clientWidth
         const scrollWidth = ref.current.scrollWidth
 
-        const duration = (scrollWidth - bouncingWidth) * slideSpeed
+        const slidingWidth  = (scrollWidth - bouncingWidth)
+        const duration = slidingWidth * slideSpeed
 
-        if(countref.current <= 0){
-            if(ref.current.scrollLeft != 0){
-                scroll.scrollTo(0,{containerId:slideID,duration:0,horizontal:true})
-                countref.current = 5
-            }else{
-                scroll.scrollMore(+216,{containerId:slideID,duration:duration,horizontal:true,smooth:false})
-                countref.current = (duration / 500) + 5
-            }
+        if(slidingWidth == 0 && timerRef.current){
+            clearInterval(timerRef.current)
+            return
+        }
+
+        if(ref.current.scrollLeft != 0){
+            scroll.scrollTo(0,{containerId:slideID,duration:0,horizontal:true,ignoreCancelEvents:true})
+            countref.current = 5
         }else{
-            countref.current = countref.current - 1
+            scroll.scrollMore(slidingWidth,{containerId:slideID,duration:duration,horizontal:true,smooth:false,ignoreCancelEvents:true})
+            countref.current = (duration / 500) + 5
         }
         return duration
     }
@@ -50,18 +59,19 @@ function SlideText({text}:SlideTextProps){
         setslideID(uuid)
 
         return ()=>{
-            if(timerID)
-                clearInterval(timerID)
+            if(timerRef.current)
+                clearInterval(timerRef.current)
         }
 
     },[])
 
     useEffect(() => {
         
-        const id = setInterval(doAnimaion,500)
+        timerRef.current = setInterval(doAnimaion,500)
         
         return ()=>{
-            clearInterval(id)
+            if(timerRef.current)
+                clearInterval(timerRef.current)
         }
     }, [slideID])
     
@@ -73,5 +83,6 @@ const Slide = styled.div`
     width: 100%;
     overflow-y: hidden;
     overflow-x: hidden;
+    white-space: nowrap;
 `
 export default SlideText
