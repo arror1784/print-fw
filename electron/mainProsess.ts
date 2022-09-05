@@ -10,7 +10,7 @@ import {networkInterfaces} from 'os'
 import AdmZip from 'adm-zip'
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
-import { exec } from "child_process"
+import { exec, execSync } from "child_process"
 import { getVersionSetting } from "./json/version"
 import { getModelNoInstaceSetting } from "./json/modelNo"
 import { getWifiName, wifiInit } from "./ipc/wifiControl"
@@ -41,8 +41,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
 
     console.log(await rc.fileVersion("/home/jsh/USBtest/updateFile/resin_20201231.updateFile"))
     
-    if(!uartConnection.checkConnection())
-        return new Error("uart connect error")
+    // if(!uartConnection.checkConnection()){
+        // return new Error("uart connect error")
+    // }
     
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
@@ -76,8 +77,8 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     worker.onProgressCB((progress:number)=>{
         mainWindow.webContents.send(WorkerCH.onProgressMR,progress)
     })
-    worker.onStateChangeCB((state:WorkingState)=>{
-        mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state)
+    worker.onStateChangeCB((state:WorkingState,message?:string)=>{
+        mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state,message)
     })
     worker.onSetTotalTimeCB((value:number)=>{
         mainWindow.webContents.send(WorkerCH.onSetTotalTimeMR,value)
@@ -86,12 +87,16 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
         try {
             if(!fs.existsSync(path))
-                return new Error("file not exist")
+                return new Error("Error: 파일이 존재하지 않습니다.")
                 
             let zip = new AdmZip(path)
             if(!zip.test())
-                return new Error("can not open zip")
+                return new Error("zip archive error")
             
+            fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
+                fs.rmSync(sliceFileRoot + value)
+            })
+
             zip.extractAllTo(sliceFileRoot,true)
             let resin : ResinSetting
             if(fs.existsSync(sliceFileRoot+'/resin.json')){
@@ -101,16 +106,18 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             }
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
-            try {
-                worker.run(name,resin)
-            } catch (error) {
-                console.log((error as Error).stack)
-
-                mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
+            if(process.platform === "win32" || process.arch != 'arm'){
+                console.log("do factory reset")
+            }else{
+                execSync("vcgencmd display_power 0") // hdmi power off
+                execSync("vcgencmd display_power 1") // hdmi power on
             }
 
+            worker.run(name,resin)
+            
         } catch (error) {
-            console.log((error as Error).stack)
+            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
+            console.log((error as Error).message)
         }
     })
     ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{
@@ -155,6 +162,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             results.push(address.ip(name));
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
+    })
+    ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
+        return uartConnection.checkConnection()
     })
     ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
 

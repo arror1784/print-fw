@@ -10,12 +10,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
 
 import {decode} from 'base-64'
-import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
+import { IpcRendererEvent } from 'electron';
 
 function Material(){
     const navigate = useNavigate()
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [errorModalVisible, seterrorModalVisible] = useState(false)
+    const [errorMessage, seterrorMessage] = useState("")
     const [resinList, setResinList] = useState<SelectListModel[]>([]);
     const [isCustom, setIsCustom] = useState<boolean>(false);
     const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
@@ -35,6 +38,11 @@ function Material(){
             })
             setResinList(listModel)  
         })
+        const startErrorListener = window.electronAPI.onStartErrorMR((event:IpcRendererEvent,error:string)=>{
+            seterrorModalVisible(true)
+            seterrorMessage(error)
+            setModalVisible(false)
+        })
         if(selectPath){
             window.electronAPI.isCustomTW(decode(selectPath)).then((value:boolean) => {
                 if(!value)
@@ -48,7 +56,9 @@ function Material(){
             setSelectFileName(nameArr[nameArr.length - 1])
         }
         
-      return () => {}
+      return () => {
+        window.electronAPI.removeListener(startErrorListener)
+      }
     },[])
     useEffect(()=>{
         window.electronAPI.getLayerHeightTW(selectFilePath).then((value:number) => {
@@ -84,6 +94,9 @@ function Material(){
                 <ModalInfoTitle text='Layer Height'/>
                 <ModalInfoValue text={`${layerheight}mm/layer`}/>
             </ModalInfoMainArea>
+        </Modal>
+        <Modal visible={errorModalVisible} onBackClicked={() => {seterrorModalVisible(false)}} selectVisible={false}>
+            <ModalNotice text={errorMessage}/>
         </Modal>
     </div>);
 }

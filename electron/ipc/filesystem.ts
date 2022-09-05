@@ -27,24 +27,35 @@ async function readDir (event:IpcMainInvokeEvent,path: string) : Promise<DirOrFi
 
 async function getLayerHeight(event:IpcMainInvokeEvent,filePath:string): Promise<number>{
 
-    let zip = new AdmZip(filePath)
+    try {
+        
+        let zip = new AdmZip(filePath)
 
-    if(!zip.test())
+        if(!zip.test())
+            return 0
+
+        let fileText = zip.readAsText("info.json","utf8")
+
+        return new InfoSetting(fileText).data.layerHeight
+
+    } catch (error) {
         return 0
-
-    let fileText = zip.readAsText("info.json","utf8")
-
-    return new InfoSetting(fileText).data.layerHeight
+    }
 
 }
 async function isCustom(event:IpcMainInvokeEvent,filePath:string): Promise<boolean>{
 
-    let zip = new AdmZip(filePath)
+    try {
+        
+        let zip = new AdmZip(filePath)
 
-    if(!zip.test())
+        if(!zip.test())
+            return false
+
+        return zip.getEntry("resin.json") ? true : false
+    } catch (error) {
         return false
-
-    return zip.getEntry("resin.json") ? true : false
+    }
 }
 export {readDir,getLayerHeight,isCustom}
 export type { DirOrFile }

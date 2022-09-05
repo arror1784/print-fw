@@ -147,7 +147,7 @@ class ResinSetting extends JsonSetting<ResinSettingArray>{
     }
 
     deleteFile(){
-        fs.unlinkSync(this._filePath)
+        fs.rmSync(this._filePath)
     }
 }
 

@@ -36,6 +36,15 @@ function ModalInfoValue({text} : ModalInfoValueProp){
         </ValueText>
     );
 }
+interface ModalNoticeProp{
+    text:string
+}
+
+function ModalNotice({text} : ModalInfoTitleProp){
+    return (
+        <NoticeText> {text} </NoticeText>
+    );
+}
 
 const InfoArea = styled.div`
     display: grid;
@@ -60,6 +69,8 @@ const ValueText = styled.div`
     justify-self: left;
     max-width: 180px;
 `
-
-export {ModalInfoMainArea,ModalInfoTitle,ModalInfoValue};
+const NoticeText = styled.div`
+    font-size: 18px;
+`
+export {ModalInfoMainArea,ModalInfoTitle,ModalInfoValue,ModalNotice};
 

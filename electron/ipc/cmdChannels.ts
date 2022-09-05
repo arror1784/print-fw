@@ -44,7 +44,8 @@ enum UpdateCH{
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
     getProductInfoTW = "product:getProductInfo,RT:string[]",
-    
+    getUartConnectionErrorTW = "product:getUartConnectionErrorTW",
+
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
     onMoveFinishMR = "product:onMoveFinishMR",
@@ -61,13 +62,11 @@ enum WorkerCH{
     unlockRM = "worker:unlock",
     
     requestPrintInfoRM = "worker:requestPrintInfo,RT:[state,resinname,filename,layerheight,elapsedtime,totaltime,progress,enableTimer]",
-    onWorkingStateChangedMR = "worker:onWorkingStateChanged,state:string",
+    onWorkingStateChangedMR = "worker:onWorkingStateChanged,state:string,message:string",
     onPrintInfoMR = "worker:onPrintInfo,state:string,material:string,filename:string,layerheight:number,elapsedTime:number,totalTime:number,progress:number,enabelTimer:number",
     onStartErrorMR = "worker:onStartError,error:string",
     onProgressMR = "worker:onProgress,progress:number",
     onSetTotalTimeMR = "worker:onSetTotalTimeMR",
-
-    
 }
 enum ImageCH{
     changeImageMR = 'image:changeImage,image:string',

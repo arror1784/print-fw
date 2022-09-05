@@ -21,7 +21,7 @@ function eventADD(channel : string,listner:(...args : any[]) => void) : EventLis
     eventListnerArr[_id.toString()] = listner
     ipcRenderer.on(channel,eventListnerArr[_id.toString()])
 
-    console.log("IPC EVENT ADD",channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
+    // console.log("IPC EVENT ADD",channel,ipcRenderer.listenerCount(channel),Object.keys(eventListnerArr).length)
 
     return {channel:channel,id:_id.toString()}
 }
@@ -30,7 +30,7 @@ function eventRemove(listener:EventListener){
 
     delete eventListnerArr[listener.id]
 
-    console.log("IPC EVENT REMOVE",listener.channel,"Listener Count : ",ipcRenderer.listenerCount(listener.channel),"Total Key Length : ",Object.keys(eventListnerArr).length)
+    // console.log("IPC EVENT REMOVE",listener.channel,"Listener Count : ",ipcRenderer.listenerCount(listener.channel),"Total Key Length : ",Object.keys(eventListnerArr).length)
 }
 
 interface electronApiInterface {
@@ -40,6 +40,7 @@ interface electronApiInterface {
     getOffsetSettingsTW: () => Promise<number[]>;
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
+    getUartConnectionErrorTW: ()=>Promise<boolean>;
     getWifiListTW: () => Promise<WifiInfo[]>;
     getCurrentWifiStatusTW: () => Promise<WifiInfo>;
     getResinCurrentVersion: () => Promise<Date>;
@@ -52,7 +53,7 @@ interface electronApiInterface {
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
-    unLockRM: () => void;
+    unlockRM: () => void;
     requestPrintInfoRM: () => void;
     shutdownRM: () => void;
     connectWifiRM : (ssid:string,bssid:string,passwd:string|undefined) => void;
@@ -67,7 +68,7 @@ interface electronApiInterface {
     saveHeightOffsetRM:(offset:number)=>void;
     moveMotorRM:(command:MoveMotorCommand,value:number)=>void;
 
-    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
+    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string,message?:string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => EventListener;
@@ -93,6 +94,7 @@ const exposedApi: electronApiInterface = {
     getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
     isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
+    getUartConnectionErrorTW: ()=>ipcRenderer.invoke(ProductCH.getUartConnectionErrorTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
     getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
     getResinCurrentVersion:()=>ipcRenderer.invoke(UpdateCH.getResinCurrentVersion),
@@ -104,7 +106,7 @@ const exposedApi: electronApiInterface = {
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
-    unLockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
+    unlockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
     requestPrintInfoRM: () => ipcRenderer.send(WorkerCH.requestPrintInfoRM),
     shutdownRM: () => ipcRenderer.send(ProductCH.shutDownRM),
     connectWifiRM: (ssid:string,bssid:string,passwd:string|undefined) => ipcRenderer.send(WifiCH.connectWifiRM,ssid,bssid,passwd),
@@ -119,7 +121,7 @@ const exposedApi: electronApiInterface = {
     saveLEDOffsetRM:(offset:number)=> ipcRenderer.send(ProductCH.saveLEDOffsetRM,offset),
     moveMotorRM:(command:MoveMotorCommand,value:number) => ipcRenderer.send(ProductCH.moveMotorRM,command,value),
 
-    onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
+    onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string,message?:string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => {return eventADD(WorkerCH.onPrintInfoMR,callback)},

@@ -17,6 +17,8 @@ import Wifi from '../pages/Wifi';
 import UpdateSetting from '../pages/UpdateSetting';
 import UpdateModeSetting from '../pages/UpdateModeSetting';
 import FactoryReset from '../pages/FactoryReset';
+import { UartConnection } from '../../electron/uartConnection';
+import UartConnectionError from '../pages/UartConnectionError';
 
 const AppRoute = () => {
     return (
@@ -30,7 +32,7 @@ const AppRoute = () => {
                 <Route path=':selectPath' element={<Material/>}></Route>
             </Route>
             <Route path='/progress' element={<Progress/>}/>
-            <Route path='/complete/:totalElapsedTime' element={<Complete/>}/>
+            <Route path='/complete/:totalElapsedTime/:error' element={<Complete/>}/>
 
             <Route path='/setting' element={<Setting/>}/>
 
@@ -52,7 +54,7 @@ const AppRoute = () => {
             
             <Route path='/image' element={<SliceImage/>}/>
             <Route path='/factoryReset' element={<FactoryReset/>}/>
-
+            <Route path='/uartConnectionError' element={<UartConnectionError/>}/>
         </Routes>
         );
 }

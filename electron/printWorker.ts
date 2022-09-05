@@ -31,12 +31,13 @@ class PrintWorker{
     private _progress : number = 0
     private _lock : boolean = false
     private _lcdState : boolean = true
+    private _printingErrorMessage : string = ""
     private _stopwatch : Stopwatch = new Stopwatch()
     private _curingStopwatch : Stopwatch = new Stopwatch()
     private _totalTime: number = 0
 
     private _onProgressCallback?: (progress : number) => void
-    private _onWorkingStateChangedCallback?: (state : WorkingState) => void
+    private _onWorkingStateChangedCallback?: (state : WorkingState,message?:string) => void
     private _onSetTotaltime?: (value : number) => void
     
     private _resinName : string= ""
@@ -69,6 +70,7 @@ class PrintWorker{
         pixelContraction: 0,
         yMult:1
     };
+
     private _infoSetting : InfoSettingValue = {
         layerHeight: 0,
         totalLayer: 0,
@@ -96,11 +98,11 @@ class PrintWorker{
 
         if(!this._lcdState){
             
-            return new Error("LCD OFF STATE")
+            return new Error("Error: LCD가 빠졌습니다.")
         }
         this._currentStep = 0
         if(!info.isOpen())
-            return new Error("uart connect error")
+            return new Error("Error: info 파일이 존재하지 않습니다.")
         
         this._infoSetting = info.data
         this._resinName = resin.resinName
@@ -109,12 +111,12 @@ class PrintWorker{
             this._resinSetting = resin.data["custom"]
         }else{
             if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
-                return new Error("resin height not available")
-            if(this._lock)
-                return new Error("print Lock")
-        
+                return new Error("Error: 지원하지 않은 layer height입니다.")
             this._resinSetting = resin.data[info.data.layerHeight.toString()]
         }
+
+        if(this._lock)
+            return new Error("Error: print lock이 걸려 있습니다.")
 
         this.createActions(this._resinSetting,this._infoSetting)
 
@@ -203,6 +205,11 @@ class PrintWorker{
             if(this._currentStep == this._actions.length)
                 this.stop()
 
+            if(!this._lcdState){
+                this._workingState = WorkingState.error
+                this._printingErrorMessage = "Error: LCD가 빠졌습니다."
+            }
+                
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
@@ -213,6 +220,10 @@ class PrintWorker{
                     await this._uartConnection.sendCommandMovePosition(-15000)
                     this._workingState = WorkingState.stop
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    return;
+                case WorkingState.error:
+                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
+                    this.stop()
                     return;
                 default:
                     break;
@@ -243,7 +254,11 @@ class PrintWorker{
 
                     break;
                 case "setImage":
-                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
+                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value:Boolean)=>{
+                        if(!value){
+                            this._workingState = WorkingState.error
+                            this._printingErrorMessage = "Error: 이미지 파일에 문제가 발생하였습니다."
+                        }})
                     
                     break;
                 case "checkTime":
@@ -272,7 +287,7 @@ class PrintWorker{
     onProgressCB(cb : (progreess: number) => void){
         this._onProgressCallback = cb
     }
-    onStateChangeCB(cb : (state : WorkingState) => void){
+    onStateChangeCB(cb : (state : WorkingState,message?:string) => void){
         this._onWorkingStateChangedCallback = cb
     }
     onSetTotalTimeCB(cb : (value : number) => void){

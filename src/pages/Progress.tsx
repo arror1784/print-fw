@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import styled from 'styled-components'
@@ -14,7 +14,7 @@ import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 
-import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
 
 import { Stopwatch } from 'ts-stopwatch'
 import SlideText from '../components/SlideText';
@@ -34,9 +34,8 @@ function Progress(){
     const [quitModalBtnEnable,setQuitModalBtnEnable] = useState<boolean>(false)
     const [quitWork,setQuitWork] = useState<boolean>(false)
 
-    const [timerID, settimerID] = useState<NodeJS.Timer>()
-
-    const [stopwatch, setstopwatch] = useState(new Stopwatch)
+    const isError = useRef("false")
+    const stopwatchRef = useRef(new Stopwatch)
     const [elaspedTime, setelaspedTime] = useState(0)
 
     useEffect(()=>{
@@ -54,21 +53,28 @@ function Progress(){
             setLayerHeight(layerHeight)
             setTotalTime(totalTime)
         })
-        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string,message?:string)=>{
             switch(state){
                 case "working":
                     setQuitModalVisible(false)
-                    stopwatch.start()
+                    stopwatchRef.current.start()
+                    break;
+                case "error":
+                    console.log(message)
+                    if(message)
+                        isError.current = message
+                    setQuitModalVisible(true)
+                    setQuitWork(true)
                     break;
                 case "stop":
-                case "error":
-                    stopwatch.stop()
-                    navigate('/complete/'+stopwatch.getTime())
+                    stopwatchRef.current.stop()
+                    console.log('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
+                    navigate('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
                     break;
                 case "pauseWork":
                     break;
                 case "pause":
-                    stopwatch.stop()
+                    stopwatchRef.current.stop()
                     setQuitModalBtnEnable(true)
                     break;
                 case "stopWork":
@@ -80,18 +86,20 @@ function Progress(){
         })
 
         window.electronAPI.requestPrintInfoRM()
-        stopwatch.start()
+        stopwatchRef.current.start()
 
-        settimerID(setInterval(() => {
+        const id = setInterval(() => {
 
-            setelaspedTime(stopwatch.getTime())
-        }, 100))
+            setelaspedTime(stopwatchRef.current.getTime())
+        }, 100)
 
         return ()=>{
             window.electronAPI.removeListener(printerInfoListener)
             window.electronAPI.removeListener(progressListener)
             window.electronAPI.removeListener(workingStateListener)
             window.electronAPI.removeListener(setTotalTimeListener)
+
+            clearInterval(id)
         }
     },[])
     
@@ -156,9 +164,9 @@ function Progress(){
                 onBackClicked={() => window.electronAPI.printCommandRM("resume")}
                 onSelectClicked={() => window.electronAPI.printCommandRM("quit")}
                 backVisible={!quitWork} selectVisible={!quitWork}>
-                    {
+                    <ModalNotice text={
                         quitWork ? "wait for movement" : "Are you sure to quit?"
-                    }
+                    }/>
             </Modal>
         </div>
     );
