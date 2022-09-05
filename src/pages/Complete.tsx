@@ -73,11 +73,11 @@ function Complete(){
         </MainArea>
         <Footer>
                 <Button color='gray' type='small' onClick={() => {
-                    window.electronAPI.unLockRM()
+                    window.electronAPI.unlockRM()
                     window.electronAPI.printCommandRM("printAgain")
                 }}> Print again </Button>
                 <Button color='blue' type='small' onClick={() => {
-                    window.electronAPI.unLockRM()
+                    window.electronAPI.unlockRM()
                     navigate('/') }}> Close </Button> 
         </Footer>
     </div>);

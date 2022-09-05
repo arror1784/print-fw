@@ -10,10 +10,16 @@ abstract class JsonSetting<T>{
     private _isOpen : boolean
 
     constructor(protected _filePath : string,{fileData} : ConstructProps<T>){
+        
         this._fileData = fileData
 
         if(fileData){
-            this.data = JSON.parse(fileData) as T
+            try {
+                this.data = JSON.parse(fileData) as T
+            } catch (error) {
+                throw new Error("Error: JSON 파일 형식에 맞지 않은 파일 입니다. " + _filePath);
+                
+            }
             this._isOpen = true
         }else{
             if(!existsSync(_filePath))

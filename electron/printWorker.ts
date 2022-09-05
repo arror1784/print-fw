@@ -97,11 +97,11 @@ class PrintWorker{
 
         if(!this._lcdState){
             
-            return new Error("LCD OFF STATE")
+            return new Error("Error: LCD가 빠졌습니다.")
         }
         this._currentStep = 0
         if(!info.isOpen())
-            return new Error("uart connect error")
+            return new Error("Error: info 파일이 존재하지 않습니다.")
         
         this._infoSetting = info.data
         this._resinName = resin.resinName
@@ -110,10 +110,7 @@ class PrintWorker{
             this._resinSetting = resin.data["custom"]
         }else{
             if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
-                return new Error("resin height not available")
-            if(this._lock)
-                return new Error("print Lock")
-        
+                return new Error("Error: 지원하지 않은 layer height입니다.")
             this._resinSetting = resin.data[info.data.layerHeight.toString()]
         }
 
@@ -255,7 +252,6 @@ class PrintWorker{
                 case "setImage":
                     this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value:Boolean)=>{
                         if(!value){
-                            console.log("ERROR")
                             this._workingState = WorkingState.error
                         }})
                     

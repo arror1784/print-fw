@@ -86,11 +86,11 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
         try {
             if(!fs.existsSync(path))
-                return new Error("file not exist")
+                return new Error("Error: 파일이 존재하지 않습니다.")
                 
             let zip = new AdmZip(path)
             if(!zip.test())
-                return new Error("can not open zip")
+                return new Error("zip archive error")
             
             fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
                 fs.rmSync(sliceFileRoot + value)
@@ -105,18 +105,12 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             }
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
-            try {
-                worker.run(name,resin)
-            } catch (error) {
-                console.log((error as Error).stack)
-
-                mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
-            }
-
-        } catch (error) {
             
+            worker.run(name,resin)
+            
+        } catch (error) {
             mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
-            console.log((error as Error).stack)
+            console.log((error as Error).message)
         }
     })
     ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{

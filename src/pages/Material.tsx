@@ -41,6 +41,7 @@ function Material(){
         const startErrorListener = window.electronAPI.onStartErrorMR((event:IpcRendererEvent,error:string)=>{
             seterrorModalVisible(true)
             seterrorNotice(error)
+            setModalVisible(false)
         })
         if(selectPath){
             window.electronAPI.isCustomTW(decode(selectPath)).then((value:boolean) => {

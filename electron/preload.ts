@@ -52,7 +52,7 @@ interface electronApiInterface {
 
     printStartRM: (path : string, material : string) => void;
     printCommandRM: (cmd :string) => void;
-    unLockRM: () => void;
+    unlockRM: () => void;
     requestPrintInfoRM: () => void;
     shutdownRM: () => void;
     connectWifiRM : (ssid:string,bssid:string,passwd:string|undefined) => void;
@@ -104,7 +104,7 @@ const exposedApi: electronApiInterface = {
 
     printStartRM: (path : string, material : string) => ipcRenderer.send(WorkerCH.startRM,path,material),
     printCommandRM: (cmd :string) => ipcRenderer.send(WorkerCH.commandRM,cmd),
-    unLockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
+    unlockRM: () => ipcRenderer.send(WorkerCH.unlockRM),
     requestPrintInfoRM: () => ipcRenderer.send(WorkerCH.requestPrintInfoRM),
     shutdownRM: () => ipcRenderer.send(ProductCH.shutDownRM),
     connectWifiRM: (ssid:string,bssid:string,passwd:string|undefined) => ipcRenderer.send(WifiCH.connectWifiRM,ssid,bssid,passwd),
