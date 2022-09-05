@@ -117,6 +117,9 @@ class PrintWorker{
             this._resinSetting = resin.data[info.data.layerHeight.toString()]
         }
 
+        if(this._lock)
+            return new Error("Error: print lock이 걸려 있습니다.")
+
         this.createActions(this._resinSetting,this._infoSetting)
 
         this._uartConnection.init(this._resinSetting)
@@ -203,7 +206,9 @@ class PrintWorker{
             
             if(this._currentStep == this._actions.length)
                 this.stop()
-
+            if(!this._lcdState)
+                this._workingState = WorkingState.error
+                
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
