@@ -11,8 +11,9 @@ import styled from 'styled-components'
 import Footer from '../layout/Footer';
 import MainArea from '../layout/MainArea';
 import Header from '../layout/Header';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { IpcRendererEvent } from 'electron';
+import SlideText from '../components/SlideText';
 
 function Complete(){
     
@@ -20,8 +21,10 @@ function Complete(){
 
     const [isError, setIsError] = useState<boolean>(false);
     const [filename, setFilename] = useState<string>("helll world");
-    const [spentTime, setSpentTime] = useState<string>("15min 20sec");
+    const [spentTime, setSpentTime] = useState<string>("Calculating");
     const [resin, setResin] = useState<string>("none");
+
+    const { totalElapsedTime } = useParams()
 
     useEffect(()=>{
         const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
@@ -33,7 +36,12 @@ function Complete(){
         })
         
         window.electronAPI.requestPrintInfoRM()
+        if(totalElapsedTime){
 
+            let a = new Date(Number(totalElapsedTime))
+            setSpentTime(a.getMinutes() +"min " + a.getSeconds() + "sec")
+    
+        }
         return ()=>{
             window.electronAPI.removeListener(printInfoListener)
         }
@@ -52,7 +60,9 @@ function Complete(){
             </FinishArea>
             <InfoArea>
                 <InfoText>File Name</InfoText>
-                <InfoValue>{filename}</InfoValue>
+                <InfoValue>
+                    <SlideText text={filename}/>
+                </InfoValue>
                 <InfoText>Material</InfoText>
                 <InfoValue>{resin}</InfoValue>
                 <InfoText>Time Spent</InfoText>
@@ -85,13 +95,14 @@ const FinishText = styled.div`
     margin-left: 30px;
 `
 const InfoArea = styled.div`
-    display: grid;  
+    display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     
     column-gap: 15px;
     row-gap: 10px;
     margin-top: 30px;
+    font-size: 20px;
 `
 const InfoText = styled.div`
     color: #474747;
@@ -101,6 +112,9 @@ const InfoValue = styled.div`
     color: black;
     justify-self: left;
     font-weight: bold;
+
+    width: auto;
+    max-width: 200px;
 `
 
 export default Complete;

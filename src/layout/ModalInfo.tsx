@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
+import SlideText from '../components/SlideText';
 
 interface ModalInfoMainAreaProp{
     children: React.ReactNode;
@@ -30,7 +31,9 @@ interface ModalInfoValueProp{
 
 function ModalInfoValue({text} : ModalInfoValueProp){
     return (
-        <ValueText> {text} </ValueText>
+        <ValueText>
+            <SlideText text={text}/>
+        </ValueText>
     );
 }
 
@@ -48,12 +51,14 @@ const TitleText = styled.div`
     background-color: #00000000;
 
     justify-self: right;
+    /* min-width: 150px; */
+    max-width: 150px;
 `
 const ValueText = styled.div`
     font-size: 23px;
     color: #000000;
     justify-self: left;
-    /* max-width: ; */
+    max-width: 180px;
 `
 
 export {ModalInfoMainArea,ModalInfoTitle,ModalInfoValue};

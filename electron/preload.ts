@@ -76,10 +76,11 @@ interface electronApiInterface {
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => EventListener;
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => EventListener;
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo)=>void) => EventListener;
+    onSetTotalTimeMR: (callback:(event:IpcRendererEvent,value:number)=>void) => EventListener;
     onWifiListChangeMR: (callback:(evnet:IpcRendererEvent,wifiList: WifiInfo[]) => void) => EventListener;
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
     onUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:UpdateNotice)=>void ) => EventListener;
-    onMoveFinishMR: (callback:(event:IpcRendererEvent)=>void)=>EventListener;
+    onMoveFinishMR: (callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number)=>void)=>EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -127,10 +128,11 @@ const exposedApi: electronApiInterface = {
     onStartErrorMR: (callback:(event:IpcRendererEvent,error: string) => void) => {return eventADD(WorkerCH.onStartErrorMR,callback)},
     onProgressMR: (callback:(event:IpcRendererEvent,progress: number) => void) => {return eventADD(WorkerCH.onProgressMR,callback)},
     onStatusChangeMR: (callback:(event:IpcRendererEvent,status: WifiInfo) => void) => {return eventADD(WifiCH.onStatusChangeMR,callback)},
+    onSetTotalTimeMR: (callback:(event:IpcRendererEvent,value:number)=>void) =>{return eventADD(WorkerCH.onSetTotalTimeMR,callback)},
     onWifiListChangeMR: (callback:(event:IpcRendererEvent,wifiList:WifiInfo[]) => void) => {return eventADD(WifiCH.onWifiListChangeMR,callback)},
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
     onUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:UpdateNotice) => void) => {return eventADD(UpdateCH.onUpdateNoticeMR,callback)},
-    onMoveFinishMR:(callback:(event:IpcRendererEvent) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
+    onMoveFinishMR:(callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
 
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),

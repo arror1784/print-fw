@@ -2405,6 +2405,11 @@
   resolved "https://registry.npmjs.org/@types/trusted-types/-/trusted-types-2.0.2.tgz"
   integrity sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==
 
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
+
 "@types/verror@^1.10.3":
   version "1.10.5"
   resolved "https://registry.yarnpkg.com/@types/verror/-/verror-1.10.5.tgz#2a1413aded46e67a1fe2386800e291123ed75eb1"
@@ -9386,11 +9391,6 @@ react-simple-keyboard@^3.4.187:
   resolved "https://registry.yarnpkg.com/react-simple-keyboard/-/react-simple-keyboard-3.4.187.tgz#e2f609a22821623670efe6d1911022158c7685f6"
   integrity sha512-m4dlWv5RN+PAgKHde68OyD7OBARdGtgH29g3ijY8o7fcwt/dviIUgNr/36MG/bFop3kBG4QdQLZRbgjiCMSqdg==
 
-react-timer-hook@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.5.tgz#a8d930f99b180cd88da245965a26a17df3e7457b"
-  integrity sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==
-
 react@^18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.1.0.tgz#6f8620382decb17fdc5cc223a115e2adbf104890"
@@ -10791,6 +10791,11 @@ tryer@^1.0.1:
   resolved "https://registry.npmjs.org/tryer/-/tryer-1.0.1.tgz"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
 
+ts-stopwatch@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/ts-stopwatch/-/ts-stopwatch-0.0.4.tgz#9bf07edbd1d3d16c48a1b6deccd0dd2f11e68b9e"
+  integrity sha512-YUAV6lT4YiCrLckGkUsUp12Eo77NX3DK7HzFuFeDV702g/+Jz/IU80s7Boq+JhrqlocLELdgmpH+/y5XGBxLCQ==
+
 tsconfig-paths@^3.12.0:
   version "3.14.0"
   resolved "https://registry.npmjs.org/tsconfig-paths/-/tsconfig-paths-3.14.0.tgz"
@@ -11078,7 +11083,7 @@ uuid@^3.3.2:
 
 uuid@^8.3.2:
   version "8.3.2"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@^2.0.3:

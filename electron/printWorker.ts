@@ -1,10 +1,10 @@
-import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage } from './actions'
+import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime } from './actions'
 import { ImageProvider } from './imageProvider';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
 import { ResinSetting, ResinSettingValue } from './json/resin';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
-import { BlockList } from 'net';
+import { Stopwatch } from 'ts-stopwatch'
 
 enum WorkingState{
     working = "working",
@@ -31,10 +31,14 @@ class PrintWorker{
     private _progress : number = 0
     private _lock : boolean = false
     private _lcdState : boolean = true
+    private _stopwatch : Stopwatch = new Stopwatch()
+    private _curingStopwatch : Stopwatch = new Stopwatch()
+    private _totalTime: number = 0
 
     private _onProgressCallback?: (progress : number) => void
     private _onWorkingStateChangedCallback?: (state : WorkingState) => void
-
+    private _onSetTotaltime?: (value : number) => void
+    
     private _resinName : string= ""
     
     public get resinName() : string {
@@ -75,8 +79,8 @@ class PrintWorker{
     constructor(private readonly _uartConnection: UartConnection | UartConnectionTest,private readonly _imageProvider: ImageProvider){
         _uartConnection.checkConnection()
     }
-    getPrintInfo(){
-        return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,0,0,this._progress,true]
+    getPrintInfo(){ //[state,resinname,filename,layerheight,elapsedtime,totaltime,progress,enableTimer]
+        return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,this._stopwatch.getTime(),this._totalTime,this._progress,true]
     }
     
     setLcdState(v : boolean) {
@@ -91,6 +95,7 @@ class PrintWorker{
         let info = new InfoSetting()
 
         if(!this._lcdState){
+            
             return new Error("LCD OFF STATE")
         }
         this._currentStep = 0
@@ -118,6 +123,11 @@ class PrintWorker{
         this._workingState = WorkingState.working
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
 
+        this._stopwatch.reset()
+
+        this._curingStopwatch.reset()
+        this._totalTime = 0
+
         this.process()
 
         return true
@@ -134,6 +144,10 @@ class PrintWorker{
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
         for (let i = 0; i < this._infoSetting.totalLayer; i++) {
+
+            if(i == this._resinSetting.bedCuringLayer)
+                this._actions.push(new CheckTime('start'))
+
             this._actions.push(new Wait(this._resinSetting.delay))
 
             this._actions.push(new LEDEnable(true))
@@ -150,6 +164,9 @@ class PrintWorker{
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
             this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
+            if(i == this._resinSetting.bedCuringLayer)
+                this._actions.push(new CheckTime('finish'))
+
         }
         this._actions.push(new SetImage(-1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
     }
@@ -166,6 +183,7 @@ class PrintWorker{
         const prevState = this._workingState
         this._workingState = WorkingState.stopWork
         this._lock = true
+        this._stopwatch.stop()
 
         if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
             this.process()
@@ -177,7 +195,9 @@ class PrintWorker{
         this.run(this._name,resin || new ResinSetting(this._resinName))
     }
     async process(){
+        this._stopwatch.start()
         while(this._currentStep <= this._actions.length) {
+
             console.log("PROCESS WHILE",this._currentStep)
             
             if(this._currentStep == this._actions.length)
@@ -186,6 +206,7 @@ class PrintWorker{
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
+                    this._stopwatch.stop()
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
                     return;
                 case WorkingState.stopWork:
@@ -225,6 +246,20 @@ class PrintWorker{
                     this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult)
                     
                     break;
+                case "checkTime":
+                    switch ((action as CheckTime).checkTimeType) {
+                        case 'start':
+                            this._curingStopwatch.start()
+                            break;
+                        case 'finish':
+                            this._curingStopwatch.stop()
+                            this._totalTime = this._stopwatch.getTime() + (this._curingStopwatch.getTime() * (this._infoSetting.totalLayer - this._resinSetting.bedCuringLayer))
+                            this._onSetTotaltime && this._onSetTotaltime(this._totalTime)
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -240,8 +275,13 @@ class PrintWorker{
     onStateChangeCB(cb : (state : WorkingState) => void){
         this._onWorkingStateChangedCallback = cb
     }
+    onSetTotalTimeCB(cb : (value : number) => void){
+        this._onSetTotaltime = cb
+        
+    }
 
     async moveMotor(command : MoveMotorCommand,value:number){
+        console.log(command)
         switch (command) {
             case MoveMotorCommand.AutoHome:
                 await this._uartConnection.sendCommandAutoHome(255)

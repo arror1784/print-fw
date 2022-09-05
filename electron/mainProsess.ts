@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { MoveMotorCommand, PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
-import { ImageCH, ProductCH, ResinCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
+import { ImageCH, ProductCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
 import {networkInterfaces} from 'os'
@@ -78,6 +78,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     worker.onStateChangeCB((state:WorkingState)=>{
         mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state)
+    })
+    worker.onSetTotalTimeCB((value:number)=>{
+        mainWindow.webContents.send(WorkerCH.onSetTotalTimeMR,value)
     })
     
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
@@ -172,7 +175,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(ProductCH.moveMotorRM, async (event:IpcMainEvent,command:MoveMotorCommand,value:number)=>{
         await worker.moveMotor(command,value)
-        mainWindow.webContents.send(ProductCH.onMoveFinishMR)
+        mainWindow.webContents.send(ProductCH.onMoveFinishMR,command,value)
     })
 
 
