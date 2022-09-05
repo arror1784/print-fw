@@ -17,7 +17,7 @@ abstract class JsonSetting<T>{
             try {
                 this.data = JSON.parse(fileData) as T
             } catch (error) {
-                throw new Error("Error: JSON 파일 형식에 맞지 않은 파일 입니다. " + _filePath);
+                throw new Error("Error: JSON 파일 형식에 맞지 않은 파일입니다. " + _filePath);
                 
             }
             this._isOpen = true

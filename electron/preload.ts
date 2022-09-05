@@ -67,7 +67,7 @@ interface electronApiInterface {
     saveHeightOffsetRM:(offset:number)=>void;
     moveMotorRM:(command:MoveMotorCommand,value:number)=>void;
 
-    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string) => void) => EventListener;
+    onWorkingStateChangedMR: (callback:(event:IpcRendererEvent,state: string,message?:string) => void) => EventListener;
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => EventListener;
@@ -119,7 +119,7 @@ const exposedApi: electronApiInterface = {
     saveLEDOffsetRM:(offset:number)=> ipcRenderer.send(ProductCH.saveLEDOffsetRM,offset),
     moveMotorRM:(command:MoveMotorCommand,value:number) => ipcRenderer.send(ProductCH.moveMotorRM,command,value),
 
-    onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
+    onWorkingStateChangedMR: (callback:(event: IpcRendererEvent,state: string,message?:string) => void) => {return eventADD(WorkerCH.onWorkingStateChangedMR,callback)},
     onPrintInfoMR: (callback:(event:IpcRendererEvent,state: string, material: string, 
                                 filename: string, layerheight: number, elapsedTime: number, 
                                 totalTime: number,progress : number,enabelTimer: number) => void) => {return eventADD(WorkerCH.onPrintInfoMR,callback)},

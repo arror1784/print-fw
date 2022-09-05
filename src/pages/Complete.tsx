@@ -14,12 +14,16 @@ import Header from '../layout/Header';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IpcRendererEvent } from 'electron';
 import SlideText from '../components/SlideText';
+import Modal from '../components/Modal';
+import { ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
 
 function Complete(){
     
     let navigate = useNavigate()
 
     const [isError, setIsError] = useState<boolean>(false);
+    const [errorModalVisible, seterrorModalVisible] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
     const [filename, setFilename] = useState<string>("helll world");
     const [spentTime, setSpentTime] = useState<string>("Calculating");
     const [resin, setResin] = useState<string>("none");
@@ -37,13 +41,15 @@ function Complete(){
         
         window.electronAPI.requestPrintInfoRM()
         if(totalElapsedTime){
-
             let a = new Date(Number(totalElapsedTime))
             setSpentTime(a.getMinutes() +"min " + a.getSeconds() + "sec")
-    
         }
-        console.log(error)
-        setIsError(error?.toLowerCase() == "true" ? true : false)
+        if(error && error.toLocaleLowerCase() != "false"){
+            setIsError(true)
+            setErrorMessage(error)
+            seterrorModalVisible(true)
+        }
+
         return ()=>{
             window.electronAPI.removeListener(printInfoListener)
         }
@@ -80,6 +86,9 @@ function Complete(){
                     window.electronAPI.unlockRM()
                     navigate('/') }}> Close </Button> 
         </Footer>
+        <Modal visible={errorModalVisible} onBackClicked={() => {seterrorModalVisible(false)}} selectVisible={false}>
+            <ModalNotice text={errorMessage}/>
+        </Modal>
     </div>);
 }
 const FinishArea = styled.div`

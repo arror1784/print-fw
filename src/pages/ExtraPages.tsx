@@ -19,7 +19,7 @@ function ExtraPages(){
         const shutdownListener = window.electronAPI.onShutDownEventMR((event:IpcRendererEvent)=>{
             setshutDownVisible(true)
         })
-        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string,message?:string)=>{
             switch(state){
                 case "working":
                     navigate('/progress')

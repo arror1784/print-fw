@@ -34,7 +34,7 @@ function Progress(){
     const [quitModalBtnEnable,setQuitModalBtnEnable] = useState<boolean>(false)
     const [quitWork,setQuitWork] = useState<boolean>(false)
 
-    const isError = useRef(false)
+    const isError = useRef("false")
     const stopwatchRef = useRef(new Stopwatch)
     const [elaspedTime, setelaspedTime] = useState(0)
 
@@ -53,21 +53,23 @@ function Progress(){
             setLayerHeight(layerHeight)
             setTotalTime(totalTime)
         })
-        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string)=>{
+        const workingStateListener = window.electronAPI.onWorkingStateChangedMR((event:IpcRendererEvent,state:string,message?:string)=>{
             switch(state){
                 case "working":
                     setQuitModalVisible(false)
                     stopwatchRef.current.start()
                     break;
                 case "error":
-                    isError.current = true
+                    console.log(message)
+                    if(message)
+                        isError.current = message
                     setQuitModalVisible(true)
                     setQuitWork(true)
                     break;
                 case "stop":
                     stopwatchRef.current.stop()
-                    console.log('/complete/'+stopwatchRef.current.getTime()+"/"+String(isError.current))
-                    navigate('/complete/'+stopwatchRef.current.getTime()+"/"+String(isError.current))
+                    console.log('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
+                    navigate('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
                     break;
                 case "pauseWork":
                     break;

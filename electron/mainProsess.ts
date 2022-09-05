@@ -76,8 +76,8 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     worker.onProgressCB((progress:number)=>{
         mainWindow.webContents.send(WorkerCH.onProgressMR,progress)
     })
-    worker.onStateChangeCB((state:WorkingState)=>{
-        mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state)
+    worker.onStateChangeCB((state:WorkingState,message?:string)=>{
+        mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state,message)
     })
     worker.onSetTotalTimeCB((value:number)=>{
         mainWindow.webContents.send(WorkerCH.onSetTotalTimeMR,value)
@@ -105,9 +105,12 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             }
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
-            
-            execSync("vcgencmd display_power 0") // hdmi power off
-            execSync("vcgencmd display_power 1") // hdmi power on
+            if(process.platform === "win32" || process.arch != 'arm'){
+                console.log("do factory reset")
+            }else{
+                execSync("vcgencmd display_power 0") // hdmi power off
+                execSync("vcgencmd display_power 1") // hdmi power on
+            }
 
             worker.run(name,resin)
             

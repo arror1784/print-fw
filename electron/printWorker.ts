@@ -31,12 +31,13 @@ class PrintWorker{
     private _progress : number = 0
     private _lock : boolean = false
     private _lcdState : boolean = true
+    private _printingErrorMessage : string = ""
     private _stopwatch : Stopwatch = new Stopwatch()
     private _curingStopwatch : Stopwatch = new Stopwatch()
     private _totalTime: number = 0
 
     private _onProgressCallback?: (progress : number) => void
-    private _onWorkingStateChangedCallback?: (state : WorkingState) => void
+    private _onWorkingStateChangedCallback?: (state : WorkingState,message?:string) => void
     private _onSetTotaltime?: (value : number) => void
     
     private _resinName : string= ""
@@ -203,8 +204,11 @@ class PrintWorker{
             
             if(this._currentStep == this._actions.length)
                 this.stop()
-            if(!this._lcdState)
+
+            if(!this._lcdState){
                 this._workingState = WorkingState.error
+                this._printingErrorMessage = "Error: LCD가 빠졌습니다."
+            }
                 
             switch (this._workingState) {
                 case WorkingState.pauseWork:
@@ -218,7 +222,7 @@ class PrintWorker{
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
                     return;
                 case WorkingState.error:
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error)
+                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
                     this.stop()
                     return;
                 default:
@@ -253,6 +257,7 @@ class PrintWorker{
                     this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value:Boolean)=>{
                         if(!value){
                             this._workingState = WorkingState.error
+                            this._printingErrorMessage = "Error: 이미지 파일에 문제가 발생하였습니다."
                         }})
                     
                     break;
@@ -282,7 +287,7 @@ class PrintWorker{
     onProgressCB(cb : (progreess: number) => void){
         this._onProgressCallback = cb
     }
-    onStateChangeCB(cb : (state : WorkingState) => void){
+    onStateChangeCB(cb : (state : WorkingState,message?:string) => void){
         this._onWorkingStateChangedCallback = cb
     }
     onSetTotalTimeCB(cb : (value : number) => void){
