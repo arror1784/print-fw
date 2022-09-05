@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import { IpcRendererEvent } from 'electron';
-import { NoticeText } from '../components/NoticeText';
+import { ModalNotice } from '../layout/ModalInfo';
 
 function ExtraPages(){
 
@@ -45,9 +45,7 @@ function ExtraPages(){
         { /* ShutDown */ }
         <Modal visible={shutDownVisible} onBackClicked={() => {setshutDownVisible(false)}} selectString={"exit"} onSelectClicked={
             () => {window.electronAPI.shutdownRM()}}>
-            <NoticeText>
-                Are you sure to exit?
-            </NoticeText>
+            <ModalNotice text='Are you sure to exit?'/>
         </Modal>
         
     </div>);

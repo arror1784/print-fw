@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
 
 import {decode} from 'base-64'
-import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
 import { IpcRendererEvent } from 'electron';
 
 function Material(){
@@ -18,7 +18,7 @@ function Material(){
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [errorModalVisible, seterrorModalVisible] = useState(false)
-    const [errorNotice, seterrorNotice] = useState("")
+    const [errorMessage, seterrorMessage] = useState("")
     const [resinList, setResinList] = useState<SelectListModel[]>([]);
     const [isCustom, setIsCustom] = useState<boolean>(false);
     const [selectResin, setSelectResin] = useState<SelectListModel>({name:"",id:-1});
@@ -40,7 +40,7 @@ function Material(){
         })
         const startErrorListener = window.electronAPI.onStartErrorMR((event:IpcRendererEvent,error:string)=>{
             seterrorModalVisible(true)
-            seterrorNotice(error)
+            seterrorMessage(error)
             setModalVisible(false)
         })
         if(selectPath){
@@ -96,7 +96,7 @@ function Material(){
             </ModalInfoMainArea>
         </Modal>
         <Modal visible={errorModalVisible} onBackClicked={() => {seterrorModalVisible(false)}} selectVisible={false}>
-            {errorNotice}
+            <ModalNotice text={errorMessage}/>
         </Modal>
     </div>);
 }

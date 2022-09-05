@@ -14,7 +14,7 @@ import Header from '../layout/Header';
 import { useNavigate } from 'react-router-dom';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 
-import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue } from '../layout/ModalInfo';
+import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
 
 import { Stopwatch } from 'ts-stopwatch'
 import SlideText from '../components/SlideText';
@@ -162,9 +162,9 @@ function Progress(){
                 onBackClicked={() => window.electronAPI.printCommandRM("resume")}
                 onSelectClicked={() => window.electronAPI.printCommandRM("quit")}
                 backVisible={!quitWork} selectVisible={!quitWork}>
-                    {
+                    <ModalNotice text={
                         quitWork ? "wait for movement" : "Are you sure to quit?"
-                    }
+                    }/>
             </Modal>
         </div>
     );
