@@ -41,8 +41,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
 
     console.log(await rc.fileVersion("/home/jsh/USBtest/updateFile/resin_20201231.updateFile"))
     
-    if(!uartConnection.checkConnection())
-        return new Error("uart connect error")
+    // if(!uartConnection.checkConnection()){
+        // return new Error("uart connect error")
+    // }
     
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
@@ -161,6 +162,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             results.push(address.ip(name));
         }
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
+    })
+    ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
+        return uartConnection.checkConnection()
     })
     ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
 

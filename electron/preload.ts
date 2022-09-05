@@ -40,6 +40,7 @@ interface electronApiInterface {
     getOffsetSettingsTW: () => Promise<number[]>;
     isCustomTW: (filePath:string) => Promise<boolean>;
     getProductInfoTW: () => Promise<string[]>; // 0:version,1:serial,2:wifi,3:ip,
+    getUartConnectionErrorTW: ()=>Promise<boolean>;
     getWifiListTW: () => Promise<WifiInfo[]>;
     getCurrentWifiStatusTW: () => Promise<WifiInfo>;
     getResinCurrentVersion: () => Promise<Date>;
@@ -93,6 +94,7 @@ const exposedApi: electronApiInterface = {
     getOffsetSettingsTW: () => ipcRenderer.invoke(ProductCH.getOffsetSettingsTW),
     isCustomTW: (filePath:string) => ipcRenderer.invoke(FileSystemCH.isCustomTW,filePath),
     getProductInfoTW: () => ipcRenderer.invoke(ProductCH.getProductInfoTW),
+    getUartConnectionErrorTW: ()=>ipcRenderer.invoke(ProductCH.getUartConnectionErrorTW),
     getWifiListTW: () => ipcRenderer.invoke(WifiCH.getWifiListTW),
     getCurrentWifiStatusTW: () => ipcRenderer.invoke(WifiCH.getCurrentWifiStatusTW),
     getResinCurrentVersion:()=>ipcRenderer.invoke(UpdateCH.getResinCurrentVersion),

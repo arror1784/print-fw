@@ -28,6 +28,10 @@ function ExtraPages(){
                     break;
             }
         })
+        window.electronAPI.getUartConnectionErrorTW().then((value:boolean)=>{
+            if(!value)
+                navigate('/uartConnectionError')
+        })
         return ()=>{
             window.electronAPI.removeListener(lcdListener)
             window.electronAPI.removeListener(shutdownListener)

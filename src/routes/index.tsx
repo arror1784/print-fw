@@ -17,6 +17,8 @@ import Wifi from '../pages/Wifi';
 import UpdateSetting from '../pages/UpdateSetting';
 import UpdateModeSetting from '../pages/UpdateModeSetting';
 import FactoryReset from '../pages/FactoryReset';
+import { UartConnection } from '../../electron/uartConnection';
+import UartConnectionError from '../pages/UartConnectionError';
 
 const AppRoute = () => {
     return (
@@ -52,7 +54,7 @@ const AppRoute = () => {
             
             <Route path='/image' element={<SliceImage/>}/>
             <Route path='/factoryReset' element={<FactoryReset/>}/>
-
+            <Route path='/uartConnectionError' element={<UartConnectionError/>}/>
         </Routes>
         );
 }

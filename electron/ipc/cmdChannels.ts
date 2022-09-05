@@ -44,7 +44,8 @@ enum UpdateCH{
 enum ProductCH{
     getOffsetSettingsTW = "product:getOffsetSettings,RT:string[]",
     getProductInfoTW = "product:getProductInfo,RT:string[]",
-    
+    getUartConnectionErrorTW = "product:getUartConnectionErrorTW",
+
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
     onMoveFinishMR = "product:onMoveFinishMR",
