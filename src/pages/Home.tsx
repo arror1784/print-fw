@@ -99,6 +99,7 @@ const InfoArea = styled.div`
     grid-template-rows: 1fr 1fr 1fr auto;
     justify-items: right;
     row-gap: 5px;
+    column-gap: 5px;
     margin-top: 10px;
 `
 const TitleText = styled.div`

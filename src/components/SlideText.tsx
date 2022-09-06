@@ -18,7 +18,7 @@ function SlideText({text}:SlideTextProps){
     const ref = useRef<HTMLDivElement|null>(null)
     const timerRef = useRef<NodeJS.Timer>()
 
-    const countref = useRef<number>(0)
+    const countref = useRef<number>(3)
     
     const slideSpeed = 23
 
