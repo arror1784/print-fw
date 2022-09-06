@@ -209,24 +209,25 @@ class PrintWorker{
                 this._workingState = WorkingState.error
                 this._printingErrorMessage = "Error: LCD가 빠졌습니다."
             }
-                
-            switch (this._workingState) {
-                case WorkingState.pauseWork:
-                    this._workingState = WorkingState.pause
-                    this._stopwatch.stop()
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
-                    return;
-                case WorkingState.stopWork:
-                    await this._uartConnection.sendCommandMovePosition(-15000)
-                    this._workingState = WorkingState.stop
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
-                    return;
-                case WorkingState.error:
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
-                    this.stop()
-                    return;
-                default:
-                    break;
+            if(this._actions[this._currentStep].type != "ledEnable" || (this._actions[this._currentStep] as LEDEnable).enable){
+                switch (this._workingState) {
+                    case WorkingState.pauseWork:
+                        this._workingState = WorkingState.pause
+                        this._stopwatch.stop()
+                        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                        return;
+                    case WorkingState.stopWork:
+                        await this._uartConnection.sendCommandMovePosition(-15000)
+                        this._workingState = WorkingState.stop
+                        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                        return;
+                    case WorkingState.error:
+                        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
+                        this.stop()
+                        return;
+                    default:
+                        break;
+                }
             }
             this._progress = this._currentStep / this._actions.length
             this._onProgressCallback && this._onProgressCallback(this._progress)
