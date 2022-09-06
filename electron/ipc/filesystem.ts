@@ -10,7 +10,7 @@ interface DirOrFile{
     id:number;
 }
 
-const rootPath :string = process.platform === "win32" || process.arch != 'arm' ? "/home/jsh/USBtest" : "/media/pi"
+const rootPath :string = process.platform === "win32" || process.arch != 'arm' ? "/home/jsh/USBtest" : "/home/pi/USB"
 
 async function readDir (event:IpcMainInvokeEvent,path: string) : Promise<DirOrFile[]> {
 

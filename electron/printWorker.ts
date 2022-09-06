@@ -239,8 +239,9 @@ class PrintWorker{
 
                     break;
                 case "ledEnable":
+                    checktime()
                     this._uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
-
+                    checktime()
                     break;
                 case "moveLength":
                     await this._uartConnection.sendCommandMoveLength((action as MoveLength).length)
@@ -251,6 +252,7 @@ class PrintWorker{
 
                     break;
                 case "wait":
+                    console.log((action as Wait).msec)
                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
 
                     break;
@@ -317,5 +319,11 @@ class PrintWorker{
 
     }
 }
+
+function checktime(){
+    let a = new Date(Date.now())
+    console.log(a.getSeconds(),a.getMilliseconds())
+}
+
 
 export {PrintWorker,WorkingState,MoveMotorCommand}

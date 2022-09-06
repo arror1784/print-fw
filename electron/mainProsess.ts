@@ -164,6 +164,44 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
     ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
+        let path = "/home/pi/USB/test/C10/L10Total20.zip"
+
+        // let path = "/home/jsh/USBtest/USBSTORAGE/C10/L10Total20.zip"
+        let material = "Bello3D - C&B"
+        try {
+            if(!fs.existsSync(path))
+                return new Error("Error: 파일이 존재하지 않습니다.")
+                
+            let zip = new AdmZip(path)
+            if(!zip.test())
+                return new Error("zip archive error")
+            
+            fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
+                fs.rmSync(sliceFileRoot + value)
+            })
+
+            zip.extractAllTo(sliceFileRoot,true)
+            let resin : ResinSetting
+            if(fs.existsSync(sliceFileRoot+'/resin.json')){
+                resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
+            }else{
+                resin = new ResinSetting(material)
+            }
+            let nameArr = path.split('/')
+            let name = nameArr[nameArr.length -1]
+            if(process.platform === "win32" || process.arch != 'arm'){
+                console.log("do factory reset")
+            }else{
+                execSync("vcgencmd display_power 0") // hdmi power off
+                execSync("vcgencmd display_power 1") // hdmi power on
+            }
+
+            worker.run(name,resin)
+            
+        } catch (error) {
+            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
+            console.log((error as Error).message)
+        }
         return uartConnection.checkConnection()
     })
     ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
