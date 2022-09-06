@@ -164,9 +164,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
     })
     ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
-        let path = "/home/pi/USB/test/C10/L10Total20.zip"
+        // let path = "/home/pi/USB/test/C10/L10Total20.zip"
 
-        // let path = "/home/jsh/USBtest/USBSTORAGE/C10/L10Total20.zip"
+        let path = "/home/jsh/USBtest/USBSTORAGE/C10/L10Total20.zip"
         let material = "Bello3D - C&B"
         try {
             if(!fs.existsSync(path))

@@ -1,6 +1,6 @@
 import {UartConnection} from './uartConnection';
 
-type actionType = "movePosition" | "moveLength" | "ledEnable" | "wait" | "setImage" | "autoHome" | "checkTime";
+type actionType = "movePosition" | "moveLength" | "ledEnable" | "ledToggle" | "wait" | "setImage" | "autoHome" | "checkTime";
 const enum moveType{
     DOWN = 0,
     UP = 1
@@ -39,6 +39,13 @@ class LEDEnable extends Action{
         super()
     }
 }
+class LEDToggle extends Action{
+    type: actionType = "ledToggle";
+
+    constructor(public readonly timeout: number){
+        super()
+    }
+}
 
 class Wait extends Action{
     type: actionType = "wait";
@@ -62,5 +69,5 @@ class CheckTime extends Action{
         super()
     }
 }
-export {MoveLength,MovePosition,LEDEnable,Wait,Action,AutoHome,SetImage,CheckTime};
+export {MoveLength,MovePosition,LEDEnable,Wait,Action,AutoHome,SetImage,CheckTime,LEDToggle};
 export type { actionType,CheckTimeType }

@@ -1,4 +1,4 @@
-import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime } from './actions'
+import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime, LEDToggle } from './actions'
 import { ImageProvider } from './imageProvider';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
@@ -150,16 +150,19 @@ class PrintWorker{
             if(i == this._resinSetting.bedCuringLayer)
                 this._actions.push(new CheckTime('start'))
 
+
             this._actions.push(new Wait(this._resinSetting.delay))
 
-            this._actions.push(new LEDEnable(true))
+            // this._actions.push(new LEDEnable(true))
 
             if(i < this._resinSetting.bedCuringLayer)
-                this._actions.push(new Wait(this._resinSetting.bedCuringTime))
+                this._actions.push(new LEDToggle(this._resinSetting.bedCuringTime))
+                // this._actions.push(new Wait(this._resinSetting.bedCuringTime))
             else
-                this._actions.push(new Wait(this._resinSetting.curingTime))
+                this._actions.push(new LEDToggle(this._resinSetting.curingTime))
+                // this._actions.push(new Wait(this._resinSetting.curingTime))
 
-            this._actions.push(new LEDEnable(false))
+            // this._actions.push(new LEDEnable(false))
 
             this._actions.push(new SetImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
@@ -241,6 +244,15 @@ class PrintWorker{
                 case "ledEnable":
                     checktime()
                     this._uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
+                    checktime()
+                    break;
+                case "ledToggle":
+                    checktime()
+                    this._uartConnection.sendCommandLEDEnable(true)
+                    checktime()
+                    await new Promise(resolve => setTimeout(resolve, (action as LEDToggle).timeout));
+                    checktime()
+                    this._uartConnection.sendCommandLEDEnable(false)
                     checktime()
                     break;
                 case "moveLength":
