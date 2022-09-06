@@ -1,0 +1,13 @@
+{
+    "UV_time_spend": {
+    },
+    "default_height": 68000,
+    "enable_material_list": [
+    ],
+    "height_offset": 0,
+    "led_offset": 100,
+    "material_list": [
+    ],
+    "motor_time_spend": {
+    }
+}
