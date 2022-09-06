@@ -18,7 +18,7 @@ function Header({children} : HeaderProp){
 const HeaderText = styled.div`
     color: #474747;
     font-size: 27px;
-    font-weight: 600;
+    font-weight: bold;
 
     letter-spacing: 1px;
     
