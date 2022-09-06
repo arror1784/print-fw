@@ -1,0 +1,37 @@
+{
+    "0.05": {
+        "bed_curing_layer": 10,
+        "bed_curing_time": 10000,
+        "contraction_ratio": 1,
+        "curing_time": 1400,
+        "down_accel_speed": 500,
+        "down_decel_speed": 500,
+        "init_speed": 0,
+        "layer_delay": 800,
+        "layer_height": 0.05,
+        "led_offset": 80,
+        "material": 2,
+        "max_speed": 500,
+        "up_accel_speed": 200,
+        "up_decel_speed": 500,
+        "z_hop_height": 5000
+    },
+    "0.1": {
+        "bed_curing_layer": 10,
+        "bed_curing_time": 10000,
+        "contraction_ratio": 1,
+        "curing_time": 2200,
+        "down_accel_speed": 500,
+        "down_decel_speed": 500,
+        "init_speed": 0,
+        "layer_delay": 800,
+        "layer_height": 0.1,
+        "led_offset": 80,
+        "material": 2,
+        "max_speed": 500,
+        "up_accel_speed": 200,
+        "up_decel_speed": 500,
+        "z_hop_height": 5000
+    },
+    "last_update": "10/15/2020, 06:22:48"
+}
