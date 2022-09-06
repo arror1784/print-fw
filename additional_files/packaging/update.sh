@@ -84,7 +84,6 @@ else
 	apt-get install redis-server -y
 fi
 
-apt-get install libtbb2 -y
 
 dpkg -l | grep exfat-fuse || apt-get install exfat-fuse -y
 dpkg -l | grep exfat-utils || apt-get install exfat-utils -y
@@ -100,6 +99,8 @@ for (( i = 0 ; i < ${#SERVICES[@]} ; i++ )) ; do
 	systemctl enable ${SERVICES[$i]}
 	systemctl start ${SERVICES[$i]}
 done
+
+dpkg -i ${TARGET_FOLDER_NAME}/libtbb2_2018~U6-4_armhf.deb
 
 pkill capsuleFW
 
