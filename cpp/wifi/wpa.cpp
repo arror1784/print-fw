@@ -145,7 +145,7 @@ void WPA::wpa_ctrl_event()
 
         }else if(stdResBuff.find(WPA_EVENT_DISCONNECTED) != std::string::npos){
 
-            networkDelete(_ctrl);
+            // networkDelete(_ctrl);
             connected = false;
 
             callbackSend(NoticeType::LIST_UPDATE,0);

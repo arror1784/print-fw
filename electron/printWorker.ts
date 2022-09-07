@@ -250,6 +250,7 @@ class PrintWorker{
                     checktime()
                     this._uartConnection.sendCommandLEDEnable(true)
                     checktime()
+                    console.log((action as LEDToggle).timeout)
                     await new Promise(resolve => setTimeout(resolve, (action as LEDToggle).timeout));
                     checktime()
                     this._uartConnection.sendCommandLEDEnable(false)
