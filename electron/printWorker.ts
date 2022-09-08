@@ -1,4 +1,4 @@
-import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime } from './actions'
+import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime, LEDToggle } from './actions'
 import { ImageProvider } from './imageProvider';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
@@ -145,23 +145,26 @@ class PrintWorker{
 
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
-        for (let i = 0; i < this._infoSetting.totalLayer; i++) {
+        for (let i = 1; i < this._infoSetting.totalLayer; i++) {
 
             if(i == this._resinSetting.bedCuringLayer)
                 this._actions.push(new CheckTime('start'))
 
+
             this._actions.push(new Wait(this._resinSetting.delay))
 
-            this._actions.push(new LEDEnable(true))
+            // this._actions.push(new LEDEnable(true))
 
             if(i < this._resinSetting.bedCuringLayer)
-                this._actions.push(new Wait(this._resinSetting.bedCuringTime))
+                this._actions.push(new LEDToggle(this._resinSetting.bedCuringTime))
+                // this._actions.push(new Wait(this._resinSetting.bedCuringTime))
             else
-                this._actions.push(new Wait(this._resinSetting.curingTime))
+                this._actions.push(new LEDToggle(this._resinSetting.curingTime))
+                // this._actions.push(new Wait(this._resinSetting.curingTime))
 
-            this._actions.push(new LEDEnable(false))
+            // this._actions.push(new LEDEnable(false))
 
-            this._actions.push(new SetImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+            this._actions.push(new SetImage(i,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
@@ -209,7 +212,6 @@ class PrintWorker{
                 this._workingState = WorkingState.error
                 this._printingErrorMessage = "Error: LCD가 빠졌습니다."
             }
-                
             switch (this._workingState) {
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
@@ -238,8 +240,19 @@ class PrintWorker{
 
                     break;
                 case "ledEnable":
+                    checktime()
                     this._uartConnection.sendCommandLEDEnable((action as LEDEnable).enable)
-
+                    checktime()
+                    break;
+                case "ledToggle":
+                    checktime()
+                    this._uartConnection.sendCommandLEDEnable(true)
+                    checktime()
+                    console.log((action as LEDToggle).timeout)
+                    await new Promise(resolve => setTimeout(resolve, (action as LEDToggle).timeout));
+                    checktime()
+                    this._uartConnection.sendCommandLEDEnable(false)
+                    checktime()
                     break;
                 case "moveLength":
                     await this._uartConnection.sendCommandMoveLength((action as MoveLength).length)
@@ -250,6 +263,7 @@ class PrintWorker{
 
                     break;
                 case "wait":
+                    console.log((action as Wait).msec)
                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
 
                     break;
@@ -316,5 +330,11 @@ class PrintWorker{
 
     }
 }
+
+function checktime(){
+    let a = new Date(Date.now())
+    console.log(a.getSeconds(),a.getMilliseconds())
+}
+
 
 export {PrintWorker,WorkingState,MoveMotorCommand}

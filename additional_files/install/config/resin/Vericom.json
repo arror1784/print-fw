@@ -1,0 +1,17 @@
+{
+	"M_id": "Vericom",
+	"bed_curing_layer": 3,
+	"bed_curing_time": 6000,
+	"contraction_ratio": 1,
+	"curing_time": 2150,
+	"down_accel_speed": 50,
+	"down_decel_speed": 50,
+	"init_speed": 100,
+	"layer_delay": 800,
+	"max_speed": 500,
+	"up_accel_speed": 30,
+	"up_decel_speed": 30,
+	"led_offset": 100,
+	"z_hop_height": 4000,
+	"last_update": "0"
+}

@@ -68,7 +68,7 @@ function UpdateFileSelect(){
     }, [dirPath])
 
     return (
-    <MainArea>
+    <div>
         <Header>
             Select a file (*.updateFile)
         </Header>
@@ -109,7 +109,7 @@ function UpdateFileSelect(){
         <Modal visible={storageDisconnectModalVisible} onBackClicked={() => {navigate(-1)}} selectVisible={false}>
             <ModalNotice text={"USB 연결이 끊겼습니다."}/>
         </Modal>
-    </MainArea>);
+    </div>);
 }
 
 const ParentArea = styled.div`
