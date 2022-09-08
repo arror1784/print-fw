@@ -107,7 +107,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
             if(process.platform === "win32" || process.arch != 'arm'){
-                console.log("do factory reset")
+                console.log("do hdmi reset")
             }else{
                 execSync("vcgencmd display_power 0") // hdmi power off
                 execSync("vcgencmd display_power 1") // hdmi power on

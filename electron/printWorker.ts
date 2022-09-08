@@ -145,7 +145,7 @@ class PrintWorker{
 
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
-        for (let i = 0; i < this._infoSetting.totalLayer; i++) {
+        for (let i = 1; i < this._infoSetting.totalLayer; i++) {
 
             if(i == this._resinSetting.bedCuringLayer)
                 this._actions.push(new CheckTime('start'))
@@ -164,7 +164,7 @@ class PrintWorker{
 
             // this._actions.push(new LEDEnable(false))
 
-            this._actions.push(new SetImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+            this._actions.push(new SetImage(i,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
