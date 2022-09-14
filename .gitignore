@@ -9,7 +9,8 @@
 /coverage
 
 # production
-/build
+build
+build-addon
 
 # misc
 .DS_Store
@@ -37,8 +38,6 @@ bower_components
 psd
 thumb
 sketch
-
-build-addon
 
 ### VisualStudioCode ###
 .vscode/*

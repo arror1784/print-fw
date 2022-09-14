@@ -10,6 +10,8 @@
 #include <string>
 #include <fstream>
 
+#include <mutex>
+
 #include "mio/mio.hpp"
 
 
@@ -21,10 +23,19 @@
 
 #include "communicate.h"
 
+unsigned char* pngInMem = nullptr;
+int len = 0;
+
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height);
 std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& out,const int width,const int height);
 // 자바스크립트의 String 객체를 반환하는 함수입니다.
 // 파라미터는 info[n] 형태로 얻어올 수 있습니다.
+
+Napi::String setImage(const Napi::CallbackInfo& info){
+    Communicate::getInstance().addData(pngInMem,len);
+    // std::string result = "data:image/png;base64," + base64_encode(pngInMem,len);
+    return Napi::String::New(info.Env(),"");
+}
 Napi::String transRgbToBase64(const Napi::CallbackInfo& info){ 
     // 이미지 path 를 받아와서 변환을 한뒤 base64 형식으로 반환 
     // image path, int delta, float yMult, bool isL10
@@ -61,8 +72,9 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     stbi_image_free(png);
 
     unsigned char* pngInMem;
-    int len;
     
+    STBIW_FREE(pngInMem);
+
     if(isL10){
         auto compressedImage = imageCompressL10(finalImg,2560,1620);
 
@@ -72,12 +84,7 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
         pngInMem = stbi_write_png_to_mem((const unsigned char*)finalImg.data(), 1440, 1440, 2560, STBI_grey, &len);
     }
 
-    Communicate::getInstance().addData(pngInMem,len);
-    
-    std::string result = "data:image/png;base64," + base64_encode(pngInMem,len);
-    STBIW_FREE(pngInMem);
-    
-    return Napi::String::New(env,result);
+    return Napi::String::New(env,"");
 }
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height){ 
   // 이미지 path 를 받아와서 변환을 한뒤 base64 형식으로 반환 
@@ -162,6 +169,8 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width
 Napi::Object init(Napi::Env env, Napi::Object exports) {
     
     exports.Set(Napi::String::New(env, "transRgbToBase64"), Napi::Function::New(env, transRgbToBase64));
+    exports.Set(Napi::String::New(env, "setImage"), Napi::Function::New(env, setImage));
+
 
     return exports;
 };
