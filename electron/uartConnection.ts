@@ -171,7 +171,7 @@ class UartConnection extends UartConnectionTest{
         
         while(_coVar) {
             if(!_coVar) break
-            else await new Promise(resolve => setTimeout(resolve,500));
+            else await new Promise(resolve => setTimeout(resolve,100));
         }
         this._isMove = false
 
@@ -192,7 +192,7 @@ class UartConnection extends UartConnectionTest{
 
         while(_coVar) {
             if(!_coVar) break
-            else await new Promise(resolve => setTimeout(resolve,500));
+            else await new Promise(resolve => setTimeout(resolve,100));
         }
 
         this._isMove = false
@@ -215,7 +215,7 @@ class UartConnection extends UartConnectionTest{
 
         while(_coVar) {
             if(!_coVar) break
-            else await new Promise(resolve => setTimeout(resolve,500));
+            else await new Promise(resolve => setTimeout(resolve,100));
         }
         this._isMove = false
 
