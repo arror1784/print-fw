@@ -23,6 +23,7 @@
 
 #include "communicate.h"
 
+std::mutex m;
 unsigned char* pngInMem = nullptr;
 int len = 0;
 
@@ -32,6 +33,7 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& out,const int width
 // 파라미터는 info[n] 형태로 얻어올 수 있습니다.
 
 Napi::String setImage(const Napi::CallbackInfo& info){
+    std::lock_guard<std::mutex> lock(m);
     Communicate::getInstance().addData(pngInMem,len);
     // std::string result = "data:image/png;base64," + base64_encode(pngInMem,len);
     return Napi::String::New(info.Env(),"");
@@ -71,7 +73,7 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     pixelContration(png,finalImg,delta,ymult,w,h);
     stbi_image_free(png);
 
-    unsigned char* pngInMem;
+    m.lock();
     
     STBIW_FREE(pngInMem);
 
@@ -83,7 +85,7 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     }else{
         pngInMem = stbi_write_png_to_mem((const unsigned char*)finalImg.data(), 1440, 1440, 2560, STBI_grey, &len);
     }
-
+    m.unlock();
     return Napi::String::New(env,"");
 }
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height){ 
