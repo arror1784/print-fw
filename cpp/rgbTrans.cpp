@@ -73,8 +73,8 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     pixelContration(png,finalImg,delta,ymult,w,h);
     stbi_image_free(png);
 
-    m.lock();
-    
+    std::lock_guard<std::mutex> lock(m);
+
     STBIW_FREE(pngInMem);
 
     if(isL10){
@@ -85,7 +85,6 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
     }else{
         pngInMem = stbi_write_png_to_mem((const unsigned char*)finalImg.data(), 1440, 1440, 2560, STBI_grey, &len);
     }
-    m.unlock();
     return Napi::String::New(env,"");
 }
 std::vector<uint8_t>& pixelContration(uint8_t* png,std::vector<uint8_t>& out, int delta, float yMult,const int width,const int height){ 
