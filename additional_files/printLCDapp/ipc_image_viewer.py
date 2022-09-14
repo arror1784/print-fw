@@ -22,13 +22,11 @@ def msg():
     while(1):
         try:
             (message,type) = mq.receive()
-            print(message)
             parsingMsg = json.loads(message.decode('utf-8','ignore').split('}')[0]+'}')
             if(parsingMsg["cmd"] == "imageChanged"):
                 print("changeImage command")
                 mmp.seek(0)
                 imgbs64=base64.b64encode(mmp.read(parsingMsg["size"]))
-                print(len(imgbs64))
                 baseImg = tk.PhotoImage(data=imgbs64)
                 lb.configure(image = baseImg)
                 lb.pack()
@@ -42,10 +40,16 @@ def msg():
             continue
         
     return
-
+try:
+    while(1):
+        mq.receive(block=False)
+except:
+    print("clear queue message")
+    
 t = threading.Thread(target=msg)
 t.daemon = True
 t.start()
 
+root.configure(bg='black')
 root.attributes("-fullscreen",True)
 root.mainloop()
