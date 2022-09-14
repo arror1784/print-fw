@@ -10,15 +10,16 @@ const addOn = bindings("rgbTrans")
 
 if(parentPort){
     parentPort.on("message",(value)=>{
+        console.log("Worker: start",value)
         if(value as String == WorkerMethod.SetImage){
-            console.log("Worker: setImage")
             addOn.setImage()
+            parentPort?.postMessage(WorkerMethod.SetImage)
+
         }else{
             let arr = (value as String).split(",")
-            console.log(arr)
             addOn.transRgbToBase64(arr[0],Number(arr[1]),Number(arr[2]),arr[3].toLowerCase() == "l10")
+            parentPort?.postMessage(WorkerMethod.ProcessImage)
         }
-        parentPort?.postMessage("finish")
     })
 }
 

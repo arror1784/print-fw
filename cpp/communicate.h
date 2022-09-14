@@ -36,7 +36,7 @@ public:
 
         sendMessage(msg);
     }
-private:    
+private:
     void sendMessage(std::string msg){
         struct messageBuf mybuf;
         if(msg.length() > 255){
@@ -49,8 +49,7 @@ private:
         {
             perror("msgsnd error : ");
             // exit(0);
-        }
-        
+        }   
     }
 
 
