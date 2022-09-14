@@ -145,9 +145,11 @@ class PrintWorker{
         this._actions.push(new AutoHome(255))
 
         this._actions.push(new SetImage())
+        this._actions.push(new ProcessImage(1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
-        for (let i = 1; i < this._infoSetting.totalLayer; i++) {
+        for (let i = 1; i <= this._infoSetting.totalLayer; i++) {
 
             this._actions.push(new Wait(this._resinSetting.delay))
 
@@ -156,16 +158,17 @@ class PrintWorker{
             else
                 this._actions.push(new LEDToggle(this._resinSetting.curingTime))
 
-            this._actions.push(new CheckTime("start"))
+            // this._actions.push(new CheckTime("start"))
 
             this._actions.push(new SetImage())
-            this._actions.push(new ProcessImage(i,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+
+            if((i + 1) < this._infoSetting.totalLayer)
+                this._actions.push(new ProcessImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
             this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
-
-            this._actions.push(new CheckTime("finish"))
+            // this._actions.push(new CheckTime("finish"))
         }
     }
     pause(){
@@ -239,7 +242,8 @@ class PrintWorker{
                 case "ledToggle":
                     // checktime()
                     while(!this._imageProvider.isDoneImageProcessing){
-
+                        if(this._imageProvider.isDoneImageProcessing) break
+                        else await new Promise(resolve => setTimeout(resolve,100));
                     }
 
                     this._uartConnection.sendCommandLEDEnable(true)
