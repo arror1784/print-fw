@@ -158,7 +158,8 @@ class PrintWorker{
             else
                 this._actions.push(new LEDToggle(this._resinSetting.curingTime))
 
-            // this._actions.push(new CheckTime("start"))
+            if(i==1)
+                this._actions.push(new CheckTime("start"))
 
             this._actions.push(new SetImage())
 
@@ -168,7 +169,8 @@ class PrintWorker{
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
             this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
-            // this._actions.push(new CheckTime("finish"))
+            if(i==1)
+                this._actions.push(new CheckTime("finish"))
         }
     }
     pause(){
@@ -241,11 +243,10 @@ class PrintWorker{
                     break;
                 case "ledToggle":
                     // checktime()
-                    while(!this._imageProvider.isDoneImageProcessing){
-                        if(this._imageProvider.isDoneImageProcessing) break
+                    while(!this._imageProvider.isDoneImageSet){
+                        if(this._imageProvider.isDoneImageSet) break
                         else await new Promise(resolve => setTimeout(resolve,100));
                     }
-
                     this._uartConnection.sendCommandLEDEnable(true)
                     // console.log((action as LEDToggle).timeout)
                     await new Promise(resolve => setTimeout(resolve, (action as LEDToggle).timeout));
@@ -283,7 +284,12 @@ class PrintWorker{
                             break;
                         case 'finish':
                             this._curingStopwatch.stop()
-                            this._totalTime = this._stopwatch.getTime() + (this._curingStopwatch.getTime() * (this._infoSetting.totalLayer - this._resinSetting.bedCuringLayer))
+                            this._totalTime = this._stopwatch.getTime()
+                            this._totalTime = this._totalTime + this._curingStopwatch.getTime() * (this._infoSetting.totalLayer - 1)
+                            this._totalTime = this._totalTime + this._resinSetting.bedCuringTime * (this._resinSetting.bedCuringLayer - 1)
+                            this._totalTime = this._totalTime + this._resinSetting.curingTime * (this._infoSetting.totalLayer - this._resinSetting.bedCuringLayer)
+                            this._totalTime = this._totalTime + this._resinSetting.delay * (this._infoSetting.totalLayer - 1)
+
                             this._onSetTotaltime && this._onSetTotaltime(this._totalTime)
                             break;
                         default:
