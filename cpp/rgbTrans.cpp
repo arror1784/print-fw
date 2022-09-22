@@ -169,6 +169,8 @@ std::vector<uint32_t> imageCompressL10(std::vector<uint8_t>& ori,const int width
 }
 Napi::Object init(Napi::Env env, Napi::Object exports) {
     
+    Communicate::getInstance();
+
     exports.Set(Napi::String::New(env, "transRgbToBase64"), Napi::Function::New(env, transRgbToBase64));
     exports.Set(Napi::String::New(env, "setImage"), Napi::Function::New(env, setImage));
 
