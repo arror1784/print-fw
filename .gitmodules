@@ -1,0 +1,3 @@
+[submodule "hix-image-viewer"]
+	path = hix-image-viewer
+	url = https://github.com/arror1784/hix-image-viewer
