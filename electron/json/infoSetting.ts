@@ -14,7 +14,7 @@ class InfoSetting extends JsonSetting<InfoSettingValue>{
     }
 
     parse(ob : any) : InfoSettingValue{
-        return {layerHeight: ob.layer_height,totalLayer: ob.total_layer}
+        return {layerHeight: Number((ob.layer_height * 100).toFixed()) / 100,totalLayer: ob.total_layer}
     }
     toJsonString(ob : InfoSettingValue) : string{
 
