@@ -1,4 +1,4 @@
-import { decode } from 'base-64';
+import { decode } from 'js-base64';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 

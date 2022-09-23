@@ -13,7 +13,7 @@ import arrowDirImg from '../assets/arrow-dir.png'
 import MainArea from '../layout/MainArea';
 import { useNavigate } from 'react-router-dom';
 
-import {encode} from 'base-64'
+import {encode} from 'js-base64'
 import Modal from '../components/Modal';
 import { ModalNotice } from '../layout/ModalInfo';
 
