@@ -93,11 +93,12 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
 
             zip.extractAllTo(sliceFileRoot,true)
             let resin : ResinSetting
-            if(fs.existsSync(sliceFileRoot+'/resin.json')){
+            if(fs.existsSync(sliceFileRoot+'/resin.json') && material == "custom"){
                 resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
             }else{
                 resin = new ResinSetting(material)
             }
+
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
             if(process.platform === "win32" || process.arch != 'arm'){
