@@ -75,6 +75,14 @@ Napi::String transRgbToBase64(const Napi::CallbackInfo& info){
 
     std::lock_guard<std::mutex> lock(m);
 
+    if(isL10){
+        if(h != 1620)
+            return Napi::String::New(env,"");
+    }else{
+        if(h != 1440)
+            return Napi::String::New(env,"");
+    }
+    
     STBIW_FREE(pngInMem);
 
     if(isL10){
