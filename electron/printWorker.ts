@@ -100,11 +100,11 @@ class PrintWorker{
 
         if(!this._lcdState){
             
-            return new Error("Error: LCD가 빠졌습니다.")
+            throw new Error("Error: LCD가 빠졌습니다.")
         }
         this._currentStep = 0
         if(!info.isOpen())
-            return new Error("Error: info 파일이 존재하지 않습니다.")
+            throw new Error("Error: info 파일이 존재하지 않습니다.")
         
         this._infoSetting = info.data
         this._resinName = resin.resinName
@@ -113,12 +113,12 @@ class PrintWorker{
             this._resinSetting = resin.data["custom"]
         }else{
             if(!Object.keys(resin.data).includes(this._infoSetting.layerHeight.toString()))
-                return new Error("Error: 지원하지 않은 layer height입니다.")
+                throw new Error("Error: 지원하지 않은 layer height입니다.")
             this._resinSetting = resin.data[info.data.layerHeight.toString()]
         }
 
         if(this._lock)
-            return new Error("Error: print lock이 걸려 있습니다.")
+            throw new Error("Error: print lock이 걸려 있습니다.")
 
         this.createActions(this._resinSetting,this._infoSetting)
 
