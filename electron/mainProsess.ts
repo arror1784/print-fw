@@ -39,12 +39,6 @@ let sw = new SWUpdate()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
 
-    console.log(await rc.fileVersion("/home/jsh/USBtest/updateFile/resin_20201231.updateFile"))
-    
-    // if(!uartConnection.checkConnection()){
-        // return new Error("uart connect error")
-    // }
-    
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
             case UartResponseType.SHUTDOWN:

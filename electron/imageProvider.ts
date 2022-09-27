@@ -1,6 +1,7 @@
 import { app } from "electron";
 import { existsSync } from "fs";
 import { Worker } from "worker_threads";
+import { SubImageControl } from "./subImageControl";
 import { WorkerMethod } from "./worker/worker";
 
 type Product = "C10" | "L10"
@@ -12,9 +13,10 @@ class ImageProvider{
 
     public isDoneImageProcessing:boolean = true
     public isDoneImageSet:boolean = true
-
+    private _sic = new SubImageControl()
     imageCB(v : (src:string) => void) {
         this._cb = v;
+        this._sic.runProgram()
     }
 
     constructor(private readonly _product : Product,private readonly rootPath : string){
@@ -40,6 +42,10 @@ class ImageProvider{
         this.isDoneImageProcessing = false
         this._imageWorker.postMessage(this.rootPath +`${index}.png,`+ delta.toString()+","+ ymult.toString()+","+this._product)
         return true
+    }
+    async reloadImageProgram(){
+        this._sic.killProgram()
+        this._sic.runProgram()
     }
 }
 

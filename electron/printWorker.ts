@@ -218,6 +218,8 @@ class PrintWorker{
                     await this._uartConnection.sendCommandMovePosition(-15000)
                     this._workingState = WorkingState.stop
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    this._imageProvider.reloadImageProgram()
+
                     return;
                 case WorkingState.error:
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
