@@ -109,8 +109,7 @@
     "addon:clean": "node-gyp clean",
     "addon:build": "node-gyp clean configure build --release",
     "addon:build:dev": "node-gyp clean configure build --debug",
-    "hixImageViewer:build" : "cmake -H. -Bhix-image-viewer/build -G \"Unix Makefiles\" ./hix-image-viewer && cmake --build ./hix-image-viewer/build",
-    "hixImageViewer:arm" : "cp hix-image-viewer/prebuilds/hix-image-viewer prebuilds/"
+    "hixImageViewer:build" : "cmake -H. -Bhix-image-viewer/build -G \"Unix Makefiles\" ./hix-image-viewer && cmake --build ./hix-image-viewer/build"
   },
   "eslintConfig": {
     "extends": [
