@@ -89,7 +89,6 @@ function Progress(){
         stopwatchRef.current.start()
 
         const id = setInterval(() => {
-
             setelaspedTime(stopwatchRef.current.getTime())
         }, 100)
 
@@ -103,7 +102,9 @@ function Progress(){
         }
     },[])
     
-    let time = new Date(totalTime - elaspedTime)
+    let timeC = totalTime - elaspedTime
+    let time = timeC < 0 ? new Date(-timeC) : new Date(timeC)
+
     return (
         <div>
             <Header>
@@ -122,7 +123,11 @@ function Progress(){
                         Remaining time
                     </TitleText>
                     <ValueText>
-                        {totalTime == 0 ? "Calculating" : time.getMinutes() +"min " + time.getSeconds() + "sec"}
+                        {
+                            timeC < 0 ?
+                            totalTime == 0 ? "Calculating" : -time.getMinutes() +"min " + -time.getSeconds() + "sec"
+                            : totalTime == 0 ? "Calculating" : time.getMinutes() +"min " + time.getSeconds() + "sec"
+                        }
                     </ValueText>
 
                     <CircleProgress>
@@ -210,7 +215,7 @@ const ValueText = styled.div`
     font-weight: bold;
     justify-self: start;
     align-self: start;
-    max-width: 200px;
+    max-width: 210px;
 `
 const CircleProgress = styled.div`
     grid-column-start: 2;

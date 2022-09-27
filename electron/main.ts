@@ -35,7 +35,7 @@ function createWindow() {
         fullscreen:true
     });
     if(process.arch == 'arm'){
-        mainWin.setFullScreen(true)
+        // mainWin.setFullScreen(true)
         imgWin.close()
     }else{
         imgWin.close()

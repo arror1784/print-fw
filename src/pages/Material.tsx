@@ -9,7 +9,7 @@ import MainArea from '../layout/MainArea';
 import { useNavigate, useParams } from 'react-router-dom';
 import Modal from '../components/Modal';
 
-import {decode} from 'base-64'
+import {decode} from 'js-base64'
 import { ModalInfoMainArea, ModalInfoTitle, ModalInfoValue, ModalNotice } from '../layout/ModalInfo';
 import { IpcRendererEvent } from 'electron';
 

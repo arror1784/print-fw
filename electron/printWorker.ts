@@ -1,10 +1,11 @@
-import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime, LEDToggle } from './actions'
+import { LEDEnable,MoveLength,MovePosition,Wait,actionType, Action, AutoHome, SetImage, CheckTime, LEDToggle, ProcessImage } from './actions'
 import { ImageProvider } from './imageProvider';
 import { UartConnection,UartConnectionTest } from './uartConnection'
 import { getPrinterSetting } from './json/printerSetting'
 import { ResinSetting, ResinSettingValue } from './json/resin';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
 import { Stopwatch } from 'ts-stopwatch'
+import { Worker } from 'worker_threads';
 
 enum WorkingState{
     working = "working",
@@ -41,7 +42,7 @@ class PrintWorker{
     private _onSetTotaltime?: (value : number) => void
     
     private _resinName : string= ""
-    
+
     public get resinName() : string {
         return this._resinName
     }
@@ -79,6 +80,7 @@ class PrintWorker{
         return this._infoSetting;
     }
     constructor(private readonly _uartConnection: UartConnection | UartConnectionTest,private readonly _imageProvider: ImageProvider){
+
         _uartConnection.checkConnection()
     }
     getPrintInfo(){ //[state,resinname,filename,layerheight,elapsedtime,totaltime,progress,enableTimer]
@@ -139,41 +141,37 @@ class PrintWorker{
         let layerHeight = this._infoSetting.layerHeight * 1000
         this._actions = []
 
-        this._actions.push(new SetImage(0,this._resinSetting.pixelContraction,this._resinSetting.yMult))
-
+        this._actions.push(new ProcessImage(0,this._resinSetting.pixelContraction,this._resinSetting.yMult))
         this._actions.push(new AutoHome(255))
+
+        this._actions.push(new SetImage())
+        this._actions.push(new ProcessImage(1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
         this._actions.push(new MoveLength(-(getPrinterSetting().data.height + getPrinterSetting().data.heightOffset - layerHeight)))
 
-        for (let i = 1; i < this._infoSetting.totalLayer; i++) {
-
-            if(i == this._resinSetting.bedCuringLayer)
-                this._actions.push(new CheckTime('start'))
-
+        for (let i = 1; i <= this._infoSetting.totalLayer; i++) {
 
             this._actions.push(new Wait(this._resinSetting.delay))
 
-            // this._actions.push(new LEDEnable(true))
-
             if(i < this._resinSetting.bedCuringLayer)
                 this._actions.push(new LEDToggle(this._resinSetting.bedCuringTime))
-                // this._actions.push(new Wait(this._resinSetting.bedCuringTime))
             else
                 this._actions.push(new LEDToggle(this._resinSetting.curingTime))
-                // this._actions.push(new Wait(this._resinSetting.curingTime))
 
-            // this._actions.push(new LEDEnable(false))
+            if(i==1)
+                this._actions.push(new CheckTime("start"))
 
-            this._actions.push(new SetImage(i,this._resinSetting.pixelContraction,this._resinSetting.yMult))
+            this._actions.push(new SetImage())
+
+            if((i + 1) < this._infoSetting.totalLayer)
+                this._actions.push(new ProcessImage(i+1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
 
             this._actions.push(new MoveLength(this._resinSetting.zHopHeight))
 
             this._actions.push(new MoveLength(-(this._resinSetting.zHopHeight - layerHeight)))
-            if(i == this._resinSetting.bedCuringLayer)
-                this._actions.push(new CheckTime('finish'))
-
+            if(i==1)
+                this._actions.push(new CheckTime("finish"))
         }
-        this._actions.push(new SetImage(-1,this._resinSetting.pixelContraction,this._resinSetting.yMult))
     }
     pause(){
         this._workingState = WorkingState.pauseWork
@@ -203,11 +201,9 @@ class PrintWorker{
         this._stopwatch.start()
         while(this._currentStep <= this._actions.length) {
 
-            console.log("PROCESS WHILE",this._currentStep)
-            
             if(this._currentStep == this._actions.length)
                 this.stop()
-
+            
             if(!this._lcdState){
                 this._workingState = WorkingState.error
                 this._printingErrorMessage = "Error: LCD가 빠졌습니다."
@@ -222,6 +218,8 @@ class PrintWorker{
                     await this._uartConnection.sendCommandMovePosition(-15000)
                     this._workingState = WorkingState.stop
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    this._imageProvider.reloadImageProgram()
+
                     return;
                 case WorkingState.error:
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
@@ -234,6 +232,7 @@ class PrintWorker{
             this._onProgressCallback && this._onProgressCallback(this._progress)
 
             const action = this._actions[this._currentStep]
+            console.log("PROCESS WHILE",this._currentStep,action.type)
             switch (action.type) {
                 case "autoHome":
                     await this._uartConnection.sendCommandAutoHome(255)
@@ -245,14 +244,16 @@ class PrintWorker{
                     checktime()
                     break;
                 case "ledToggle":
-                    checktime()
+                    // checktime()
+                    while(!this._imageProvider.isDoneImageSet){
+                        if(this._imageProvider.isDoneImageSet) break
+                        else await new Promise(resolve => setTimeout(resolve,100));
+                    }
                     this._uartConnection.sendCommandLEDEnable(true)
-                    checktime()
-                    console.log((action as LEDToggle).timeout)
+                    // console.log((action as LEDToggle).timeout)
                     await new Promise(resolve => setTimeout(resolve, (action as LEDToggle).timeout));
-                    checktime()
                     this._uartConnection.sendCommandLEDEnable(false)
-                    checktime()
+                    // checktime()
                     break;
                 case "moveLength":
                     await this._uartConnection.sendCommandMoveLength((action as MoveLength).length)
@@ -263,17 +264,20 @@ class PrintWorker{
 
                     break;
                 case "wait":
-                    console.log((action as Wait).msec)
-                    await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
+                     await new Promise(resolve => setTimeout(resolve, (action as Wait).msec));
+
+                    break;
+                case "processImage":
+                    this._imageProvider.processImage((action as ProcessImage).index,(action as ProcessImage).delta,(action as ProcessImage).ymult)
 
                     break;
                 case "setImage":
-                    this._imageProvider.setImage((action as SetImage).index,(action as SetImage).delta,(action as SetImage).ymult).then((value:Boolean)=>{
-                        if(!value){
-                            this._workingState = WorkingState.error
-                            this._printingErrorMessage = "Error: 이미지 파일에 문제가 발생하였습니다."
-                        }})
-                    
+                    while(!this._imageProvider.isDoneImageProcessing){
+                        if(this._imageProvider.isDoneImageProcessing) break
+                        else await new Promise(resolve => setTimeout(resolve,100));
+                    }
+                    this._imageProvider.setImage()
+
                     break;
                 case "checkTime":
                     switch ((action as CheckTime).checkTimeType) {
@@ -282,7 +286,12 @@ class PrintWorker{
                             break;
                         case 'finish':
                             this._curingStopwatch.stop()
-                            this._totalTime = this._stopwatch.getTime() + (this._curingStopwatch.getTime() * (this._infoSetting.totalLayer - this._resinSetting.bedCuringLayer))
+                            this._totalTime = this._stopwatch.getTime()
+                            this._totalTime = this._totalTime + this._curingStopwatch.getTime() * (this._infoSetting.totalLayer - 1)
+                            this._totalTime = this._totalTime + this._resinSetting.bedCuringTime * (this._resinSetting.bedCuringLayer - 1)
+                            this._totalTime = this._totalTime + this._resinSetting.curingTime * (this._infoSetting.totalLayer - this._resinSetting.bedCuringLayer)
+                            this._totalTime = this._totalTime + this._resinSetting.delay * (this._infoSetting.totalLayer - 1)
+
                             this._onSetTotaltime && this._onSetTotaltime(this._totalTime)
                             break;
                         default:
