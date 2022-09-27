@@ -21,6 +21,8 @@ import { SWUpdate } from "./swUpdate"
 import { UpdateNotice } from "./update"
 import { getPrinterSetting } from "./json/printerSetting"
 
+import sizeOf from 'image-size'
+
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
 let uartConnection : UartConnection | UartConnectionTest
@@ -81,23 +83,39 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
         try {
             if(!fs.existsSync(path))
-                return new Error("Error: 파일이 존재하지 않습니다.")
+                throw new Error("Error: 파일이 존재하지 않습니다.")
                 
             let zip = new AdmZip(path)
             if(!zip.test())
-                return new Error("zip archive error")
+                throw new Error("zip archive error")
             
             fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
                 fs.rmSync(sliceFileRoot + value)
             })
 
             zip.extractAllTo(sliceFileRoot,true)
+
+            if(fs.existsSync(sliceFileRoot+"/0.png")){
+                let height = sizeOf(sliceFileRoot+"/0.png").height
+                console.log(height)
+                switch (getProductSetting().data.product) {
+                    case "C10":
+                        if(height != 1440)
+                            throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
+                        break;
+                    case "L10":
+                        if(height != 1620)
+                            throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
+                        break;
+                }
+            }
             let resin : ResinSetting
-            if(fs.existsSync(sliceFileRoot+'/resin.json')){
+            if(fs.existsSync(sliceFileRoot+'/resin.json') && material == "custom"){
                 resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
             }else{
                 resin = new ResinSetting(material)
             }
+
             let nameArr = path.split('/')
             let name = nameArr[nameArr.length -1]
             if(process.platform === "win32" || process.arch != 'arm'){
