@@ -158,84 +158,17 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
-    })
-    ipcMain.on(ProductCH.shutDownRM,(event:IpcMainEvent)=>{
-        exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
-            console.log("shutdown -h now")})
-    })
-    ipcMain.handle(ProductCH.getProductInfoTW,()=>{
-
-        const nets = networkInterfaces();
-        const results : string[] = [] // Or just '{}', an empty object
-        
-        for (const name of Object.keys(nets)) {
-            if(name == 'lo')
-                continue    
-            results.push(address.ip(name));
-        }
-        return [getVersionSetting().data.version,getModelNoInstaceSetting().data.modelNo,getWifiName(),...results]
+        webSockect.changeState("unlock")
     })
     ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
         return uartConnection.checkConnection()
-    })
-    ipcMain.handle(ProductCH.getOffsetSettingsTW,()=>{
-
-        let offsetArr : number[] = []
-
-        offsetArr.push(getPrinterSetting().data.heightOffset)
-        offsetArr.push(getPrinterSetting().data.ledOffset)
-
-        return [...offsetArr]
-    })
-    ipcMain.on(ProductCH.saveHeightOffsetRM,(event:IpcMainEvent,offset:number)=>{
-        getPrinterSetting().data.heightOffset = offset
-        getPrinterSetting().saveFile()
-    })
-    ipcMain.on(ProductCH.saveLEDOffsetRM,(event:IpcMainEvent,offset:number)=>{
-        getPrinterSetting().data.ledOffset = offset;
-        getPrinterSetting().saveFile()
     })
     ipcMain.on(ProductCH.moveMotorRM, async (event:IpcMainEvent,command:MoveMotorCommand,value:number)=>{
         await worker.moveMotor(command,value)
         mainWindow.webContents.send(ProductCH.onMoveFinishMR,command,value)
     })
-
-
-    ipcMain.handle(UpdateCH.getResinCurrentVersion,()=>{
-        return rc.currentVersion()
-    })
-    ipcMain.handle(UpdateCH.getResinServerVersion,()=>{
-        return rc.serverVersion()
-    })
-    ipcMain.handle(UpdateCH.getResinFileVersion,(event:Electron.IpcMainInvokeEvent,path:string)=>{
-        return rc.fileVersion(path)
-    })
-    ipcMain.handle(UpdateCH.getSWCurrentVersionTW,()=>{
-        return sw.currentVersion()
-    })
-    ipcMain.handle(UpdateCH.getSWServerVersionTW,()=>{
-        return sw.serverVersion()
-    })
-    ipcMain.handle(UpdateCH.getSWFileVersionTW,(event:Electron.IpcMainInvokeEvent,path:string)=>{
-        return sw.fileVersion(path)
-    })
-
-    ipcMain.on(UpdateCH.resinUpdateRM,(event:IpcMainEvent)=>{
-        rc.update()
-    })
-    ipcMain.on(UpdateCH.softwareUpdateRM,(event:IpcMainEvent)=>{
-        sw.update()
-    })
-    ipcMain.on(UpdateCH.resinFileUpdateRM,(event:IpcMainEvent,path:string)=>{
-        rc.updateFile(path)
-    })
-    ipcMain.on(UpdateCH.softwareFileUpdateRM,(event:IpcMainEvent,path:string)=>{
-        sw.updateFile(path)
-    })
-
-    rc.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
-    sw.updateCB = (v:UpdateNotice) => mainWindow.webContents.send(UpdateCH.onUpdateNoticeMR,v)
-
+    productIpcInit(mainWindow)
     wifiInit(mainWindow)
+    updateIpcInit(mainWindow)
 }
 export {mainProsessing}
