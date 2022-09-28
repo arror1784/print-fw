@@ -47,7 +47,7 @@ function Progress(){
             setTotalTime(value)
         })
         const printerInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
-            ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
+            ,elaspsedTime:number,totalTime:number,progress:number)=>{
             setFilename(filename)
             setMaterial(material)
             setLayerHeight(layerHeight)
@@ -72,6 +72,9 @@ function Progress(){
                     navigate('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
                     break;
                 case "pauseWork":
+
+                    setQuitModalVisible(true)
+                    setQuitModalBtnEnable(false)
                     break;
                 case "pause":
                     stopwatchRef.current.stop()
@@ -151,8 +154,6 @@ function Progress(){
                 <Button color='gray' type='small' onClick={() => {setInfoModalVisible(true)}}> Print Info </Button>
                 <Button color='blue' type='small' 
                 onClick={() => {
-                    setQuitModalVisible(true)
-                    setQuitModalBtnEnable(false)
                     window.electronAPI.printCommandRM("pause")}}> Quit </Button> 
             </Footer>
             <Modal selectVisible={false} visible={infoModalVisible} onBackClicked={() => setInfoModalVisible(false)}>
