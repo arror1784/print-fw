@@ -63,7 +63,7 @@ enum WorkerCH{
     commandRM = "worker:command,cmd:string",
     unlockRM = "worker:unlock",
     
-    requestPrintInfoRM = "worker:requestPrintInfo,RT:[state,resinname,filename,layerheight,elapsedtime,totaltime,progress,enableTimer]",
+    requestPrintInfoRM = "worker:requestPrintInfo,RT:[state,resinname,filename,layerheight,elapsedtime,totaltime,progress]",
     onWorkingStateChangedMR = "worker:onWorkingStateChanged,state:string,message:string",
     onPrintInfoMR = "worker:onPrintInfo,state:string,material:string,filename:string,layerheight:number,elapsedTime:number,totalTime:number,progress:number,enabelTimer:number",
     onStartErrorMR = "worker:onStartError,error:string",

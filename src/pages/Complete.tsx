@@ -32,7 +32,7 @@ function Complete(){
 
     useEffect(()=>{
         const printInfoListener = window.electronAPI.onPrintInfoMR((event:IpcRendererEvent,state:string,material:string,filename:string,layerHeight:number
-            ,elaspsedTime:number,totalTime:number,progress:number,enableTimer:number)=>{
+            ,elaspsedTime:number,totalTime:number,progress:number)=>{
             setFilename(filename)
             setResin(material)
             if(state === "error")
