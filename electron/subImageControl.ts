@@ -1,5 +1,4 @@
 import { ChildProcess, spawn, } from "child_process"
-
 class SubImageControl{
 
     private _programCommand = process.arch == 'arm' ? 'DISPLAY=:0 /opt/hix-image-viewer/hix-image-viewer': "./hix-image-viewer/build/hix-image-viewer" 
@@ -14,6 +13,8 @@ class SubImageControl{
     }
 
     runProgram(){
+        if(process.arch != "arm")
+            return
         this._childProcess = spawn(this._programCommand,[],{detached:false})
         
         this._childProcess.stdout?.on('data',(data)=>{
@@ -26,6 +27,9 @@ class SubImageControl{
     }
 
     killProgram(){
+
+        if(process.arch != "arm")
+            return
         if(this._childProcess)
             this._childProcess.kill()
         this.isRun = false
