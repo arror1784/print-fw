@@ -52,7 +52,6 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
                     })
 
                     for (const value of Object.keys(files)) {
-                        console.log(files[value])
                         fs.writeFileSync(sliceFileRoot+value,toUint8Array((files[value] as string).split(',')[1]))
                     }
                     
@@ -166,7 +165,7 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     })
     ipcMain.on(WorkerCH.unlockRM,(event:IpcMainEvent)=>{
         worker.unlock()
-        webSockect.changeState("unlock")
+        webSockect.changeState(WorkingState.stop)
     })
     ipcMain.handle(ProductCH.getUartConnectionErrorTW,()=>{
         return uartConnection.checkConnection()

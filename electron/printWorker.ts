@@ -22,7 +22,8 @@ enum WorkingState{
     stopWork = "stopWork",
     pause = "pause",
     pauseWork = "pauseWork",
-    error = "error"
+    error = "error",
+    lock = "lock"
 }
 
 enum MoveMotorCommand{
@@ -39,7 +40,6 @@ class PrintWorker{
     private _currentStep: number = 0
     private _workingState: WorkingState = WorkingState.stop
     private _progress : number = 0
-    private _lock : boolean = false
     private _lcdState : boolean = true
     private _printingErrorMessage : string = ""
     private _stopwatch : Stopwatch = new Stopwatch()
@@ -172,7 +172,7 @@ class PrintWorker{
             this._resinSetting = resin.data[info.data.layerHeight.toString()]
         }
 
-        if(this._lock)
+        if(this._workingState == WorkingState.lock)
             throw new Error("Error: print lock이 걸려 있습니다.")
 
         this.createActions(this._resinSetting,this._infoSetting)
@@ -240,7 +240,6 @@ class PrintWorker{
     async stop(){
         const prevState = this._workingState
         this._workingState = WorkingState.stopWork
-        this._lock = true
         this._stopwatch.stop()
 
         if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
@@ -271,7 +270,7 @@ class PrintWorker{
                     return;
                 case WorkingState.stopWork:
                     await this._uartConnection.sendCommandMovePosition(-15000)
-                    this._workingState = WorkingState.stop
+                    this._workingState = WorkingState.lock
                     this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
                     this._imageProvider.reloadImageProgram()
 
@@ -360,7 +359,7 @@ class PrintWorker{
         }
     }
     unlock(){
-        this._lock = false
+        this._workingState = WorkingState.stop
     }
     onProgressCB(cb : (progreess: number) => void){
         this._onProgressCallback = cb

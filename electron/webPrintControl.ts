@@ -42,7 +42,7 @@ class WebPrintControl{
     changeStateToPrint(){
         this.sendMessage("changeState","print")
     }
-    changeState(state:WorkingState | "unlock",message?:string){
+    changeState(state:WorkingState,message?:string){
         let ob:any = {}
 
         ob["state"] = state

@@ -67,6 +67,7 @@ function Progress(){
                     setQuitWork(true)
                     break;
                 case "stop":
+                case "lock":
                     stopwatchRef.current.stop()
                     console.log('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
                     navigate('/complete/'+stopwatchRef.current.getTime()+"/"+isError.current)
