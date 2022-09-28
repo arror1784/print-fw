@@ -6,22 +6,17 @@ import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConn
 import { ImageCH, ProductCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
-import {networkInterfaces} from 'os'
-import AdmZip from 'adm-zip'
 import { ResinSetting } from "./json/resin"
 import { getProductSetting } from "./json/productSetting"
-import { exec, execSync } from "child_process"
-import { getVersionSetting } from "./json/version"
-import { getModelNoInstaceSetting } from "./json/modelNo"
-import { getWifiName, wifiInit } from "./ipc/wifiControl"
+import { wifiInit } from "./ipc/wifiControl"
 
-import address from 'address'
-import { ResinControl } from "./resinUpdate"
-import { SWUpdate } from "./swUpdate"
-import { UpdateNotice } from "./update"
 import { getPrinterSetting } from "./json/printerSetting"
 
-import sizeOf from 'image-size'
+import { WebSocketMessage } from "./json/webSockectMessage"
+import { MessageType, WebPrintControl } from "./webPrintControl"
+import { productIpcInit } from "./ipc/product"
+import { updateIpcInit } from "./ipc/update"
+import { atob, Base64, btoa, decode, toUint8Array } from 'js-base64'
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -36,11 +31,75 @@ let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFile
 
 let worker = new PrintWorker(uartConnection,imageProvider)
 
-let rc = new ResinControl()
-let sw = new SWUpdate()
+let webSockect = new WebPrintControl(worker)
+
+Base64.extendString()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+    webSockect.onMessage = ( message:WebSocketMessage )=>{
+        let msg = (message.data) 
+        console.log(msg.method)
+        switch((msg.method as MessageType)){
+            case MessageType.Print:
+                try {
 
+                    let material = msg.arg["selectedMaterial"] as string
+                    let name = msg.arg["selectedFilename"] as string
+                    let files = msg.arg["printFiles"] as any
+
+                    fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
+                        fs.rmSync(sliceFileRoot + value)
+                    })
+
+                    for (const value of Object.keys(files)) {
+                        console.log(files[value])
+                        fs.writeFileSync(sliceFileRoot+value,toUint8Array((files[value] as string).split(',')[1]))
+                    }
+                    
+                    worker.print(material,sliceFileRoot+name,name)
+                    webSockect.sendMessage("start","")
+
+                } catch (error) {
+                    webSockect.settingError(0,(error as Error).message)
+                    console.log((error as Error).message)
+                }
+
+                break;
+            case MessageType.ChangeState:
+                let state = message.data.arg as String;
+                if(state == "pause"){
+                    worker.pause()
+                }else if(state == "resume"){
+                    worker.resume()
+                }else if(state == "quit"){
+                    worker.stop()
+                }
+                break;
+            case MessageType.GetProductName:
+                webSockect.sendMessage("setProductName",getProductSetting().data.product == "L10" ? "L-10" : "C-10")
+                break;
+            case MessageType.ListMaterialName:
+                webSockect.sendMessage("listMaterialName",getPrinterSetting().data.resinList)
+                break;
+            case MessageType.PrintInfo:
+                let info = worker.getPrintInfo()
+                webSockect.sendMessage("printInfo",info)
+                break;
+        }
+    }
+
+    ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
+        try {
+            let nameArr = path.split('/')
+            let name = nameArr[nameArr.length - 1]
+            worker.print(material,path,name)
+            webSockect.sendMessage("start","")
+
+        } catch (error) {
+            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
+            console.log((error as Error).message)
+        }
+    })
     uartConnection.onResponse((type : UartResponseType,response:number) => {
         switch(type){
             case UartResponseType.SHUTDOWN:
@@ -65,72 +124,21 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
                 break;
         }
     })
-    
     imageProvider.imageCB((src : string) => {
         if(!imageWindow.isDestroyed())
             imageWindow.webContents.send(ImageCH.changeImageMR,src)
     })
     worker.onProgressCB((progress:number)=>{
         mainWindow.webContents.send(WorkerCH.onProgressMR,progress)
+        webSockect.changeProgress(progress)
     })
     worker.onStateChangeCB((state:WorkingState,message?:string)=>{
         mainWindow.webContents.send(WorkerCH.onWorkingStateChangedMR,state,message)
+        webSockect.changeState(state,message)
     })
     worker.onSetTotalTimeCB((value:number)=>{
         mainWindow.webContents.send(WorkerCH.onSetTotalTimeMR,value)
-    })
-    
-    ipcMain.on(WorkerCH.startRM,(event:IpcMainEvent,path:string,material:string)=>{
-        try {
-            if(!fs.existsSync(path))
-                throw new Error("Error: 파일이 존재하지 않습니다.")
-                
-            let zip = new AdmZip(path)
-            if(!zip.test())
-                throw new Error("zip archive error")
-            
-            fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
-                fs.rmSync(sliceFileRoot + value)
-            })
-
-            zip.extractAllTo(sliceFileRoot,true)
-
-            if(fs.existsSync(sliceFileRoot+"/0.png")){
-                let height = sizeOf(sliceFileRoot+"/0.png").height
-                console.log(height)
-                switch (getProductSetting().data.product) {
-                    case "C10":
-                        if(height != 1440)
-                            throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
-                        break;
-                    case "L10":
-                        if(height != 1620)
-                            throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
-                        break;
-                }
-            }
-            let resin : ResinSetting
-            if(fs.existsSync(sliceFileRoot+'/resin.json') && material == "custom"){
-                resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
-            }else{
-                resin = new ResinSetting(material)
-            }
-
-            let nameArr = path.split('/')
-            let name = nameArr[nameArr.length -1]
-            if(process.platform === "win32" || process.arch != 'arm'){
-                console.log("do hdmi reset")
-            }else{
-                execSync("vcgencmd display_power 0") // hdmi power off
-                execSync("vcgencmd display_power 1") // hdmi power on
-            }
-
-            worker.run(name,resin)
-            
-        } catch (error) {
-            mainWindow.webContents.send(WorkerCH.onStartErrorMR,(error as Error).message)
-            console.log((error as Error).message)
-        }
+        webSockect.setTotalTime(value)
     })
     ipcMain.on(WorkerCH.commandRM,(event:IpcMainEvent,cmd:string)=>{
         switch (cmd) {

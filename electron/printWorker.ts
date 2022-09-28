@@ -6,6 +6,15 @@ import { ResinSetting, ResinSettingValue } from './json/resin';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
 import { Stopwatch } from 'ts-stopwatch'
 import { Worker } from 'worker_threads';
+import { execSync } from 'child_process';
+
+import * as fs from 'fs'
+import AdmZip from 'adm-zip';
+import sizeOf from 'image-size';
+import { getProductSetting } from './json/productSetting';
+
+
+const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
 enum WorkingState{
     working = "working",
@@ -83,7 +92,7 @@ class PrintWorker{
 
         _uartConnection.checkConnection()
     }
-    getPrintInfo(){ //[state,resinname,filename,layerheight,elapsedtime,totaltime,progress,enableTimer]
+    getPrintInfo(){ //[state,resinname,filename,layerheight,elapsedtime,totaltime,progress]
         return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,this._stopwatch.getTime(),this._totalTime,this._progress,true]
     }
     
@@ -93,8 +102,54 @@ class PrintWorker{
             this.stop()
         }
     }
+
+    print(material:string,path:string,name:string){
+
+        if(!fs.existsSync(path))
+        throw new Error("Error: 파일이 존재하지 않습니다.")
+        
+        let zip = new AdmZip(path)
+        if(!zip.test())
+            throw new Error("zip archive error")
+        
+        fs.readdirSync(sliceFileRoot).forEach((value:string)=>{
+            fs.rmSync(sliceFileRoot + value)
+        })
+
+        zip.extractAllTo(sliceFileRoot,true)
+
+        if(fs.existsSync(sliceFileRoot+"/0.png")){
+            let height = sizeOf(sliceFileRoot+"/0.png").height
+            console.log(height)
+            switch (getProductSetting().data.product) {
+                case "C10":
+                    if(height != 1440)
+                        throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
+                    break;
+                case "L10":
+                    if(height != 1620)
+                        throw new Error("Error: 맞지 않는 이미지 사이즈 입니다.")
+                    break;
+            }
+        }
+        let resin : ResinSetting
+        if(fs.existsSync(sliceFileRoot+'/resin.json') && material == "custom"){
+            resin = new ResinSetting("custom",fs.readFileSync(sliceFileRoot+'/resin.json',"utf8"))
+        }else{
+            resin = new ResinSetting(material)
+        }
+
+        if(process.platform === "win32" || process.arch != 'arm'){
+            console.log("do hdmi reset")
+        }else{
+            execSync("vcgencmd display_power 0") // hdmi power off
+            execSync("vcgencmd display_power 1") // hdmi power on
+        }
+
+        this.run(name,resin)
+    }
     
-    run(name :string, resin:ResinSetting){
+    private run(name :string, resin:ResinSetting){
         this._name = name
         let info = new InfoSetting()
 

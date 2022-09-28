@@ -2,7 +2,7 @@ import { JsonSetting } from "./json";
 
 interface WebSocketMessageValue{
     method: string;
-    arg: Object;
+    arg: any;
 }
 
 
