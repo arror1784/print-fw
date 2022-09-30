@@ -17,6 +17,7 @@ import { MessageType, WebPrintControl } from "./webPrintControl"
 import { productIpcInit } from "./ipc/product"
 import { updateIpcInit } from "./ipc/update"
 import { atob, Base64, btoa, decode, toUint8Array } from 'js-base64'
+import { arch } from "process"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -36,6 +37,17 @@ let webSockect = new WebPrintControl(worker)
 Base64.extendString()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+
+    mainWindow.on("blur",()=>{
+        
+        console.log("focus lose")
+        if(arch == "arm")
+            mainWindow.focus()
+        if(arch == "arm")
+            if(worker.getPrintInfo()[0] == WorkingState.working || worker.getPrintInfo()[0] == WorkingState.pauseWork)
+                worker.error("Error: focus 문제가 발생하였습니다.")
+    })
+    
     webSockect.onMessage = ( message:WebSocketMessage )=>{
         let msg = (message.data) 
         console.log(msg.method)

@@ -237,6 +237,19 @@ class PrintWorker{
         this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
         this.process()
     }
+    error(message :string){
+        
+        const prevState = this._workingState
+
+        this._workingState = WorkingState.error
+        this._printingErrorMessage = message
+        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+
+        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
+            this.process()
+        }
+
+    }
     async stop(){
         const prevState = this._workingState
         this._workingState = WorkingState.stopWork
