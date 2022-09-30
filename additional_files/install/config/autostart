@@ -2,4 +2,4 @@
 @pcmanfm --desktop --profile LXDE-pi
 @point-rpi
 
-@/opt/capsuleFW/bin/capsuleFW
+@/opt/capsuleFW/bin/print-fw-start.sh &

@@ -11,6 +11,7 @@ ROOT_UPDATE_TARGET=(
 "libstdc++.so.6.0.26"
 "wpa_supplicant.conf"
 "rc.local"
+"autostart"
 )
 ROOT_UPDATE_PATH=(
 "/opt/capsuleFW/bin/capsuleFW"
@@ -18,6 +19,7 @@ ROOT_UPDATE_PATH=(
 "/usr/lib/arm-linux-gnueabihf/libstdc++.so.6"
 "/etc/wpa_supplicant/wpa_supplicant.conf"
 "/etc/rc.local"
+"/etc/xdg/lxsession/LXDE-pi/autostart"
 )
 
 if [ $# -eq 0 ]; then
@@ -105,8 +107,17 @@ dpkg -i ${TARGET_FOLDER_NAME}/libtbb2_2018~U6-4_armhf.deb
 pkill capsuleFW
 
 rm -rf /opt/capsuleFW/bin/capsuleFW
-cp -rf ${TARGET_FOLDER_NAME}/capsuleFW /opt/capsuleFW/bin/capsuleFW
-chmod 755 /opt/capsuleFW/bin/capsuleFW
+rm -rf /opt/capsuleFW/bin/print-fw
+rm -rf /opt/capsuleFW/bin/print-fw-start.sh
+rm -rf /opt/capsuleFW/bin/hix-image-viewer
+
+cp -rf ${TARGET_FOLDER_NAME}/print-fw /opt/capsuleFW/bin/print-fw
+cp -rf ${TARGET_FOLDER_NAME}/print-fw-start.sh /opt/capsuleFW/bin/print-fw-start.sh
+cp -rf ${TARGET_FOLDER_NAME}/hix-image-viewer /opt/capsuleFW/bin/hix-image-viewer
+
+chmod 755 /opt/capsuleFW/bin/print-fw
+chmod 755 /opt/capsuleFW/bin/print-fw-start
+chmod 755 /opt/capsuleFW/bin/hix-image-viewer
 
 rm -rf /opt/capsuleFW/version.json
 cp -rf $3 /opt/capsuleFW/
@@ -117,5 +128,5 @@ chmod +x ${TARGET_FOLDER_NAME}/HGCommandSender
 ${TARGET_FOLDER_NAME}/HGCommandSender "H201"
 
 rm -rf $2/*
-	
+
 shutdown -h now
