@@ -2,9 +2,10 @@ import { getVersionSetting } from "./json/version"
 import fs from 'fs'
 
 import requestPromise from 'request-promise'
-import { exec,spawn } from "child_process"
+import { exec,execSync,spawn, spawnSync } from "child_process"
 import { Update, UpdateNotice } from "./update"
 import AdmZip from "adm-zip"
+import { timeStamp } from "console"
 
 class SWUpdate extends Update<string>{
     
@@ -14,6 +15,8 @@ class SWUpdate extends Update<string>{
 
     private url :string ="https://services.hix.co.kr/setup/"
     private downloadPath : string = "/opt/capsuleFW/download/"
+
+    private _zip : AdmZip|undefined
 
     public currentVersion(): string{
         return getVersionSetting().data.version
@@ -48,21 +51,31 @@ class SWUpdate extends Update<string>{
         if(!fs.existsSync(path))
             return null
 
-        let zip = new AdmZip(path)
-        if(!zip.test())
-            return null
+        // this._zip = new AdmZip(path)
 
-        let versionJson = zip.getEntries().filter((value:AdmZip.IZipEntry)=> value.name.endsWith(".json"))
+        // if(!this._zip.test())
+            // return null
+        
+        if(!fs.existsSync(path)){
+            return null
+        }
+
+        execSync("unzip -o "+path+" -d "+this.downloadPath)
+
+        let fList = fs.readdirSync(this.downloadPath)
+
+        let versionJson = fList.filter((value:string)=> value.endsWith(".json"))
         
         if(versionJson.length === 0)
             return null
         
-        
-        let versionData = zip.readFile(versionJson[0].name)
+        let versionData = fs.readFileSync(this.downloadPath + versionJson[0])
         if(!versionData)
             return null
 
         let version = JSON.parse(versionData.toString())
+
+        delete this._zip
 
         return version['version']
     }
@@ -98,15 +111,16 @@ class SWUpdate extends Update<string>{
         if(!shellName && !zipName && !versionName){
             return false
         }
+
         if(binaryName){
             // do stm32 binary update
         }
         
-        exec("chmod +x " + this.downloadPath + "/" + shellName)
+        execSync("chmod +x " + this.downloadPath + "/" + shellName)
         if(process.platform === "win32" || process.arch != 'arm')
-            console.log(this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName)
+            console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName + "\"")
         else 
-            spawn(this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName)
+            execSync("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName + "\"")
         // update 
 
         if(!rt)
@@ -119,24 +133,17 @@ class SWUpdate extends Update<string>{
     public async updateFile(path: string) {
 
         this.updateCB && this.updateCB(UpdateNotice.start)
+        
+        let fileList :string[] = []
 
         if(!fs.existsSync(path)){
             this.updateCB && this.updateCB(UpdateNotice.error)
             return false
         }
+        
+        execSync("unzip -o "+path+" -d "+this.downloadPath)
 
-        let zip = new AdmZip(path)
-        if(!zip.test()){
-            this.updateCB && this.updateCB(UpdateNotice.error)
-            return false
-        }
-
-        zip.extractAllTo(this.downloadPath,true,)
-
-        let fileList :string[] = []
-
-        zip.forEach((value:AdmZip.IZipEntry)=> fileList.push(value.name))
-
+        fileList = fs.readdirSync(this.downloadPath)
         
         let shellName = fileList.find((value:string)=>{return value.endsWith('sh')})
         let zipName = fileList.find((value:string)=>{return value.endsWith('zip')})
@@ -147,22 +154,22 @@ class SWUpdate extends Update<string>{
 
             return false
         }
+
         if(binaryName){
             // do stm32 binary update
         }
 
+        execSync("chmod +x " + this.downloadPath + "/" + shellName)
 
-        exec("chmod +x " + this.downloadPath + "/" + shellName)
         if(process.platform === "win32" || process.arch != 'arm')
-            console.log(this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName)
-        else 
-            spawn(this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName)
+            console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
+        else 0
+            execSync("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
         // update 
 
         this.updateCB && this.updateCB(UpdateNotice.finish)
         return true
     }
-
 }
 
 export { SWUpdate }

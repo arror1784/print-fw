@@ -104,7 +104,7 @@ done
 
 dpkg -i ${TARGET_FOLDER_NAME}/libtbb2_2018~U6-4_armhf.deb
 
-pkill capsuleFW
+pkill print-fw
 
 rm -rf /opt/capsuleFW/bin/capsuleFW
 rm -rf /opt/capsuleFW/bin/print-fw

@@ -21,7 +21,7 @@ function Update(){
     const navigate = useNavigate()
     const {updateTarget,updatePath,updateMode} = useParams()
     
-    const [updateEnable, setupdateEnable] = useState(true)
+    const [updateEnable, setupdateEnable] = useState(false)
     const [currentVersion, setcurrentVersion] = useState("")
     const [latestVersion, setlatestVersion] = useState("")
     const [statusString, setstatusString] = useState<UpdateState>('updateCheck')
@@ -39,6 +39,7 @@ function Update(){
                 setcurrentVersion(v)
             })
         }
+        setupdateEnable(true)
     }
     const getServerVersion = () => {
         if(updateTarget == "resin"){
