@@ -84,6 +84,7 @@ interface electronApiInterface {
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void ) => EventListener;
     onUpdateNoticeMR: (callback:(event:IpcRendererEvent,value:UpdateNotice)=>void ) => EventListener;
     onMoveFinishMR: (callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number)=>void)=>EventListener;
+    onUartConnectionStateChangeMR:(callback:(event:IpcRendererEvent,isOpen:boolean) => void) => EventListener;
 
     removeListener : (listener:EventListener) => void;
     removeAllListner : (channel:string) => void;
@@ -138,7 +139,8 @@ const exposedApi: electronApiInterface = {
     onWifiNoticeMR: (callback:(event:IpcRendererEvent,type:WifiCallbackType,value:number)=>void) => {return eventADD(WifiCH.onWifiNoticeMR,callback)},
     onUpdateNoticeMR:(callback:(event:IpcRendererEvent,value:UpdateNotice) => void) => {return eventADD(UpdateCH.onUpdateNoticeMR,callback)},
     onMoveFinishMR:(callback:(event:IpcRendererEvent,command:MoveMotorCommand,value:number) => void) => {return eventADD(ProductCH.onMoveFinishMR,callback)},
-
+    onUartConnectionStateChangeMR:(callback:(event:IpcRendererEvent,isOpen:boolean) => void) => {return eventADD(ProductCH.uartConnectionStateChangeMR,callback)},
+    
     removeListener : (listener:EventListener) => eventRemove(listener),
     removeAllListner : (channel:string) => ipcRenderer.removeAllListeners(channel),
 }

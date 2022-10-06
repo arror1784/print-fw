@@ -22,6 +22,8 @@ ROOT_UPDATE_PATH=(
 "/etc/xdg/lxsession/LXDE-pi/autostart"
 )
 
+pkill print-fw
+
 if [ $# -eq 0 ]; then
     echo "usage : %s [files] [dir] [version]" $0
     exit 0
@@ -103,8 +105,6 @@ for (( i = 0 ; i < ${#SERVICES[@]} ; i++ )) ; do
 done
 
 dpkg -i ${TARGET_FOLDER_NAME}/libtbb2_2018~U6-4_armhf.deb
-
-pkill print-fw
 
 rm -rf /opt/capsuleFW/bin/capsuleFW
 rm -rf /opt/capsuleFW/bin/print-fw

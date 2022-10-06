@@ -135,6 +135,9 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
                 break;
         }
     })
+    uartConnection.openCallback = (isOpen : boolean)=>{
+        mainWindow.webContents.send(ProductCH.uartConnectionStateChangeMR,isOpen)
+    }
     imageProvider.imageCB((src : string) => {
         if(!imageWindow.isDestroyed())
             imageWindow.webContents.send(ImageCH.changeImageMR,src)

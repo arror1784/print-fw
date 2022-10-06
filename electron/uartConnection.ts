@@ -36,9 +36,12 @@ function toBytesInt32 (num :number) {
 
 class UartConnectionTest{
     
+    openCallback? : (isOpen:boolean) => void;
+
     init(printSetting : ResinSettingValue){
     }
     connect(){
+        this.openCallback && this.openCallback(true)
     }
     disconnect(){
     }
@@ -76,21 +79,34 @@ class UartConnectionTest{
 }
 class UartConnection extends UartConnectionTest{
 
-    private port : SerialPort;
-    private parser : DelimiterParser;
+    private port? : SerialPort;
+    private parser? : DelimiterParser;
     private rcb? : (type : UartResponseType, response : number) => void;
     private _moveEvents : EventEmitter = new EventEmitter()
     private _isMove: boolean = false
 
-    constructor(public readonly serialPortPath:string, onError? : () => void){
+    constructor(private readonly _serialPortPath:string, onError? : () => void){
         super()
+        this.connect()
+    }
+    init(resinSetting : ResinSettingValue){
+        this.sendCommand(`H32 A${resinSetting.upMoveSetting.accelSpeed} M1`)
+        this.sendCommand(`H32 A${resinSetting.downMoveSetting.accelSpeed} M0`)
+        this.sendCommand(`H33 A${resinSetting.upMoveSetting.decelSpeed} M1`)
+        this.sendCommand(`H33 A${resinSetting.downMoveSetting.decelSpeed} M0`)
+        this.sendCommand(`H30 A${resinSetting.upMoveSetting.maxSpeed} M1`)
+        this.sendCommand(`H30 A${resinSetting.downMoveSetting.maxSpeed} M0`)
+        this.sendCommand(`H31 A${resinSetting.upMoveSetting.initSpeed} M1`)
+        this.sendCommand(`H31 A${resinSetting.downMoveSetting.initSpeed} M0`)
+        this.sendCommand(`H12 A${(getPrinterSetting().data.ledOffset / 100) *  (resinSetting.ledOffset / 100)}`)
+    }
+    connect(){
 
         this.port = new SerialPort({
-            path: serialPortPath,
+            path: this._serialPortPath,
             baudRate: 115200,
             autoOpen:false
           })
-
         this.parser = this.port.pipe(new DelimiterParser({ delimiter: [0x03],includeDelimiter:true}))
         this.parser.on('data', (response:Buffer)=>{
             let view = new Uint8Array(response)
@@ -114,27 +130,25 @@ class UartConnection extends UartConnectionTest{
                 this.rcb(view[i + 2],view[i+3])
         }) // emits data after every '0x03'
 
-        this.connect()
-    }
-    init(resinSetting : ResinSettingValue){
-        this.sendCommand(`H32 A${resinSetting.upMoveSetting.accelSpeed} M1`)
-        this.sendCommand(`H32 A${resinSetting.downMoveSetting.accelSpeed} M0`)
-        this.sendCommand(`H33 A${resinSetting.upMoveSetting.decelSpeed} M1`)
-        this.sendCommand(`H33 A${resinSetting.downMoveSetting.decelSpeed} M0`)
-        this.sendCommand(`H30 A${resinSetting.upMoveSetting.maxSpeed} M1`)
-        this.sendCommand(`H30 A${resinSetting.downMoveSetting.maxSpeed} M0`)
-        this.sendCommand(`H31 A${resinSetting.upMoveSetting.initSpeed} M1`)
-        this.sendCommand(`H31 A${resinSetting.downMoveSetting.initSpeed} M0`)
-        this.sendCommand(`H12 A${(getPrinterSetting().data.ledOffset / 100) *  (resinSetting.ledOffset / 100)}`)
-    }
-    connect(){
-        this.port.open()
+        console.log("open try")
+        this.port.open((err: Error | null) => {
+            if(err){
+                this.openCallback && this.openCallback(false)
+                setTimeout(()=>{
+                    this.connect()
+                },1000)
+            }else{
+                this.openCallback && this.openCallback(true)
+            }
+        })
     }
     disconnect(){
-        this.port.close()
+        this.port?.close()
     }
     checkConnection(){
-        return this.port.isOpen;
+        if(!this.port)
+            return false
+        return this.port?.isOpen;
     }
     sendCommand(command: Uint8Array | string){
 
@@ -144,7 +158,7 @@ class UartConnection extends UartConnectionTest{
         if(typeof(command) === "string"){
             cmd = transData(parseCommand(command as string))
         }
-        this.port.write(cmd)
+        this.port?.write(cmd)
         // this.port.drain()
         
         //sendCommand

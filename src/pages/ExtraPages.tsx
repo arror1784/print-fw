@@ -28,6 +28,14 @@ function ExtraPages(){
                     break;
             }
         })
+        const connectionStatListener = window.electronAPI.onUartConnectionStateChangeMR((event:IpcRendererEvent,isOpen:boolean)=>{
+            console.log("onUartConnectionStateChangeMR",isOpen)
+            if(isOpen)
+                navigate('/')
+            else
+                navigate('/uartConnectionError')
+
+        })
         window.electronAPI.getUartConnectionErrorTW().then((value:boolean)=>{
             if(!value)
                 navigate('/uartConnectionError')
@@ -36,6 +44,8 @@ function ExtraPages(){
             window.electronAPI.removeListener(lcdListener)
             window.electronAPI.removeListener(shutdownListener)
             window.electronAPI.removeListener(workingStateListener)
+            window.electronAPI.removeListener(connectionStatListener)
+
         }
     },[])
 

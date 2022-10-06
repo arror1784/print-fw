@@ -51,6 +51,7 @@ enum ProductCH{
     onLCDStateChangedMR = "product:onLCDStateChanged,state:boolean",
     onShutDownEventMR = "product:onShutDownEvent",
     onMoveFinishMR = "product:onMoveFinishMR",
+    uartConnectionStateChangeMR = "product:uartConnectionStateChangeMR",
 
     shutDownRM = "product:onShutDown",
     saveLEDOffsetRM = "product:saveLEDOffsetRM,int",

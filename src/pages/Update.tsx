@@ -39,14 +39,16 @@ function Update(){
                 setcurrentVersion(v)
             })
         }
-        setupdateEnable(true)
     }
     const getServerVersion = () => {
         if(updateTarget == "resin"){
             if(updateMode == "network"){
                 window.electronAPI.getResinServerVersion().then((v:Date|null)=>{
-                    if(v)
+                    if(v){
+                        setupdateEnable(true)
                         setlatestVersion(v.toLocaleString())
+                    }
+
                     else
                         setstatusString('networkError')
                 })
@@ -56,8 +58,10 @@ function Update(){
                     return
                 }
                 window.electronAPI.getResinFileVersion(decodingUpdatePath).then((v:Date|null)=>{
-                    if(v)
+                    if(v){
+                        setupdateEnable(true)
                         setlatestVersion(v.toLocaleString())
+                    }
                     else
                         setstatusString('fileError')
                 })
@@ -65,8 +69,10 @@ function Update(){
         }else{
             if(updateMode == "network"){
                 window.electronAPI.getSWServerVersionTW().then((v:string|null)=>{
-                    if(v)
+                    if(v){
+                        setupdateEnable(true)
                         setlatestVersion(v)
+                    }
                     else
                         setstatusString('networkError')
                 })
@@ -76,8 +82,10 @@ function Update(){
                     return
                 }
                 window.electronAPI.getSWFileVersionTW(decodingUpdatePath).then((v:string|null)=>{
-                    if(v)
+                    if(v){
+                        setupdateEnable(true)
                         setlatestVersion(v)
+                    }
                     else
                         setstatusString('fileError')
                 })

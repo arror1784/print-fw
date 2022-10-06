@@ -164,10 +164,9 @@ class SWUpdate extends Update<string>{
         if(process.platform === "win32" || process.arch != 'arm')
             console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
         else 0
-            execSync("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
+            execSync("echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName)
         // update 
-
-        this.updateCB && this.updateCB(UpdateNotice.finish)
+        // this.updateCB && this.updateCB(UpdateNotice.finish)
         return true
     }
 }
