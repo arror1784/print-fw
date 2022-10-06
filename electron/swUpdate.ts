@@ -6,9 +6,12 @@ import { exec,execSync,spawn, spawnSync } from "child_process"
 import { Update, UpdateNotice } from "./update"
 import AdmZip from "adm-zip"
 import { timeStamp } from "console"
+import { UartConnection, UartConnectionTest } from "./uartConnection"
 
 class SWUpdate extends Update<string>{
     
+    public uartConnection : UartConnection | UartConnectionTest | undefined
+
     constructor(){
         super()
     }
@@ -117,16 +120,17 @@ class SWUpdate extends Update<string>{
         }
         
         execSync("chmod +x " + this.downloadPath + "/" + shellName)
-        if(process.platform === "win32" || process.arch != 'arm')
-            console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName + "\"")
-        else 
-            execSync("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+" "+this.downloadPath+zipName+" "+this.downloadPath+versionName + "\"")
-        // update 
 
-        if(!rt)
-            this.updateCB && this.updateCB(UpdateNotice.error)
-        else
-            this.updateCB && this.updateCB(UpdateNotice.finish)
+        if(process.platform === "win32" || process.arch != 'arm')
+            console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
+        else 0
+            execSync("/bin/bash -c \"/bin/echo rasp | /usr/bin/sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
+        // update 
+        // this.updateCB && this.updateCB(UpdateNotice.finish)
+        this.uartConnection?.sendCommand("H201")
+
+        exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
+            console.log("shutdown -h now")})
 
         return rt
     }
@@ -164,9 +168,14 @@ class SWUpdate extends Update<string>{
         if(process.platform === "win32" || process.arch != 'arm')
             console.log("bash -c \"echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
         else 0
-            execSync("echo rasp | sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName)
+            execSync("/bin/bash -c \"/bin/echo rasp | /usr/bin/sudo -S " + this.downloadPath+shellName+" "+this.downloadPath+zipName+" "+this.downloadPath+" "+this.downloadPath+versionName + "\"")
         // update 
         // this.updateCB && this.updateCB(UpdateNotice.finish)
+        this.uartConnection?.sendCommand("H201")
+
+        exec("echo rasp | sudo -S shutdown -h now",(error, stdout, stderr) => {
+            console.log("shutdown -h now")})
+
         return true
     }
 }

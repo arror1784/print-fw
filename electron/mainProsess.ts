@@ -18,6 +18,8 @@ import { productIpcInit } from "./ipc/product"
 import { updateIpcInit } from "./ipc/update"
 import { atob, Base64, btoa, decode, toUint8Array } from 'js-base64'
 import { arch } from "process"
+import { SWUpdate } from "./swUpdate"
+import { ResinControl } from "./resinUpdate"
 
 const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
@@ -34,10 +36,13 @@ let worker = new PrintWorker(uartConnection,imageProvider)
 
 let webSockect = new WebPrintControl(worker)
 
+let rc = new ResinControl()
+let sw = new SWUpdate()
+
 Base64.extendString()
 
 async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
-
+    sw.uartConnection = uartConnection
     mainWindow.on("blur",()=>{
         
         console.log("focus lose")
@@ -189,8 +194,10 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
         await worker.moveMotor(command,value)
         mainWindow.webContents.send(ProductCH.onMoveFinishMR,command,value)
     })
+
     productIpcInit(mainWindow)
     wifiInit(mainWindow)
-    updateIpcInit(mainWindow)
+    updateIpcInit(mainWindow,sw,rc)
+
 }
 export {mainProsessing}

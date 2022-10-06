@@ -22,8 +22,6 @@ ROOT_UPDATE_PATH=(
 "/etc/xdg/lxsession/LXDE-pi/autostart"
 )
 
-pkill print-fw
-
 if [ $# -eq 0 ]; then
     echo "usage : %s [files] [dir] [version]" $0
     exit 0
@@ -124,9 +122,4 @@ cp -rf $3 /opt/capsuleFW/
 
 sleep 1
 
-chmod +x ${TARGET_FOLDER_NAME}/HGCommandSender
-${TARGET_FOLDER_NAME}/HGCommandSender "H201"
-
 rm -rf $2/*
-
-shutdown -h now

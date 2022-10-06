@@ -4,11 +4,7 @@ import { SWUpdate } from "../swUpdate"
 import { UpdateNotice } from "../update"
 import { UpdateCH } from "./cmdChannels"
 
-
-let rc = new ResinControl()
-let sw = new SWUpdate()
-
-export function updateIpcInit(mainWindow:BrowserWindow){
+export function updateIpcInit(mainWindow:BrowserWindow,sw:SWUpdate,rc:ResinControl){
 
 
     ipcMain.handle(UpdateCH.getResinCurrentVersion,()=>{
