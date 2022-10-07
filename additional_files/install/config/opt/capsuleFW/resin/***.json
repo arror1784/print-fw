@@ -1,0 +1,35 @@
+{
+    "last_update": "12/09/2020, 09:16:25",
+    "0.1": {
+      "up_accel_speed": 200,
+      "up_decel_speed": 500,
+      "down_accel_speed": 500,
+      "down_decel_speed": 500,
+      "init_speed": 50,
+      "max_speed": 500,
+      "layer_delay": 1000,
+      "curing_time": 1900,
+      "bed_curing_time": 10000,
+      "led_offset": 80,
+      "bed_curing_layer": 10,
+      "z_hop_height": 5000,
+      "pixelContraction": 0,
+      "ymult": 1
+    },
+    "0.05": {
+      "up_accel_speed": 200,
+      "up_decel_speed": 500,
+      "down_accel_speed": 500,
+      "down_decel_speed": 500,
+      "init_speed": 50,
+      "max_speed": 500,
+      "layer_delay": 1000,
+      "curing_time": 1250,
+      "bed_curing_time": 6000,
+      "led_offset": 80,
+      "bed_curing_layer": 20,
+      "z_hop_height": 5000,
+      "pixelContraction": 0,
+      "ymult": 1
+    }
+}
