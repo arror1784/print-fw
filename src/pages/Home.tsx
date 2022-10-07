@@ -28,7 +28,7 @@ function Home(){
                 if(value.length > 3){
                     let a : string[] = []
                     for (let i = 3; i < value.length; i++) {
-                        a.push(value[i])
+                        a.push(value[i]+":5000")
                     }
                     setIp(a)
                 }
