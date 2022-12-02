@@ -120,6 +120,22 @@ chmod 755 /opt/capsuleFW/bin/hix-image-viewer
 rm -rf /opt/capsuleFW/version.json
 cp -rf $3 /opt/capsuleFW/
 
-sleep 1
+if ls /opt/capsuleFW/bin/capsuleFW; then
+	pkill capsuleFW
 
-rm -rf $2/*
+	sleep 10
+
+	chmod +x ${TARGET_FOLDER_NAME}/HGCommandSender
+	${TARGET_FOLDER_NAME}/HGCommandSender "H201"
+
+	rm -rf $2/*
+
+	shutdown -h now
+
+else
+
+	sleep 1
+
+	rm -rf $2/*
+
+fi
