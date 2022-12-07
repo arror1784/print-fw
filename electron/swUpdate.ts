@@ -63,7 +63,7 @@ class SWUpdate extends Update<string>{
             return null
         }
 
-        execSync("unzip -o "+path+" -d "+this.downloadPath)
+        execSync("unzip -o '"+path+"' -d "+this.downloadPath)
 
         let fList = fs.readdirSync(this.downloadPath)
 
@@ -145,7 +145,7 @@ class SWUpdate extends Update<string>{
             return false
         }
         
-        execSync("unzip -o "+path+" -d "+this.downloadPath)
+        execSync("unzip -o '"+path+"' -d "+this.downloadPath)
 
         fileList = fs.readdirSync(this.downloadPath)
         

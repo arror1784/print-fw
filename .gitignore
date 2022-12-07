@@ -61,3 +61,7 @@ sketch
 /dist
 
 temp/print/printFilePath/*
+
+#etc.
+*.img
+*.updateFile

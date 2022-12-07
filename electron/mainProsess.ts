@@ -34,7 +34,7 @@ let imageProvider = new ImageProvider(getProductSetting().data.product,sliceFile
 
 let worker = new PrintWorker(uartConnection,imageProvider)
 
-let webSockect = new WebPrintControl(worker)
+let webSockect = new WebPrintControl()
 
 let rc = new ResinControl()
 let sw = new SWUpdate()
