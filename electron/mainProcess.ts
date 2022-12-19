@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from "electron"
 import { ImageProvider } from "./imageProvider"
 import { MoveMotorCommand, PrintWorker, WorkingState } from "./printWorker"
 import { UartConnection, UartConnectionTest, UartResponseType } from "./uartConnection"
-import { ImageCH, ProductCH, UpdateCH, WorkerCH } from './ipc/cmdChannels'
+import { ImageCH, ProductCH, WorkerCH } from './ipc/cmdChannels'
 
 import fs from "fs"
 import { ResinSetting } from "./json/resin"
@@ -16,12 +16,12 @@ import { WebSocketMessage } from "./json/webSockectMessage"
 import { MessageType, WebPrintControl } from "./webPrintControl"
 import { productIpcInit } from "./ipc/product"
 import { updateIpcInit } from "./ipc/update"
-import { atob, Base64, btoa, decode, toUint8Array } from 'js-base64'
+import { Base64, toUint8Array } from 'js-base64'
 import { arch } from "process"
 import { SWUpdate } from "./swUpdate"
 import { ResinControl } from "./resinUpdate"
 
-const sliceFileRoot : string = process.platform === "win32" ? process.cwd() + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
+const sliceFileRoot : string = process.platform === "win32" ? __dirname + "/temp/print/printFilePath/" : "/opt/capsuleFW/print/printFilePath/"
 
 let uartConnection : UartConnection | UartConnectionTest
 
@@ -41,17 +41,22 @@ let sw = new SWUpdate()
 
 Base64.extendString()
 
-async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
+async function mainProcessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow){
     sw.uartConnection = uartConnection
     mainWindow.on("blur",()=>{
         
         console.log("focus lose")
-        if(arch == "arm")
-            mainWindow.focus()
-        if(arch == "arm")
-            if(worker.getPrintInfo()[0] == WorkingState.working || worker.getPrintInfo()[0] == WorkingState.pauseWork)
-                worker.error("Error: focus 문제가 발생하였습니다.")
+        // if(arch == "arm")
+        //     mainWindow.focus()
+        // if(arch == "arm")
+        //     if(worker.getPrintInfo()[0] == WorkingState.working || worker.getPrintInfo()[0] == WorkingState.pauseWork)
+        //         worker.error("Error: focus 문제가 발생하였습니다.")
     })
+
+    mainWindow.on("focus",()=>{
+        console.log("focus gain")
+        // if(arch == "arm"))
+    });
     
     webSockect.onMessage = ( message:WebSocketMessage )=>{
         let msg = (message.data) 
@@ -200,4 +205,4 @@ async function mainProsessing(mainWindow:BrowserWindow,imageWindow:BrowserWindow
     updateIpcInit(mainWindow,sw,rc)
 
 }
-export {mainProsessing}
+export {mainProcessing} 

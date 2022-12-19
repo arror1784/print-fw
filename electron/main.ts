@@ -6,7 +6,7 @@ import isDev from 'electron-is-dev';
 
 import { ipcHandle } from './ipc/ipc';
 import { test } from './test';
-import { mainProsessing } from './mainProsess';
+import { mainProcessing } from './mainProcess';
 
 function createWindow() {
     /*
@@ -34,18 +34,9 @@ function createWindow() {
         },
         fullscreen:true
     });
-    if(process.arch == 'arm'){
-        // mainWin.setFullScreen(true)
-        imgWin.close()
-    }else{
-        imgWin.close()
-    }
-    if(process.platform === "win32")
-        imgWin.close()
-    
-    const template : Array<(Electron.MenuItem)> = []; 
-    const menu = Menu.buildFromTemplate(template); 
-    Menu.setApplicationMenu(menu);
+
+    imgWin.close()
+    Menu.setApplicationMenu(null);
     
     /*
     * ELECTRON_START_URL을 직접 제공할경우 해당 URL을 로드합니다.
@@ -93,7 +84,7 @@ function createWindow() {
 
         });
     }
-    mainProsessing(mainWin,imgWin)
+    mainProcessing(mainWin,imgWin)
 }
 
 app.whenReady().then(() => {

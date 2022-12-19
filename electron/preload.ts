@@ -4,7 +4,6 @@ import { FileSystemCH, ProductCH, ResinCH, WorkerCH,WifiCH, UpdateCH } from './i
 import { WifiCallbackType, WifiInfo} from '../cpp/wifiModule';
 import { UpdateNotice } from './update';
 import { MoveMotorCommand } from './printWorker';
-import { fileURLToPath } from 'node:url';
 let _id = 0
 
 interface EventListener{

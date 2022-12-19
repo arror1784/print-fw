@@ -96,7 +96,9 @@ function HeightCalibration(){
                     window.electronAPI.saveHeightOffsetRM(offsetValue)
                     moveMotor(MoveMotorCommand.GoHome,0)
                     setwaitforVisible(true)
-                }}>Save Offset</Button>
+                }}>
+                    Save Offset
+                </Button>
             </Footer>
             <Modal visible={waitforVisible} btnEnable={false} backVisible={false} selectVisible={false}>
                 wait for movement

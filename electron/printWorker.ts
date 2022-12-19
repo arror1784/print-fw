@@ -5,7 +5,6 @@ import { getPrinterSetting } from './json/printerSetting'
 import { ResinSetting, ResinSettingValue } from './json/resin';
 import { InfoSetting, InfoSettingValue } from './json/infoSetting';
 import { Stopwatch } from 'ts-stopwatch'
-import { Worker } from 'worker_threads';
 import { execSync } from 'child_process';
 
 import * as fs from 'fs'
@@ -51,10 +50,6 @@ class PrintWorker{
     private _onSetTotaltime?: (value : number) => void
     
     private _resinName : string= ""
-
-    public get resinName() : string {
-        return this._resinName
-    }
     
     private _resinSetting : ResinSettingValue = {
         upMoveSetting: {
@@ -85,19 +80,26 @@ class PrintWorker{
         layerHeight: 0,
         totalLayer: 0,
     }
+
+    public get resinName() : string {
+        return this._resinName
+    }
+
     get infoSetting() : InfoSettingValue {
         return this._infoSetting;
     }
+
     constructor(private readonly _uartConnection: UartConnection | UartConnectionTest,private readonly _imageProvider: ImageProvider){
 
         _uartConnection.checkConnection()
     }
+    
     getPrintInfo(){ //[state,resinname,filename,layerheight,elapsedtime,totaltime,progress]
         return[this._workingState,this._resinName,this._name,this._infoSetting.layerHeight,this._stopwatch.getTime(),this._totalTime,this._progress,true]
     }
     
-    setLcdState(v : boolean) {
-        this._lcdState = v;
+    setLcdState(state : boolean) {
+        this._lcdState = state;
         if(!this._lcdState){
             this.stop()
         }
@@ -178,12 +180,7 @@ class PrintWorker{
         this.createActions(this._resinSetting,this._infoSetting)
 
         this._uartConnection.init(this._resinSetting)
-
-        this._workingState = WorkingState.working
-        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
-
         this._stopwatch.reset()
-
         this._curingStopwatch.reset()
         this._totalTime = 0
 
@@ -230,11 +227,13 @@ class PrintWorker{
     }
     pause(){
         this._workingState = WorkingState.pauseWork
-        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+        if(this._onWorkingStateChangedCallback) 
+            this._onWorkingStateChangedCallback(this._workingState)
     }
     resume(){
         this._workingState = WorkingState.working
-        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+        if(this._onWorkingStateChangedCallback) 
+            this._onWorkingStateChangedCallback(this._workingState)
         this.process()
     }
     error(message :string){
@@ -243,11 +242,12 @@ class PrintWorker{
 
         this._workingState = WorkingState.error
         this._printingErrorMessage = message
-        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+        if(this._onWorkingStateChangedCallback) 
+            this._onWorkingStateChangedCallback(this._workingState)
 
-        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
+        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork)
             this.process()
-        }
+        
 
     }
     async stop(){
@@ -255,11 +255,12 @@ class PrintWorker{
         this._workingState = WorkingState.stopWork
         this._stopwatch.stop()
 
-        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork){
+        if(prevState != WorkingState.working && prevState != WorkingState.pauseWork)
             this.process()
-        }
+        
 
-        this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+        if(this._onWorkingStateChangedCallback) 
+            this._onWorkingStateChangedCallback(this._workingState)
     }
     printAgain(resin?:ResinSetting){
         this.run(this._name,resin || new ResinSetting(this._resinName))
@@ -279,24 +280,32 @@ class PrintWorker{
                 case WorkingState.pauseWork:
                     this._workingState = WorkingState.pause
                     this._stopwatch.stop()
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    if(this._onWorkingStateChangedCallback)
+                        this._onWorkingStateChangedCallback(this._workingState)
                     return;
                 case WorkingState.stopWork:
                     await this._uartConnection.sendCommandMovePosition(-15000)
                     this._workingState = WorkingState.lock
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(this._workingState)
+                    if(this._onWorkingStateChangedCallback) 
+                        this._onWorkingStateChangedCallback(this._workingState)
                     this._imageProvider.reloadImageProgram()
 
                     return;
                 case WorkingState.error:
-                    this._onWorkingStateChangedCallback && this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
+                    if(this._onWorkingStateChangedCallback)
+                        this._onWorkingStateChangedCallback(WorkingState.error,this._printingErrorMessage)
                     this.stop()
                     return;
+                
+                case WorkingState.working:
+                    console.log("working");
+                    this.error("user caused an error");
                 default:
                     break;
             }
             this._progress = this._currentStep / this._actions.length
-            this._onProgressCallback && this._onProgressCallback(this._progress)
+            if(this._onProgressCallback)
+                this._onProgressCallback(this._progress)
 
             const action = this._actions[this._currentStep]
             console.log("PROCESS WHILE",this._currentStep,action.type)

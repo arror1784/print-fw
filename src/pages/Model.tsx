@@ -83,10 +83,12 @@ function Model(){
                     }}>
                         <ParentDirImg width='20px' src={arrowDirImg}></ParentDirImg>
                     </ParentDirButton>
-                    <CurrentDirText>{
-                        dirPath !== rootPath.current &&
+                    <CurrentDirText>
+                        {
+                            dirPath !== rootPath.current &&
                             dirPath.split('/').pop()
-                    } </CurrentDirText>
+                        } 
+                    </CurrentDirText>
                 </ParentArea>
 
                 <SelectList height={165} selectListModel={fileList} 

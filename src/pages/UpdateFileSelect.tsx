@@ -81,10 +81,9 @@ function UpdateFileSelect(){
                 }}>
                     <ParentDirImg width='20px' src={arrowDirImg}></ParentDirImg>
                 </ParentDirButton>
-                <CurrentDirText>{
-                    dirPath !== rootPath.current &&
-                        dirPath.split('/').pop()
-                } </CurrentDirText>
+                <CurrentDirText>
+                    { dirPath !== rootPath.current && dirPath.split('/').pop()} 
+                </CurrentDirText>
             </ParentArea>
             <SelectList height={165} selectListModel={fileList} 
                 onContainerSelect={(model:SelectListModel) => {
